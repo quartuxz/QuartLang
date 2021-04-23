@@ -139,11 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="QuartLang.cpp" />
     <ClCompile Include="Recognizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Recognizer.h" />
   </ItemGroup>

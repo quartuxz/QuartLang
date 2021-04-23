@@ -18,12 +18,14 @@
       <Filter>core\parser</Filter>
     </ClCompile>
     <ClCompile Include="Recognizer.cpp" />
+    <ClCompile Include="Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Parser.h">
       <Filter>core\parser</Filter>
     </ClInclude>
     <ClInclude Include="Recognizer.h" />
+    <ClInclude Include="Engine.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\..\Desktop\ishleng_protocode.txt" />
