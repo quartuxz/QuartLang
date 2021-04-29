@@ -3,11 +3,17 @@
 #include <iostream>
 #include <string>
 
+#include "Engine.h"
+
 int main()
 {
-    Parser parser;
-    std::string filename;
-    std::cin >> filename;
-    std::cout << "Hello World!\n";
+	Logger logger;
+	Parser parser("Source.txt", &logger);
+	Recognizer recognizer(&parser, &logger);
+	
+	Engine engine(recognizer.getProgram(), &logger);
+	engine.run();
+	std::cout << std::endl;
+	system("pause");
 }
   
