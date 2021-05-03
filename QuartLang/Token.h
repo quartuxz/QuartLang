@@ -12,7 +12,7 @@
 
 
 BEGIN_ENUM(Token) {
-		DECL_ENUM_ELEMENT(lambdaTok),
+	DECL_ENUM_ELEMENT(lambdaTok),
 		DECL_ENUM_ELEMENT(declareTok),
 		DECL_ENUM_ELEMENT(functionTok),
 		DECL_ENUM_ELEMENT(variableTok),
@@ -20,6 +20,7 @@ BEGIN_ENUM(Token) {
 		DECL_ENUM_ELEMENT(floatLiteralTok),
 		DECL_ENUM_ELEMENT(intLiteralTok),
 		DECL_ENUM_ELEMENT(stringLiteralTok),
+		DECL_ENUM_ELEMENT(boolLiteralTok),
 		DECL_ENUM_ELEMENT(callFunctionTok),
 		DECL_ENUM_ELEMENT(passArgTok),
 		DECL_ENUM_ELEMENT(endTok)
