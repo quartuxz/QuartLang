@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-WrongArgsNumberException::WrongArgsNumberException(size_t expected, size_t given):
+WrongArgsNumberException::WrongArgsNumberException(size_t expected, size_t given) :
     m_expected(expected),
     m_given(given)
 {
@@ -13,7 +13,7 @@ WrongArgsNumberException::WrongArgsNumberException(size_t expected, size_t given
 
 const char* WrongArgsNumberException::what() const
 {
-    
+
     return m_whatString.c_str();
 }
 
@@ -22,7 +22,7 @@ std::map<std::string, DataStructure> print_BIF::call(const std::map<std::string,
     if (args.size() > 1) {
         throw WrongArgsNumberException(1, args.size());
     }
-    if (args.at("words").getTypeOrPrimitiveTag() == "string"){
+    if (args.at("words").getTypeOrPrimitiveTag() == "string") {
         std::cout << *((std::string*)args.at("words").getData());
     }
     else if (args.at("words").getTypeOrPrimitiveTag() == "float") {
@@ -30,6 +30,9 @@ std::map<std::string, DataStructure> print_BIF::call(const std::map<std::string,
     }
     else if (args.at("words").getTypeOrPrimitiveTag() == "int") {
         std::cout << *(int*)args.at("words").getData();
+    }
+    else if(args.at("words").getTypeOrPrimitiveTag() == "bool"){
+        std::cout << ((*(bool*)args.at("words").getData())?"true":"false");
     }
 
     return std::map<std::string, DataStructure>();

@@ -102,17 +102,16 @@ void Parser::m_tokenize()
 		if (currentTokenString == "") {
 			break;
 		}
+		//we encounter a string start
 		if (currentTokenString[0] == '\"') {
 			std::stringstream ss;
 			ss << currentTokenString;
 
 			if (currentTokenString.back() != '\"') {
-				std::string nextChunk;
 				do {
-					nextChunk = m_readNextWord();
-
-					ss << nextChunk;
-				}while (nextChunk.back() != '\"');
+					ss << " ";
+					ss << m_readNextWord();
+				}while (ss.str().back() != '\"');
 			}
 			std::string tempStr = ss.str();
 			std::string finalStr(++tempStr.begin(), --tempStr.end());
@@ -132,6 +131,10 @@ void Parser::m_tokenize()
 			if (isInteger) {
 				m_addLiteral(currentTokenString, Token::intLiteralTok);
 			}
+		}
+		//we encounter a boolean
+		else if (currentTokenString == "true" || currentTokenString == "false") {
+			m_addLiteral(currentTokenString, Token::boolLiteralTok);
 		}
 		else {
 			if (m_matches.find(currentTokenString) != m_matches.end()) {
@@ -213,5 +216,5 @@ std::string Parser::getTagString(size_t position)const noexcept
 
 bool tokenIsLiteralOrTag(Token token)
 {
-	return (token == Token::tagTok || token == Token::floatLiteralTok || token == Token::intLiteralTok || token == Token::stringLiteralTok);
+	return (token == Token::tagTok || token == Token::floatLiteralTok || token == Token::intLiteralTok || token == Token::stringLiteralTok || token == Token::boolLiteralTok);
 }

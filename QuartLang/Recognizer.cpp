@@ -120,6 +120,11 @@ DataStructure Recognizer::m_addLiteral(std::string literalStr, Token token)
 		m_program.m_floatLiterals.push_back(std::atof(literalStr.c_str()));
 		data = &m_program.m_floatLiterals.back();
 		break;
+	case Token::boolLiteralTok:
+		type = "bool";
+		m_program.m_boolLiterals.push_back((literalStr == "true"?true:false));
+		data = &m_program.m_boolLiterals.back();;
+		break;
 	default:
 		throw std::invalid_argument("Token is not a literal!");
 		break;

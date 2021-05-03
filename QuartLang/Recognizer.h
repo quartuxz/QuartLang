@@ -105,6 +105,8 @@ private:
 	std::vector<int> m_intLiterals;
 	std::vector<std::string> m_stringLiterals;
 	std::vector<float> m_floatLiterals;
+	//SUGGESTION: PERHAPS IMPLEMENT A BITFIELD HERE
+	std::vector<char> m_boolLiterals;
 public:
 	Program()noexcept;
 

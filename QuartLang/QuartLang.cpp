@@ -8,7 +8,7 @@
 int main()
 {
 	Logger logger;
-	logger.toggleLogging(false);
+	logger.toggleLogging(true);
 	Parser parser("Source.txt", &logger);
 	Recognizer recognizer(&parser, &logger);
 	

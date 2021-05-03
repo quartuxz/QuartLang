@@ -1,6 +1,6 @@
 
 
 
-call print giving "hello" as words 
+call print giving "asd" as words 
 
 
