@@ -36,6 +36,7 @@ private:
 
 	std::string m_readNextWord(char separatingToken = ' ');
 
+	void m_addLiteral(const std::string& contents, Token type);
 
 	//reads and saves a file to the text buffer for tokenizing.
 	void m_bindFile(std::string fileName);

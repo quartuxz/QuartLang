@@ -3,6 +3,8 @@
 #include <fstream>
 #include <streambuf>
 #include <sstream>
+#include <ctype.h>
+#include <locale>
 
 #include "Parser.h"
 
@@ -33,7 +35,9 @@ const std::map<std::string, Token> Parser::m_matches = {
 
 
 
-Parser::Parser(std::string filename, Logger *log,bool isFileTrueIsCodeFalse) {
+Parser::Parser(std::string filename, Logger *logger,bool isFileTrueIsCodeFalse):
+	m_logger(logger)
+{
 
 	if (isFileTrueIsCodeFalse) {
 		m_bindFile(filename);
@@ -44,7 +48,7 @@ Parser::Parser(std::string filename, Logger *log,bool isFileTrueIsCodeFalse) {
 	m_tokenize();
 #ifdef MUST_LOG
 	
-	log->log("Parser",m_text);
+	logger->log("Parser",m_text);
 
 	
 	std::stringstream sstream;
@@ -54,13 +58,13 @@ Parser::Parser(std::string filename, Logger *log,bool isFileTrueIsCodeFalse) {
 		sstream << GetStringToken(m_tokens[i]) << " ";
 	}
 	sstream << "\n" << "\n";
-	log->log("Parser",sstream.str());
+	logger->log("Parser",sstream.str());
 
 	for (auto x:m_literals) {
-		log->log("Parser, literals",x.second);
+		logger->log("Parser, literals",x.second);
 	}
 	for (auto x:m_tags) {
-		log->log("Parser, tags",x.second);
+		logger->log("Parser, tags",x.second);
 	}
 
 #endif
@@ -110,13 +114,32 @@ void Parser::m_tokenize()
 					ss << nextChunk;
 				}while (nextChunk.back() != '\"');
 			}
-
-			m_literals[m_tokens.size()] = ss.str();
-			m_tokens.push_back(Token::stringLiteralTok);
+			std::string tempStr = ss.str();
+			std::string finalStr(++tempStr.begin(), --tempStr.end());
+			m_addLiteral(finalStr, Token::stringLiteralTok);
+		}
+		//finding a integer or a floating point
+		else if (isdigit(currentTokenString[0])) {
+			m_logger->log("Parser",currentTokenString);
+			bool isInteger = true;
+			for (auto x: currentTokenString) {
+				if (x == '.') {
+					isInteger = false;
+					m_addLiteral(currentTokenString, Token::floatLiteralTok);
+					break;
+				}
+			}
+			if (isInteger) {
+				m_addLiteral(currentTokenString, Token::intLiteralTok);
+			}
 		}
 		else {
 			if (m_matches.find(currentTokenString) != m_matches.end()) {
-				m_tokens.push_back(m_matches.at(currentTokenString));
+				Token tok = m_matches.at(currentTokenString);
+				if (tok != Token::lambdaTok) {
+					m_tokens.push_back(m_matches.at(currentTokenString));
+				}
+				
 			}
 			//if the token is not in the list, it is a tag
 			else {
@@ -128,36 +151,13 @@ void Parser::m_tokenize()
 		m_logger->log("Parser internals", currentTokenString);
 	}
 	
-	m_tokens.push_back(Token::endTok);
-	return;
 
-
-	//DEPRECATED CODE TO REMOVE LAMBDAS(NEED TO FIX INDICES FOR LITERALS AND TAGS)
-	//CLEARLY THE LOOP IS NOT WORKO
-	//this loop breaks every structured programming principle.
-	while (!m_tokens.empty()) {
-		bool shallContinue = false;
-		//we clean the tokens from any lambdaTokens if there are any other tokens other than lambda
-		for (auto iter = m_tokens.begin(); iter != m_tokens.end(); ++iter) {
-			//we delete the lambda token, checking also if all are lambda tokens, so that we can
-			//compress/combine them into a single one.
-			if ((*iter) == Token::lambdaTok) {
-				m_tokens.erase(iter);
-				shallContinue = true;
-				break;
-			}
-		}
-		if (shallContinue) {
-			continue;
-		}
-		break;
-	}
 
 	//we insert a lambda token to signify an empty word for the whole program.
 	if (m_tokens.empty()) {
 		m_tokens.push_back(Token::lambdaTok);
 	}
-
+	m_tokens.push_back(Token::endTok);
 }
 
 std::string Parser::m_readNextWord(char separatingToken)
@@ -188,6 +188,12 @@ std::string Parser::m_readNextWord(char separatingToken)
 Token Parser::getNextToken() const noexcept
 {
 	return m_tokens[m_currentToken++];
+}
+
+void Parser::m_addLiteral(const std::string &contents, Token type)
+{
+	m_literals[m_tokens.size()] = contents;
+	m_tokens.push_back(type);
 }
 
 std::string Parser::getLiteral(size_t position) const noexcept

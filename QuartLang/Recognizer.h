@@ -74,15 +74,16 @@ protected:
 	//the table of contents, sorted by order of appearance
 	std::vector<programContent> m_contents;
 	//we create the maps for every statement type, allowing access with an orderedID
-	std::map<size_t, variableDeclaration> m_variables;
-	std::map<size_t, functionCall> m_functionCalls;
+	//all of these are allocated dynamically
+	std::map<size_t, variableDeclaration*> m_variables;
+	std::map<size_t, functionCall*> m_functionCalls;
 	std::map<size_t, Subprogram*> m_subprograms;
 public:
 	Subprogram(size_t orderedID, subprogramType type)noexcept;
 	void addSubprogram(const Subprogram &subprogram);
 
 	std::string getTag()const noexcept;
-	
+
 
 	
 

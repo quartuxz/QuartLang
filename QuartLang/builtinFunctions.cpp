@@ -22,7 +22,15 @@ std::map<std::string, DataStructure> print_BIF::call(const std::map<std::string,
     if (args.size() > 1) {
         throw WrongArgsNumberException(1, args.size());
     }
-    std::cout << "asdasd";
-    std::cout << (const char*)args.at("words").getData();
+    if (args.at("words").getTypeOrPrimitiveTag() == "string"){
+        std::cout << *((std::string*)args.at("words").getData());
+    }
+    else if (args.at("words").getTypeOrPrimitiveTag() == "float") {
+        std::cout << *(float*)args.at("words").getData();
+    }
+    else if (args.at("words").getTypeOrPrimitiveTag() == "int") {
+        std::cout << *(int*)args.at("words").getData();
+    }
+
     return std::map<std::string, DataStructure>();
 }
