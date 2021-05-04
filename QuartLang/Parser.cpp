@@ -199,7 +199,7 @@ void Parser::m_addLiteral(const std::string &contents, Token type)
 	m_tokens.push_back(type);
 }
 
-std::string Parser::getLiteral(size_t position) const noexcept
+std::string Parser::getLiteral(size_t position) const
 {
 	return m_literals.at(position);
 }
@@ -214,7 +214,7 @@ std::string Parser::getTagStringTokPosMinus() const
 	return m_tags.at(m_currentToken-1);
 }
 
-size_t Parser::getCurrentTokenPosition() const
+size_t Parser::getCurrentTokenPosition() const noexcept
 {
 	return m_currentToken;
 }

@@ -26,10 +26,10 @@ void Recognizer::m_makeProgram()
 				stt.isStatement = true;
 				stt.orderedID = currentStructure;
 				stt.type = statementType::variableDeclarationSttt;
-				variableDeclaration var(currentStructure,);
+				//variableDeclaration var(currentStructure,);
 
 				currentProgram->m_contents.push_back(stt);
-				currentProgram->m_variables[currentStructure] = ;
+				//currentProgram->m_variables[currentStructure] = ;
 			}
 				break;
 			default:
