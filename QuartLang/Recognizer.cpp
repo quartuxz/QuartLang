@@ -21,6 +21,16 @@ void Recognizer::m_makeProgram()
 			switch (currentToken)
 			{
 			case Token::variableTok:
+			{
+				programContent stt;
+				stt.isStatement = true;
+				stt.orderedID = currentStructure;
+				stt.type = statementType::variableDeclarationSttt;
+				variableDeclaration var(currentStructure,);
+
+				currentProgram->m_contents.push_back(stt);
+				currentProgram->m_variables[currentStructure] = ;
+			}
 				break;
 			default:
 				break;
@@ -33,6 +43,8 @@ void Recognizer::m_makeProgram()
 			stt.isStatement = true;
 			stt.orderedID = currentStructure;
 			stt.type = statementType::functionCallSttt;
+			
+			size_t numberOfVariableArgs = 0;
 			currentProgram->m_contents.push_back(stt);
 			size_t functionTagTokenPos = m_parser->getCurrentTokenPosition();
 			m_logger->log("Recognizer", m_parser->getTagString(m_parser->getCurrentTokenPosition()));
@@ -47,11 +59,12 @@ void Recognizer::m_makeProgram()
 				if (it % 2 == 0) {
 					//we detect a variable
 					if (currentToken == Token::tagTok) {
-
+						numberOfVariableArgs++;
+						dat = m_program.m_addTag(m_parser->getTagStringTokPosMinus());
 					}
 					//we detect a literal
 					else {
-						dat = m_addLiteral(m_parser->getLiteral(m_parser->getCurrentTokenPosition()-1), currentToken);
+						dat = m_program.m_addLiteral(m_parser->getLiteral(m_parser->getCurrentTokenPosition()-1), currentToken);
 						m_logger->log("Recognizer, Literal", m_parser->getLiteral(m_parser->getCurrentTokenPosition()-1));
 						
 					}
@@ -97,7 +110,7 @@ const Program* Recognizer::getProgram() const noexcept
 }
 
 //IMPLEMENT THIS FULLY
-DataStructure Recognizer::m_addLiteral(std::string literalStr, Token token)
+DataStructure Program::m_addLiteral(std::string literalStr, Token token)
 {
 	
 	void* data = nullptr;
@@ -107,29 +120,35 @@ DataStructure Recognizer::m_addLiteral(std::string literalStr, Token token)
 	{
 	case Token::stringLiteralTok:
 		type = "string";
-		m_program.m_stringLiterals.push_back(literalStr);
-		data = &m_program.m_stringLiterals.back();
+		m_stringLiterals.push_back(literalStr);
+		data = &m_stringLiterals.back();
 		break;
 	case Token::intLiteralTok:
 		type = "int";
-		m_program.m_intLiterals.push_back(std::atoi(literalStr.c_str()));
-		data = &m_program.m_intLiterals.back();
+		m_intLiterals.push_back(std::atoi(literalStr.c_str()));
+		data = &m_intLiterals.back();
 		break;
 	case Token::floatLiteralTok:
 		type = "float";
-		m_program.m_floatLiterals.push_back(std::atof(literalStr.c_str()));
-		data = &m_program.m_floatLiterals.back();
+		m_floatLiterals.push_back(std::atof(literalStr.c_str()));
+		data = &m_floatLiterals.back();
 		break;
 	case Token::boolLiteralTok:
 		type = "bool";
-		m_program.m_boolLiterals.push_back((literalStr == "true"?true:false));
-		data = &m_program.m_boolLiterals.back();;
+		m_boolLiterals.push_back((literalStr == "true"?true:false));
+		data = &m_boolLiterals.back();;
 		break;
 	default:
 		throw std::invalid_argument("Token is not a literal!");
 		break;
 	}
 	return DataStructure(type,std::map<std::string, DataStructure*>(), data);
+}
+
+DataStructure Program::m_addTag(std::string tagStr)
+{
+	m_tags.push_back(tagStr);
+	return DataStructure("tagString", std::map<std::string,DataStructure*>(),&m_tags.back());
 }
 
 Subprogram::Subprogram(size_t orderedID, subprogramType type) noexcept:
@@ -195,16 +214,20 @@ Program::Program() noexcept:
 
 }
 
-variableDeclaration::variableDeclaration(size_t orderedID) noexcept:
-	ProgramStructure<statementType>(orderedID, statementType::variableDeclarationSttt)
+variableDeclaration::variableDeclaration(size_t orderedID, const std::string& tag, const DataStructure& data) noexcept:
+	ProgramStructure<statementType>(orderedID, statementType::variableDeclarationSttt), 
+	m_tag(tag), 
+	m_data(data)
 {
+
 }
 
-functionCall::functionCall(size_t orderedID, std::string functionCalledTag, std::map<std::string, DataStructure> args):
-	ProgramStructure<statementType>(orderedID, statementType::functionCallSttt)
+functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, DataStructure>& args, size_t variableArgsNum):
+	ProgramStructure<statementType>(orderedID, statementType::functionCallSttt), 
+	m_functionCalledTag(functionCalledTag),
+	m_args(args),
+	m_variableArgsNum(variableArgsNum)
 {
-	m_functionCalledTag = functionCalledTag;
-	m_args = args;
 }
 
 functionCall::functionCall():

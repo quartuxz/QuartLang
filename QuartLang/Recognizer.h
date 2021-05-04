@@ -43,17 +43,18 @@ public:
 class variableDeclaration : public ProgramStructure<statementType> {
 private:
 	std::string m_tag;
-	
+	DataStructure m_data;
 public:
-	variableDeclaration(size_t orderedID)noexcept;
+	variableDeclaration(size_t orderedID, const std::string& tag, const DataStructure& data)noexcept;
 };
 
 class functionCall : public ProgramStructure<statementType> {
 private:
 	std::string m_functionCalledTag;
 	std::map<std::string, DataStructure> m_args;
+	size_t m_variableArgsNum = 0;
 public:
-	functionCall(size_t orderedID, std::string functionCalledTag, std::map<std::string,DataStructure> args);
+	functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string,DataStructure>& args, size_t variableArgsNum = 0);
 	functionCall();
 	std::string getFunctionCalledTag()const noexcept;
 	std::map<std::string, DataStructure> getArgs()const noexcept;
@@ -105,12 +106,15 @@ private:
 	std::vector<int> m_intLiterals;
 	std::vector<std::string> m_stringLiterals;
 	std::vector<float> m_floatLiterals;
-	//SUGGESTION: PERHAPS IMPLEMENT A BITFIELD HERE
 	std::vector<char> m_boolLiterals;
+	std::vector<std::string> m_tags;
+
+	DataStructure m_addLiteral(std::string literalStr, Token token);
+	DataStructure m_addTag(std::string tagStr);
 public:
 	Program()noexcept;
 
-
+	
 	builtinFunction* getIncludedBuiltin(std::string m_name)const;
 
 	~Program();
@@ -128,9 +132,6 @@ private:
 
 
 	size_t m_entryPoint;
-
-
-	DataStructure m_addLiteral(std::string literalStr, Token token);
 
 	void m_makeProgram();
 public:

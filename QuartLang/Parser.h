@@ -56,8 +56,12 @@ public:
 	size_t getCurrentTokenPosition()const noexcept;
 
 
-	std::string getLiteral(size_t position)const noexcept;
-	std::string getTagString(size_t position)const noexcept;
+	std::string getLiteral(size_t position)const;
+
+	std::string getLiteralTokPosMinus()const;
+	std::string getTagStringTokPosMinus()const;
+
+	std::string getTagString(size_t position)const;
 	
 };
 

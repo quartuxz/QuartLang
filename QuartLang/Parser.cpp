@@ -204,12 +204,22 @@ std::string Parser::getLiteral(size_t position) const noexcept
 	return m_literals.at(position);
 }
 
-size_t Parser::getCurrentTokenPosition() const noexcept
+std::string Parser::getLiteralTokPosMinus() const
+{
+	return m_literals.at(m_currentToken-1);
+}
+
+std::string Parser::getTagStringTokPosMinus() const
+{
+	return m_tags.at(m_currentToken-1);
+}
+
+size_t Parser::getCurrentTokenPosition() const
 {
 	return m_currentToken;
 }
 
-std::string Parser::getTagString(size_t position)const noexcept
+std::string Parser::getTagString(size_t position)const
 {
 	return m_tags.at(position);
 }
