@@ -9,7 +9,7 @@
 
 #define SUBPROGRAM_TYPE_ENUM(extra) extra baseBlock, functionBlock, ifBlock, classBlock
 #define BLOCKIFY(x) {x}
-#define STATEMENT_TYPE_ENUM variableDeclarationSttt, arithmeticOperationSttt, functionCallSttt
+#define STATEMENT_TYPE_ENUM variableDeclarationSttt, arithmeticOperationSttt, functionCallSttt, setOperationSttt
 #define ADD_COMMA(x) x##,
 
 enum class subprogramType BLOCKIFY(SUBPROGRAM_TYPE_ENUM());
@@ -46,6 +46,9 @@ private:
 	DataStructure m_data;
 public:
 	variableDeclaration(size_t orderedID, const std::string& tag, const DataStructure& data)noexcept;
+	std::string getTag();
+	DataStructure* getData();
+	void setData(const DataStructure& data)noexcept;
 };
 
 class functionCall : public ProgramStructure<statementType> {
@@ -56,8 +59,33 @@ private:
 public:
 	functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string,DataStructure>& args, size_t variableArgsNum = 0);
 	functionCall();
+	size_t getVariableArgsNum()const noexcept;
 	std::string getFunctionCalledTag()const noexcept;
-	std::map<std::string, DataStructure> getArgs()const noexcept;
+	const std::map<std::string, DataStructure> &getArgs()const noexcept;
+};
+
+enum class setType {
+	toLiteral,
+	toResult,
+	toVariable
+};
+
+class setOperation : public ProgramStructure<statementType> {
+private:
+	setType m_setType;
+	std::string m_settedName;
+	std::string m_toVarName;
+	DataStructure m_toLiteralData;
+public:
+	setOperation(size_t orderedID, const std::string& settedName, const std::string& toVarName);
+	setOperation(size_t orderedID, const std::string& settedName, const DataStructure& toLiteralData);
+	setOperation(size_t orderedID, const std::string& settedName);
+
+	setType getSetType()const noexcept;
+	std::string getSettedName()const noexcept;
+	std::string getToVarName()const noexcept;
+	const DataStructure& getToLiteralData();
+
 };
 
 struct programContent {
@@ -77,7 +105,9 @@ protected:
 	//we create the maps for every statement type, allowing access with an orderedID
 	//all of these are allocated dynamically
 	std::map<size_t, variableDeclaration*> m_variables;
+	std::map<std::string, size_t> m_variableTags;
 	std::map<size_t, functionCall*> m_functionCalls;
+	std::map<size_t, setOperation*> m_setOperations;
 	std::map<size_t, Subprogram*> m_subprograms;
 public:
 	Subprogram(size_t orderedID, subprogramType type)noexcept;
@@ -86,7 +116,15 @@ public:
 	std::string getTag()const noexcept;
 
 
-	
+
+	variableDeclaration* getVariableUpwards(const std::string& tag, size_t upwardsFrom);
+
+
+	bool checkVariableTagExists(const std::string& tag)const noexcept;
+	variableDeclaration *getVariable(const std::string& tag);
+	variableDeclaration* getVariable(size_t orderedID);
+	setOperation *getSetOperation(size_t orderedID);
+
 
 	//all the accessors for statements
 	const functionCall* getFunctionCall(size_t orderedID)const;
@@ -138,4 +176,5 @@ public:
 	Recognizer(Parser* parser, Logger *logger);
 
 	const Program *getProgram()const noexcept;
+	Program *getProgram()noexcept;
 };

@@ -13,6 +13,33 @@ void Recognizer::m_makeProgram()
 	while (currentToken != Token::endTok) {
 		switch (currentToken)
 		{
+		case Token::setTok:
+		{
+
+			
+			currentToken = m_parser->getNextToken();
+			std::string varTag = m_parser->getTagStringTokPosMinus();
+			currentToken = m_parser->getNextToken();
+
+
+			switch (currentToken) {
+			case Token::tagTok:
+				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure,varTag,m_parser->getTagStringTokPosMinus());
+				break;
+			case Token::resultToken:
+				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure, varTag);
+				break;
+			default:
+				break;
+			}
+
+			if (tokenIsLiteral(currentToken)) {
+				currentProgram->m_setOperations[currentStructure] =new setOperation(currentStructure, varTag,m_program.m_addLiteral(m_parser->getLiteralTokPosMinus(),currentToken));
+			}
+
+			setOperation setOp(currentStructure, varTag);
+			break;
+		}
 		case Token::lambdaTok:
 			currentToken = m_parser->getNextToken();
 			break;
@@ -64,7 +91,7 @@ void Recognizer::m_makeProgram()
 					}
 					//we detect a literal
 					else {
-						dat = m_program.m_addLiteral(m_parser->getLiteral(m_parser->getCurrentTokenPosition()-1), currentToken);
+						dat = m_program.m_addLiteral(m_parser->getLiteralTokPosMinus(), currentToken);
 						m_logger->log("Recognizer, Literal", m_parser->getLiteral(m_parser->getCurrentTokenPosition()-1));
 						
 					}
@@ -72,8 +99,8 @@ void Recognizer::m_makeProgram()
 				//then we parse the place where it is put
 				else {
 					//we populate the args
-					args[m_parser->getTagString(m_parser->getCurrentTokenPosition()-1)] = dat;
-					m_logger->log("Recognizer, Tag", m_parser->getTagString(m_parser->getCurrentTokenPosition()-1));
+					args[m_parser->getTagStringTokPosMinus()] = dat;
+					m_logger->log("Recognizer, Tag", m_parser->getTagStringTokPosMinus());
 				}
 				it++;
 				currentToken = m_parser->getNextToken();
@@ -81,7 +108,7 @@ void Recognizer::m_makeProgram()
 			}
 			m_logger->log("Recognizer", m_parser->getTagString(functionTagTokenPos));
 			//we insert a function call at the specified orderer place
-			currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, m_parser->getTagString(functionTagTokenPos), args);
+			currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, m_parser->getTagString(functionTagTokenPos), args, numberOfVariableArgs);
 			m_logger->log("Recognizer, FunctionTag", currentProgram->m_functionCalls[currentStructure]->getFunctionCalledTag());
 		}
 			break;
@@ -105,6 +132,11 @@ Recognizer::Recognizer(Parser* parser, Logger *logger):
 }
 
 const Program* Recognizer::getProgram() const noexcept
+{
+	return &m_program;
+}
+
+Program* Recognizer::getProgram() noexcept
 {
 	return &m_program;
 }
@@ -165,6 +197,43 @@ std::string Subprogram::getTag() const noexcept
 	return m_tag;
 }
 
+variableDeclaration* Subprogram::getVariableUpwards(const std::string&tag, size_t upwardsFrom)
+{
+	bool varMatches = false;
+	if(checkVariableTagExists(tag)){
+		variableDeclaration* var = getVariable(tag);
+		if (upwardsFrom > var->getOrderedID()) {
+			return var;
+		}
+	}
+
+	if (m_parent != nullptr) {
+		return m_parent->getVariableUpwards(tag, upwardsFrom);
+	}
+
+	return nullptr;
+}
+
+bool Subprogram::checkVariableTagExists(const std::string& tag)const noexcept
+{
+	return m_variableTags.find(tag) != m_variableTags.end();
+}
+
+variableDeclaration* Subprogram::getVariable(const std::string &tag)
+{
+	return m_variables[m_variableTags[tag]];
+}
+
+variableDeclaration* Subprogram::getVariable(size_t orderedID)
+{
+	return m_variables[orderedID];
+}
+
+setOperation* Subprogram::getSetOperation(size_t orderedID)
+{
+	return m_setOperations[orderedID];
+}
+
 std::vector<programContent> Subprogram::getContent() const noexcept
 {
 	return m_contents;
@@ -178,6 +247,10 @@ Subprogram::~Subprogram()
 	}
 
 	for (auto x:m_functionCalls) {
+		delete x.second;
+	}
+
+	for (auto x:m_setOperations) {
 		delete x.second;
 	}
 	
@@ -222,6 +295,21 @@ variableDeclaration::variableDeclaration(size_t orderedID, const std::string& ta
 
 }
 
+std::string variableDeclaration::getTag()
+{
+	return m_tag;
+}
+
+DataStructure *variableDeclaration::getData()
+{
+	return &m_data;
+}
+
+void variableDeclaration::setData(const DataStructure& data)noexcept
+{
+	m_data = data;
+}
+
 functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, DataStructure>& args, size_t variableArgsNum):
 	ProgramStructure<statementType>(orderedID, statementType::functionCallSttt), 
 	m_functionCalledTag(functionCalledTag),
@@ -235,14 +323,62 @@ functionCall::functionCall():
 {
 }
 
+size_t functionCall::getVariableArgsNum() const noexcept
+{
+	return m_variableArgsNum;
+}
+
 std::string functionCall::getFunctionCalledTag() const noexcept
 {
 	return m_functionCalledTag;
 }
 
 
-std::map<std::string, DataStructure> functionCall::getArgs() const noexcept
+const std::map<std::string, DataStructure> &functionCall::getArgs() const noexcept
 {
 	return m_args;
+}
+
+setOperation::setOperation(size_t orderedID, const std::string& settedName, const std::string& toVarName):
+	ProgramStructure<statementType>(orderedID, statementType::setOperationSttt),
+	m_settedName(settedName),
+	m_toVarName(toVarName),
+	m_setType(setType::toVariable)
+{
+}
+
+setOperation::setOperation(size_t orderedID, const std::string& settedName, const DataStructure& toLiteralData):
+	ProgramStructure<statementType>(orderedID, statementType::setOperationSttt),
+	m_settedName(settedName),
+	m_toLiteralData(toLiteralData),
+	m_setType(setType::toLiteral)
+{
+}
+
+setOperation::setOperation(size_t orderedID, const std::string& settedName):
+ProgramStructure<statementType>(orderedID, statementType::setOperationSttt),
+m_setType(setType::toResult)
+
+{
+}
+
+setType setOperation::getSetType() const noexcept
+{
+	return m_setType;
+}
+
+std::string setOperation::getSettedName() const noexcept
+{
+	return m_settedName;
+}
+
+std::string setOperation::getToVarName() const noexcept
+{
+	return m_toVarName;
+}
+
+const DataStructure& setOperation::getToLiteralData()
+{
+	return m_toLiteralData;
 }
 

@@ -22,12 +22,15 @@ const std::map<std::string, Token> Parser::m_matches = {
 	{"for", Token::lambdaTok},
 	{"execution", Token::lambdaTok},
 	{"giving", Token::lambdaTok},
+	{"then", Token::lambdaTok},
 
 
 	//then we define all other tokens
 	{"declare", Token::declareTok},
-	{"call", Token::callFunctionTok}
-
+	{"call", Token::callFunctionTok},
+	{"variable", Token::variableTok},
+	{"set", Token::setTok},
+	{"result", Token::resultToken}
 
 
 
@@ -76,16 +79,37 @@ void Parser::m_bindFile(std::string fileName)
 	std::string str((std::istreambuf_iterator<char>(t)),
 	std::istreambuf_iterator<char>());
 	//we remove newlines and excess whitespaces
-	bool wasWhiteSpace = false;
-	for (size_t i = 0; i < str.size(); i++) {
 
-		if (str[i] != '\n' && !(str[i] == ' ' && wasWhiteSpace)) {
-			m_text.push_back(str[i]);
+
+
+	std::string noNewLines;
+	for (size_t i = 0; i < str.size();i++) {
+		if (str[i] == '\n') {
+			noNewLines.push_back(' ');
+		}
+		else {
+			noNewLines.push_back(str[i]);
+		}
+	}
+	bool wasWhiteSpace = false;
+	for (size_t i = 0; i < noNewLines.size(); i++) {
+
+
+		if (!(noNewLines[i] == ' ' && wasWhiteSpace)) {
+
+			m_text.push_back(noNewLines[i]);
 		}
 
-		if (str[i] != ' ') {
+		if (wasWhiteSpace) {
 			wasWhiteSpace = false;
 		}
+
+		if (noNewLines[i] == ' ') {
+			wasWhiteSpace = true;
+		}
+	}
+	if (m_text[0] == ' ') {
+		m_text = std::string(++m_text.begin(),m_text.end());
 	}
 	m_text.push_back(' ');
 }
@@ -226,5 +250,10 @@ std::string Parser::getTagString(size_t position)const
 
 bool tokenIsLiteralOrTag(Token token)
 {
-	return (token == Token::tagTok || token == Token::floatLiteralTok || token == Token::intLiteralTok || token == Token::stringLiteralTok || token == Token::boolLiteralTok);
+	return (token == Token::tagTok || tokenIsLiteral(token));
+}
+
+bool tokenIsLiteral(Token token)
+{
+	return (token == Token::floatLiteralTok || token == Token::intLiteralTok || token == Token::stringLiteralTok || token == Token::boolLiteralTok);
 }

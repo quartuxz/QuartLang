@@ -11,6 +11,12 @@
     <Filter Include="core\parser">
       <UniqueIdentifier>{7df99fc3-2354-440c-805f-c1d1a39f7a38}</UniqueIdentifier>
     </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{d0de992d-18a6-4b76-9e6d-c1f2cbf1180b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests\source">
+      <UniqueIdentifier>{88265022-aa07-4e44-a6f1-3c97885a3a18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuartLang.cpp" />

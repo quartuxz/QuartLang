@@ -1,6 +1,8 @@
 
+declare variable var1
+set var1 to 100
 
 
-call print giving "asd" as words 
+call print giving "hello" as words 
 
 

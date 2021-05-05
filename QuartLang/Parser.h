@@ -12,6 +12,8 @@
 
 
 bool tokenIsLiteralOrTag(Token token);
+bool tokenIsLiteral(Token token);
+
 
 
 //Only parses the files, it does not verify a grammar.

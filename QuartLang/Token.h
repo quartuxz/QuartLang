@@ -25,6 +25,7 @@ BEGIN_ENUM(Token) {
 		DECL_ENUM_ELEMENT(passArgTok),
 		DECL_ENUM_ELEMENT(thenTok),
 		DECL_ENUM_ELEMENT(setTok),
+		DECL_ENUM_ELEMENT(resultToken),
 		DECL_ENUM_ELEMENT(endTok)
 }; END_ENUM(Token)
 
