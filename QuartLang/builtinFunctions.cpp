@@ -1,6 +1,7 @@
 #include "builtinFunctions.h"
 #include <sstream>
 #include <iostream>
+#include "tests.h"
 
 WrongArgsNumberException::WrongArgsNumberException(size_t expected, size_t given) :
     m_expected(expected),
@@ -17,23 +18,28 @@ const char* WrongArgsNumberException::what() const
     return m_whatString.c_str();
 }
 
-std::map<std::string, DataStructure> print_BIF::call(const std::map<std::string, DataStructure>& args)
+#ifdef MUST_TEST_ISHLENG
+#define OUTPUT_STREAM_TEST_OR_REAL_ISHLENG testOutput
+#else
+#define OUTPUT_STREAM_TEST_OR_REAL_ISHLENG std::cout
+#endif
+
+std::map<std::string, DataStructure*> print_BIF::call(const std::map<std::string, DataStructure*>& args)
 {
     if (args.size() > 1) {
         throw WrongArgsNumberException(1, args.size());
     }
-    if (args.at("words").getTypeOrPrimitiveTag() == "string") {
-        std::cout << *((std::string*)args.at("words").getData());
+    if (args.at("words")->getTypeOrPrimitiveTag() == "string") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << *((std::string*)args.at("words")->getData());
     }
-    else if (args.at("words").getTypeOrPrimitiveTag() == "float") {
-        std::cout << *(float*)args.at("words").getData();
+    else if (args.at("words")->getTypeOrPrimitiveTag() == "float") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << *(float*)args.at("words")->getData();
     }
-    else if (args.at("words").getTypeOrPrimitiveTag() == "int") {
-        std::cout << *(int*)args.at("words").getData();
+    else if (args.at("words")->getTypeOrPrimitiveTag() == "int") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << *(int*)args.at("words")->getData();
     }
-    else if(args.at("words").getTypeOrPrimitiveTag() == "bool"){
-        std::cout << ((*(bool*)args.at("words").getData())?"true":"false");
+    else if(args.at("words")->getTypeOrPrimitiveTag() == "bool"){
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << ((*(bool*)args.at("words")->getData())?"true":"false");
     }
-
-    return std::map<std::string, DataStructure>();
+    return std::map<std::string, DataStructure*>();
 }

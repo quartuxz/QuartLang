@@ -8,10 +8,6 @@ DataStructure::DataStructure(const std::string &typeOrPrimitiveTag, const std::m
 {
 }
 
-DataStructure::DataStructure()
-{
-}
-
 void* DataStructure::getData() const noexcept
 {
 	return m_data;

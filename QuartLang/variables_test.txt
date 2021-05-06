@@ -1,8 +1,5 @@
-
 declare variable var1
 set var1 to 7.6
 
 
 call print giving var1 as words 
-
-

@@ -49,7 +49,7 @@ Parser::Parser(std::string filename, Logger *logger,bool isFileTrueIsCodeFalse):
 		m_text = filename;
 	}
 	m_tokenize();
-#ifdef MUST_LOG
+#ifdef MUST_LOG_ISHLENG
 	
 	logger->log("Parser",m_text);
 

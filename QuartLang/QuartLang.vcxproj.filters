@@ -11,11 +11,23 @@
     <Filter Include="core\parser">
       <UniqueIdentifier>{7df99fc3-2354-440c-805f-c1d1a39f7a38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tests">
+    <Filter Include="design docs">
+      <UniqueIdentifier>{8034c7ba-d03f-4bd0-a015-6cb45fe21c3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Recognizer">
+      <UniqueIdentifier>{1843b207-2c05-4ec9-b72e-39f9e345a0ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Engine">
+      <UniqueIdentifier>{6210d654-b70a-4381-ad8c-f7ea8fe984d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="program-wide tests">
       <UniqueIdentifier>{d0de992d-18a6-4b76-9e6d-c1f2cbf1180b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tests\source">
+    <Filter Include="program-wide tests\source">
       <UniqueIdentifier>{88265022-aa07-4e44-a6f1-3c97885a3a18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\program structures">
+      <UniqueIdentifier>{a2b33d14-b6e6-4fff-9169-5a0d69593c1f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -23,27 +35,82 @@
     <ClCompile Include="Parser.cpp">
       <Filter>core\parser</Filter>
     </ClCompile>
-    <ClCompile Include="Recognizer.cpp" />
-    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="DataStructure.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="builtinFunctions.cpp" />
     <ClCompile Include="EnumToString.cpp" />
+    <ClCompile Include="Recognizer.cpp">
+      <Filter>core\Recognizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="wide_tests.cpp">
+      <Filter>program-wide tests</Filter>
+    </ClCompile>
+    <ClCompile Include="tests.cpp">
+      <Filter>program-wide tests</Filter>
+    </ClCompile>
+    <ClCompile Include="allTests.cpp">
+      <Filter>program-wide tests</Filter>
+    </ClCompile>
+    <ClCompile Include="statements.cpp">
+      <Filter>core\program structures</Filter>
+    </ClCompile>
+    <ClCompile Include="programs.cpp">
+      <Filter>core\program structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Parser.h">
       <Filter>core\parser</Filter>
     </ClInclude>
-    <ClInclude Include="Recognizer.h" />
-    <ClInclude Include="Engine.h" />
     <ClInclude Include="DataStructure.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="builtinFunctions.h" />
     <ClInclude Include="EnumToString.h" />
     <ClInclude Include="Token.h" />
+    <ClInclude Include="Recognizer.h">
+      <Filter>core\Recognizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="wide_tests.h">
+      <Filter>program-wide tests</Filter>
+    </ClInclude>
+    <ClInclude Include="tests.h">
+      <Filter>program-wide tests</Filter>
+    </ClInclude>
+    <ClInclude Include="allTests.h">
+      <Filter>program-wide tests</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramStructure.h">
+      <Filter>core\program structures</Filter>
+    </ClInclude>
+    <ClInclude Include="statements.h">
+      <Filter>core\program structures</Filter>
+    </ClInclude>
+    <ClInclude Include="programs.h">
+      <Filter>core\program structures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\..\Desktop\ishleng_protocode.txt" />
     <Text Include="Source.txt" />
+    <Text Include="TODO.txt">
+      <Filter>design docs</Filter>
+    </Text>
+    <Text Include="README.txt">
+      <Filter>design docs</Filter>
+    </Text>
+    <Text Include="..\..\..\..\Desktop\ishleng_protocode.txt">
+      <Filter>design docs</Filter>
+    </Text>
+    <Text Include="hello_world_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="variables_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
   </ItemGroup>
 </Project>

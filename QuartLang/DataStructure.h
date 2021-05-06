@@ -11,9 +11,7 @@ private:
 	//subobjects addressed by names
 	std::map<std::string, DataStructure*> m_subobjects = std::map<std::string, DataStructure*>();
 public:
-	DataStructure(const std::string &typeOrPrimitiveTag, const std::map<std::string, DataStructure*>& subobjects, void*data = nullptr);
-
-	DataStructure();
+	DataStructure(const std::string &typeOrPrimitiveTag = "", const std::map<std::string, DataStructure*>& subobjects = std::map<std::string,DataStructure*>(), void*data = nullptr);
 
 	void* getData()const noexcept;
 

@@ -11,7 +11,7 @@ runType Engine::run()
     std::vector<programContent> currentContents = m_program->getContent();
     Subprogram* currentProgram = m_program;
 
-    std::map<std::string, DataStructure> lastFunctionReturn;
+    std::map<std::string, DataStructure*> lastFunctionReturn;
     for (size_t i = 0; i < currentContents.size(); i++)
     {
         size_t currentContentsOrderedId = currentContents[i].orderedID;
@@ -42,10 +42,16 @@ runType Engine::run()
                 size_t numOfVarArgs = fCall->getVariableArgsNum();
                 if (numOfVarArgs > 0) {
                     for (auto x : args) {
-                        if (x.second.getTypeOrPrimitiveTag() == "tagString") {
-                            variableDeclaration *tempVar = currentProgram->getVariableUpwards(*(std::string*)x.second.getData(),currentContentsOrderedId);
-                            args[x.first] = *tempVar->getData();
+                        if (numOfVarArgs == 0) {
+                            break;
                         }
+                        if (x.second->getTypeOrPrimitiveTag() == "tagString") {
+                            std::string varName = *(std::string*)x.second->getData();
+                            variableDeclaration *tempVar = currentProgram->getVariableUpwards(varName,currentContentsOrderedId);
+                            args[x.first] = tempVar->getData();
+                            numOfVarArgs--;
+                        }
+                        
                     }
                 }
                 
