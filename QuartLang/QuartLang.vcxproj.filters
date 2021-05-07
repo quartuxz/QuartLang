@@ -35,7 +35,6 @@
     <ClCompile Include="Parser.cpp">
       <Filter>core\parser</Filter>
     </ClCompile>
-    <ClCompile Include="DataStructure.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="builtinFunctions.cpp" />
     <ClCompile Include="EnumToString.cpp" />
@@ -60,16 +59,17 @@
     <ClCompile Include="programs.cpp">
       <Filter>core\program structures</Filter>
     </ClCompile>
+    <ClCompile Include="DataStructure.cpp">
+      <Filter>core\program structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Parser.h">
       <Filter>core\parser</Filter>
     </ClInclude>
-    <ClInclude Include="DataStructure.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="builtinFunctions.h" />
     <ClInclude Include="EnumToString.h" />
-    <ClInclude Include="Token.h" />
     <ClInclude Include="Recognizer.h">
       <Filter>core\Recognizer</Filter>
     </ClInclude>
@@ -92,6 +92,12 @@
       <Filter>core\program structures</Filter>
     </ClInclude>
     <ClInclude Include="programs.h">
+      <Filter>core\program structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Token.h">
+      <Filter>core\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="DataStructure.h">
       <Filter>core\program structures</Filter>
     </ClInclude>
   </ItemGroup>

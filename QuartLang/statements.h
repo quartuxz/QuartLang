@@ -50,3 +50,29 @@ public:
 	DataStructure* getToLiteralData();
 
 };
+
+
+enum class arithmeticOperationType {
+	add, subtract, multiply, divide
+};
+
+class arithmeticOperation : public ProgramStructure<statementType> {
+private:
+	arithmeticOperationType m_opType;
+	std::string m_lhsVarName = "";
+	std::string m_rhsVarName = "";
+	DataStructure* m_lhsLiteral = nullptr;
+	DataStructure* m_rhsLiteral = nullptr;
+public:
+	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string&lhs, const std::string& rhs);
+	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure *lhs, const std::string& rhs);
+	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string&lhs, DataStructure* rhs);
+	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure* lhs, DataStructure* rhs);
+
+
+	std::string getLhsVarName()const noexcept;
+	std::string getRhsVarName()const noexcept;
+	arithmeticOperationType getOperationType()const noexcept;
+	DataStructure *getLhsLiteral()const noexcept;
+	DataStructure *getRhsLiteral()const noexcept;
+};

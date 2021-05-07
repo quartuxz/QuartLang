@@ -98,3 +98,60 @@ DataStructure* setOperation::getToLiteralData()
 	return m_toLiteralData;
 }
 
+arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string& lhs, const std::string& rhs):
+	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
+	m_opType(opType),
+	m_rhsVarName(lhs),
+	m_lhsVarName(rhs)
+	
+{
+}
+
+arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure* lhs, const std::string& rhs):
+	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
+	m_opType(opType),
+	m_rhsLiteral(lhs),
+	m_lhsVarName(rhs)
+{
+}
+
+arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string& lhs, DataStructure* rhs):
+	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
+	m_opType(opType),
+	m_rhsVarName(lhs),
+	m_lhsLiteral(rhs)
+{
+}
+
+arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure* lhs, DataStructure* rhs):
+	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
+	m_opType(opType),
+	m_rhsLiteral(lhs),
+	m_lhsLiteral(rhs)
+{
+}
+
+std::string arithmeticOperation::getLhsVarName() const noexcept
+{
+	return m_lhsVarName;
+}
+
+std::string arithmeticOperation::getRhsVarName() const noexcept
+{
+	return m_rhsVarName;
+}
+
+arithmeticOperationType arithmeticOperation::getOperationType() const noexcept
+{
+	return m_opType;
+}
+
+DataStructure* arithmeticOperation::getLhsLiteral() const noexcept
+{
+	return m_lhsLiteral;
+}
+
+DataStructure* arithmeticOperation::getRhsLiteral() const noexcept
+{
+	return m_rhsLiteral;
+}

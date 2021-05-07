@@ -30,7 +30,9 @@ const std::map<std::string, Token> Parser::m_matches = {
 	{"call", Token::callFunctionTok},
 	{"variable", Token::variableTok},
 	{"set", Token::setTok},
-	{"result", Token::resultToken}
+	{"result", Token::resultToken},
+	{"add", Token::addTok},
+
 
 
 

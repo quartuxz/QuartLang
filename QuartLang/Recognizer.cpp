@@ -13,6 +13,14 @@ void Recognizer::m_makeProgram()
 	while (currentToken != Token::endTok) {
 		switch (currentToken)
 		{
+		
+		case Token::addTok:
+			m_parser->getNextToken();
+			 m_parser-> getNextToken();
+			currentToken = m_parser-> getNextToken();
+			//m_program.m_arithmeticOpertaions[""];
+
+		break;
 		case Token::setTok:
 		{
 			programContent stt;

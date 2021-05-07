@@ -24,6 +24,8 @@ protected:
 	std::map<std::string, size_t> m_variableTags;
 	std::map<size_t, functionCall*> m_functionCalls;
 	std::map<size_t, setOperation*> m_setOperations;
+	std::map<size_t, arithmeticOperation*> m_arithmeticOpertaions;
+
 	std::map<size_t, Subprogram*> m_subprograms;
 
 	void m_addVariableDeclaration(variableDeclaration *varDecl);

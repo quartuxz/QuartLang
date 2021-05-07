@@ -4,22 +4,22 @@
 #include "Engine.h"
 
 
-void doOneTest(const std::string& testName, const std::string& testFile, const std::string &required, bool *effect) {
-	WideTest helloWorld(testName, testFile, required);
-	if (!helloWorld.doTest()) {
-		*effect = false;
-	}
-	helloWorld.displayResult();
-}
+std::vector<WideTest> wideTests = {
+WideTest("helloWorldTest","hello_world_test.txt","hello world"),
+WideTest("variableTest","variables_test.txt","7.6")
 
+};
 
 bool doWideTests()
 {
 	bool retVal = true;
-	doOneTest("helloWorldTest","hello_world_test.txt","hello world", &retVal);
-	doOneTest("variablesTest","variables_test.txt","7.6", &retVal);
-
-
+	for (size_t i = 0; i < wideTests.size(); i++)
+	{
+		if (!wideTests[i].doTest()) {
+			retVal = false;
+		}
+		wideTests[i].displayResult();
+	}
     return retVal;
 }
 
