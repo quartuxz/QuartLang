@@ -1,32 +1,38 @@
 #include "statements.h"
 
 
-variableDeclaration::variableDeclaration(size_t orderedID, const std::string& tag, DataStructure* data) noexcept :
+variableDeclaration::variableDeclaration(size_t orderedID, const std::string& tag, size_t scopedNesting) noexcept :
 	ProgramStructure<statementType>(orderedID, statementType::variableDeclarationSttt),
 	m_tag(tag),
-	m_data(data)
+	m_scopeNesting(scopedNesting)
+	
 {
 
 }
 
-std::string variableDeclaration::getTag()
+std::string variableDeclaration::getTag()const noexcept
 {
 	return m_tag;
 }
 
-DataStructure* variableDeclaration::getData()
+const DataStructure& variableDeclaration::getData() const noexcept
 {
 	return m_data;
 }
 
-void variableDeclaration::setData(DataStructure* data)noexcept
+size_t variableDeclaration::getScopeNesting() const noexcept
+{
+	return m_scopeNesting;
+}
+
+void variableDeclaration::setData(const DataStructure& data)
 {
 	m_data = data;
 }
 
 
 
-functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, DataStructure*>& args, size_t variableArgsNum) :
+functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args, size_t variableArgsNum) :
 	ProgramStructure<statementType>(orderedID, statementType::functionCallSttt),
 	m_functionCalledTag(functionCalledTag),
 	m_args(args),
@@ -50,37 +56,16 @@ std::string functionCall::getFunctionCalledTag() const noexcept
 }
 
 
-const std::map<std::string, DataStructure*>& functionCall::getArgs() const noexcept
+const std::map<std::string, operand>& functionCall::getArgs() const noexcept
 {
 	return m_args;
 }
 
-setOperation::setOperation(size_t orderedID, const std::string& settedName, const std::string& toVarName) :
+setOperation::setOperation(size_t orderedID, const std::string& settedName, const operand& op):
 	ProgramStructure<statementType>(orderedID, statementType::setOperationSttt),
 	m_settedName(settedName),
-	m_toVarName(toVarName),
-	m_setType(setType::toVariable)
+	m_toSet(op)
 {
-}
-
-setOperation::setOperation(size_t orderedID, const std::string& settedName, DataStructure* toLiteralData) :
-	ProgramStructure<statementType>(orderedID, statementType::setOperationSttt),
-	m_settedName(settedName),
-	m_toLiteralData(toLiteralData),
-	m_setType(setType::toLiteral)
-{
-}
-
-setOperation::setOperation(size_t orderedID, const std::string& settedName) :
-	ProgramStructure<statementType>(orderedID, statementType::setOperationSttt),
-	m_setType(setType::toResult)
-
-{
-}
-
-setType setOperation::getSetType() const noexcept
-{
-	return m_setType;
 }
 
 std::string setOperation::getSettedName() const noexcept
@@ -88,70 +73,31 @@ std::string setOperation::getSettedName() const noexcept
 	return m_settedName;
 }
 
-std::string setOperation::getToVarName() const noexcept
+const operand& setOperation::getToSet() const noexcept
 {
-	return m_toVarName;
+	return m_toSet;
+	// TODO: insert return statement here
 }
 
-DataStructure* setOperation::getToLiteralData()
-{
-	return m_toLiteralData;
-}
-
-arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string& lhs, const std::string& rhs):
+arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const operand& lhs, const operand& rhs):
 	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
 	m_opType(opType),
-	m_rhsVarName(lhs),
-	m_lhsVarName(rhs)
-	
+	m_lhs(lhs),
+	m_rhs(rhs)
 {
 }
 
-arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure* lhs, const std::string& rhs):
-	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
-	m_opType(opType),
-	m_rhsLiteral(lhs),
-	m_lhsVarName(rhs)
+const operand& arithmeticOperation::getLhs() const noexcept
 {
+	return m_lhs;
 }
 
-arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string& lhs, DataStructure* rhs):
-	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
-	m_opType(opType),
-	m_rhsVarName(lhs),
-	m_lhsLiteral(rhs)
+const operand& arithmeticOperation::getRhs() const noexcept
 {
-}
-
-arithmeticOperation::arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure* lhs, DataStructure* rhs):
-	ProgramStructure<statementType>(orderedID, statementType::arithmeticOperationSttt),
-	m_opType(opType),
-	m_rhsLiteral(lhs),
-	m_lhsLiteral(rhs)
-{
-}
-
-std::string arithmeticOperation::getLhsVarName() const noexcept
-{
-	return m_lhsVarName;
-}
-
-std::string arithmeticOperation::getRhsVarName() const noexcept
-{
-	return m_rhsVarName;
+	return m_rhs;
 }
 
 arithmeticOperationType arithmeticOperation::getOperationType() const noexcept
 {
 	return m_opType;
-}
-
-DataStructure* arithmeticOperation::getLhsLiteral() const noexcept
-{
-	return m_lhsLiteral;
-}
-
-DataStructure* arithmeticOperation::getRhsLiteral() const noexcept
-{
-	return m_rhsLiteral;
 }

@@ -62,6 +62,9 @@
     <ClCompile Include="DataStructure.cpp">
       <Filter>core\program structures</Filter>
     </ClCompile>
+    <ClCompile Include="ParserTest.cpp">
+      <Filter>core\parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Parser.h">
@@ -100,6 +103,9 @@
     <ClInclude Include="DataStructure.h">
       <Filter>core\program structures</Filter>
     </ClInclude>
+    <ClInclude Include="ParserTest.h">
+      <Filter>core\parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source.txt" />
@@ -118,5 +124,15 @@
     <Text Include="variables_test.txt">
       <Filter>program-wide tests\source</Filter>
     </Text>
+    <Text Include="double_set_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="arithmetic_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="result_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="LICENSE.txt" />
   </ItemGroup>
 </Project>

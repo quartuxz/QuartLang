@@ -16,7 +16,10 @@ const std::map<std::string, Token> Parser::m_matches = {
 	{"named", Token::lambdaTok},
 	{"as", Token::lambdaTok},
 	{"an", Token::lambdaTok},
+	{"by", Token::lambdaTok},
 	{"to", Token::lambdaTok},
+	{"from", Token::lambdaTok},
+	{"with", Token::lambdaTok},
 	{"the", Token::lambdaTok},
 	{"of", Token::lambdaTok},
 	{"for", Token::lambdaTok},
@@ -30,9 +33,11 @@ const std::map<std::string, Token> Parser::m_matches = {
 	{"call", Token::callFunctionTok},
 	{"variable", Token::variableTok},
 	{"set", Token::setTok},
-	{"result", Token::resultToken},
+	{"result", Token::resultTok},
 	{"add", Token::addTok},
-
+	{"subtract", Token::subtractTok},
+	{"multiply", Token::multiplyTok},
+	{"divide", Token::divideTok}
 
 
 
@@ -40,16 +45,11 @@ const std::map<std::string, Token> Parser::m_matches = {
 
 
 
-Parser::Parser(std::string filename, Logger *logger,bool isFileTrueIsCodeFalse):
+Parser::Parser(std::string filenameOrCode, Logger *logger,bool isFileTrueIsCodeFalse):
 	m_logger(logger)
 {
 
-	if (isFileTrueIsCodeFalse) {
-		m_bindFile(filename);
-	}
-	else {
-		m_text = filename;
-	}
+	m_bindFileOrCode(filenameOrCode, isFileTrueIsCodeFalse);
 	m_tokenize();
 #ifdef MUST_LOG_ISHLENG
 	
@@ -75,38 +75,42 @@ Parser::Parser(std::string filename, Logger *logger,bool isFileTrueIsCodeFalse):
 #endif
 }
 
-void Parser::m_bindFile(std::string fileName)
+void Parser::m_bindFileOrCode(std::string fileName, bool isFileTrueIsCodeFalse)
 {
-	std::ifstream t(fileName);
-	std::string str((std::istreambuf_iterator<char>(t)),
-	std::istreambuf_iterator<char>());
-	//we remove newlines and excess whitespaces
+	std::string str;
+	if (isFileTrueIsCodeFalse) {
+		std::ifstream t(fileName);
+		str = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	}
+	else {
+		str = fileName;
+	}
 
 
-
-	std::string noNewLines;
+	//we remove all special characters and excess whitespaces
+	std::string noSpecialCharacters;
 	for (size_t i = 0; i < str.size();i++) {
-		if (str[i] == '\n') {
-			noNewLines.push_back(' ');
+		if (str[i] == '\n' || str[i] == '\t') {
+			noSpecialCharacters.push_back(' ');
 		}
 		else {
-			noNewLines.push_back(str[i]);
+			noSpecialCharacters.push_back(str[i]);
 		}
 	}
 	bool wasWhiteSpace = false;
-	for (size_t i = 0; i < noNewLines.size(); i++) {
+	for (size_t i = 0; i < noSpecialCharacters.size(); i++) {
 
 
-		if (!(noNewLines[i] == ' ' && wasWhiteSpace)) {
+		if (!(noSpecialCharacters[i] == ' ' && wasWhiteSpace)) {
 
-			m_text.push_back(noNewLines[i]);
+			m_text.push_back(noSpecialCharacters[i]);
 		}
 
 		if (wasWhiteSpace) {
 			wasWhiteSpace = false;
 		}
 
-		if (noNewLines[i] == ' ') {
+		if (noSpecialCharacters[i] == ' ') {
 			wasWhiteSpace = true;
 		}
 	}
@@ -145,7 +149,6 @@ void Parser::m_tokenize()
 		}
 		//finding a integer or a floating point
 		else if (isdigit(currentTokenString[0])) {
-			m_logger->log("Parser",currentTokenString);
 			bool isInteger = true;
 			for (auto x: currentTokenString) {
 				if (x == '.') {

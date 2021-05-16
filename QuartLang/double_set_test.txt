@@ -1,0 +1,5 @@
+declare variable var1
+set var1 to 1.2
+set var1 to "hello"
+
+call print giving var1 as words

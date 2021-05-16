@@ -1,4 +1,3 @@
-
 #include "Parser.h"
 #include <iostream>
 #include <string>
@@ -11,19 +10,21 @@
 int main()
 {
 #ifdef MUST_TEST_ISHLENG
-	doAllTests();
-	system("pause");
+	if (!doAllTests()) {
+		std::cout << "A TEST HAS FAILED !" << std::endl;
+	}
+
 #else
 	Logger logger;
-	logger.toggleLogging(true);
+	logger.toggleLogging(false);
 	Parser parser("Source.txt", &logger);
 	Recognizer recognizer(&parser, &logger);
 
 	Engine engine(recognizer.getProgram(), &logger);
 	engine.run();
 	std::cout << std::endl;
-	system("pause");
-#endif // MUST_TEST_ISHLEND
 
+#endif // MUST_TEST_ISHLEND
+	system("pause");
 }
   

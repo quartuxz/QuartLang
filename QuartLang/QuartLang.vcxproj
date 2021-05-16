@@ -146,6 +146,7 @@
     <ClCompile Include="EnumToString.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="ParserTest.cpp" />
     <ClCompile Include="programs.cpp" />
     <ClCompile Include="QuartLang.cpp" />
     <ClCompile Include="Recognizer.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="EnumToString.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="ParserTest.h" />
     <ClInclude Include="programs.h" />
     <ClInclude Include="ProgramStructure.h" />
     <ClInclude Include="Recognizer.h" />
@@ -171,8 +173,12 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\..\Desktop\ishleng_protocode.txt" />
+    <Text Include="arithmetic_test.txt" />
+    <Text Include="double_set_test.txt" />
     <Text Include="hello_world_test.txt" />
+    <Text Include="LICENSE.txt" />
     <Text Include="README.txt" />
+    <Text Include="result_test.txt" />
     <Text Include="Source.txt" />
     <Text Include="TODO.txt" />
     <Text Include="variables_test.txt" />

@@ -3,54 +3,32 @@
 
 
 //IMPLEMENT THIS FULLY
-DataStructure* Program::m_addLiteral(std::string literalStr, Token token)
+const DataStructure& Program::m_addLiteral(std::string literalStr, Token token)
 {
 
-	void* data = nullptr;
+	DataStructure data;
 	std::string type;
 	//IMPLEMENT THE OTHER CASES
 	switch (token)
 	{
 	case Token::stringLiteralTok:
-		type = "string";
-		m_stringLiterals.push_back(literalStr);
-		data = &m_stringLiterals.back();
+		m_literals.push_back(DataStructure(literalStr));
 		break;
 	case Token::intLiteralTok:
-		type = "int";
-		m_intLiterals.push_back(std::atoi(literalStr.c_str()));
-		data = &m_intLiterals.back();
+		m_literals.push_back(DataStructure(std::atoi(literalStr.c_str())));
 		break;
 	case Token::floatLiteralTok:
-		type = "float";
-		m_floatLiterals.push_back(std::atof(literalStr.c_str()));
-		data = &m_floatLiterals.back();
+		m_literals.push_back(DataStructure((float)std::atof(literalStr.c_str())));
 		break;
 	case Token::boolLiteralTok:
-		type = "bool";
-		m_boolLiterals.push_back((literalStr == "true" ? true : false));
-		data = &m_boolLiterals.back();;
+		m_literals.push_back(DataStructure((literalStr == "true" ? true : false)));
 		break;
 	default:
 		throw std::invalid_argument("Token is not a literal!");
 		break;
 	}
-	m_stackDataStructures.push_back(new DataStructure(type, std::map<std::string, DataStructure*>(), data));
-	return m_stackDataStructures.back();
-}
 
-DataStructure* Program::m_addTag(std::string tagStr)
-{
-	m_tags.push_back(tagStr);
-	m_stackDataStructures.push_back(new DataStructure("tagString", std::map<std::string, DataStructure*>(), &m_tags.back()));
-	return m_stackDataStructures.back();
-}
-
-
-void Subprogram::m_addVariableDeclaration(variableDeclaration* varDecl)
-{
-	m_variables[varDecl->getOrderedID()] = varDecl;
-	m_variableTags[varDecl->getTag()] = varDecl->getOrderedID();
+	return m_literals.back();
 }
 
 Subprogram::Subprogram(size_t orderedID, subprogramType type) noexcept :
@@ -67,42 +45,19 @@ std::string Subprogram::getTag() const noexcept
 	return m_tag;
 }
 
-variableDeclaration* Subprogram::getVariableUpwards(const std::string& tag, size_t upwardsFrom)
+const variableDeclaration* Subprogram::getVariable(size_t orderedID)const
 {
-	if (checkVariableTagExists(tag)) {
-		variableDeclaration* var = getVariable(tag);
-		if (upwardsFrom > var->getOrderedID()) {
-			return var;
-		}
-	}
-
-	if (m_parent != nullptr) {
-		return m_parent->getVariableUpwards(tag, upwardsFrom);
-	}
-
-	return nullptr;
+	return m_variables.at(orderedID);
 }
 
-bool Subprogram::checkVariableTagExists(const std::string& tag)const noexcept
+const setOperation* Subprogram::getSetOperation(size_t orderedID)const
 {
-	return m_variableTags.find(tag) != m_variableTags.end();
+	return m_setOperations.at(orderedID);
 }
 
-
-
-variableDeclaration* Subprogram::getVariable(const std::string& tag)
+const arithmeticOperation* Subprogram::getArithmeticOperation(size_t orderedID) const
 {
-	return m_variables[m_variableTags[tag]];
-}
-
-variableDeclaration* Subprogram::getVariable(size_t orderedID)
-{
-	return m_variables[orderedID];
-}
-
-setOperation* Subprogram::getSetOperation(size_t orderedID)
-{
-	return m_setOperations[orderedID];
+	return m_arithmeticOperations.at(orderedID);
 }
 
 std::vector<programContent> Subprogram::getContent() const noexcept
@@ -156,4 +111,11 @@ Program::Program() noexcept :
 	Subprogram(0, subprogramType::baseBlock)
 {
 
+}
+
+conditionalBlock::conditionalBlock(size_t orderedID, const operand& condition, bool repeats):
+	Subprogram(orderedID, subprogramType::conditionalBlock),
+	m_condition(condition),
+	m_repeats(repeats)
+{
 }

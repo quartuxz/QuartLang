@@ -41,7 +41,7 @@ private:
 	void m_addLiteral(const std::string& contents, Token type);
 
 	//reads and saves a file to the text buffer for tokenizing.
-	void m_bindFile(std::string fileName);
+	void m_bindFileOrCode(std::string fileNameOrCode, bool isFileTrueIsCodeFalse = true);
 
 	//converts the whole text into individual tokens
 	void m_tokenize();
@@ -49,10 +49,8 @@ private:
 public:
 
 	Parser(std::string filenameOrCode, Logger *log,bool isFileTrueIsCodeFalse = true);
-	
-	
-	
-	
+
+
 	//returns the current token for reading sequentially
 	Token getNextToken()const noexcept;
 	size_t getCurrentTokenPosition()const noexcept;

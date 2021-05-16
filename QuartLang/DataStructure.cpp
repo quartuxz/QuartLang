@@ -1,24 +1,131 @@
 #include "DataStructure.h"
 
-
-DataStructure::DataStructure(const std::string &typeOrPrimitiveTag, const std::map<std::string, DataStructure*>& subobjects, void* data):
-	m_typeOrPrimitiveTag(typeOrPrimitiveTag),
-	m_subobjects(subobjects),
-	m_data(data)
+int DataStructure::getIntData() const noexcept
 {
+	return m_intData;
 }
 
-void* DataStructure::getData() const noexcept
+float DataStructure::getFloatData() const noexcept
 {
-	return m_data;
+	return m_floatData;
 }
 
-DataStructure* DataStructure::getSubobject(std::string name)
+bool DataStructure::getBoolData() const noexcept
 {
-	return m_subobjects.at(name);
+	return m_boolData;
+}
+
+char DataStructure::getCharData() const noexcept
+{
+	return m_charData;
+}
+
+std::string DataStructure::getString() const noexcept
+{
+	if (strChanged == true) {
+		m_strBuffer = "";
+		for (auto x : m_subobjects) {
+			m_strBuffer.push_back(x.getCharData());
+		}
+		strChanged = false;
+	}
+	return m_strBuffer;
+}
+
+bool DataStructure::getIsComposite() const noexcept
+{
+	return m_isComposite;
+}
+
+bool DataStructure::getIsArray() const noexcept
+{
+	return m_isArray;
+}
+
+
+const DataStructure& DataStructure::getSubobject(std::string name)const
+{
+	return m_subobjects[m_subobjectNames.at(name)];
+}
+
+const DataStructure& DataStructure::getArrayElement(size_t id) const
+{
+	return m_subobjects[id];
 }
 
 std::string DataStructure::getTypeOrPrimitiveTag() const noexcept
 {
 	return m_typeOrPrimitiveTag;
+}
+
+DataStructure::DataStructure(int intData):
+	m_typeOrPrimitiveTag(INT_TYPE_STR),
+	m_intData(intData)
+{
+}
+
+DataStructure::DataStructure(float floatData):
+	m_typeOrPrimitiveTag(FLOAT_TYPE_STR),
+	m_floatData(floatData)
+{
+}
+
+DataStructure::DataStructure(bool boolData):
+	m_typeOrPrimitiveTag(BOOL_TYPE_STR),
+	m_boolData(boolData)
+{
+
+}
+
+DataStructure::DataStructure(char charData):
+	m_typeOrPrimitiveTag(CHAR_TYPE_STR),
+	m_charData(charData)
+{
+}
+
+DataStructure::DataStructure(const std::string& typeOrPrimitiveTag, const std::vector<DataStructure>& listElements):
+	m_typeOrPrimitiveTag(typeOrPrimitiveTag),
+	m_subobjects(listElements),
+	m_isArray(true)
+{
+}
+
+DataStructure::DataStructure()
+{
+}
+
+DataStructure::DataStructure(const std::string& typeOrPrimitiveTag, const std::vector<std::pair<std::string, DataStructure>>& subobjects) :
+	m_typeOrPrimitiveTag(typeOrPrimitiveTag),
+	m_isComposite(true)
+{
+	for (auto x:subobjects) {
+		m_subobjectNames[x.first] = m_subobjects.size();
+		m_subobjects.push_back(x.second);
+	}
+}
+
+DataStructure::DataStructure(const std::string& str):
+	m_typeOrPrimitiveTag(STRING_TYPE_STR),
+	m_isArray(true)
+{
+	for (auto x : str) {
+		m_subobjects.push_back(x);
+	}
+
+}
+
+operand::operand()
+{
+}
+
+operand::operand(const std::string& p_varName):
+	type(operandType::variable),
+	varName(p_varName)
+{
+}
+
+operand::operand(const DataStructure& p_literalData):
+	type(operandType::literal),
+	literalData(p_literalData)
+{
 }

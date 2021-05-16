@@ -10,9 +10,10 @@ class WideTest : public Test {
 private:
 	std::string m_testFile;
 	std::string m_required;
+	bool m_doTest()override;
 public:
 	WideTest(const std::string &testName, const std::string &testFile, const std::string &required);
-	bool doTest()override;
+
 };
 
 

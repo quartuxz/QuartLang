@@ -10,6 +10,20 @@ Test::Test(const std::string& testName, const std::string &testTypeName):
 {
 }
 
+bool Test::doTest()
+{
+	bool testSuccesful;
+	try {
+		 testSuccesful = m_doTest();
+	}
+	catch (...) {
+		m_passTestType = passTestType::exceptionThrown;
+		throw;
+	}
+
+	return testSuccesful;
+}
+
 void Test::displayResult() const noexcept
 {
 	std::cout << "|" << m_testTypeName <<": \"" << m_testName << "\" -> " << makePassTestString(m_passTestType) << "!|" << std::endl;

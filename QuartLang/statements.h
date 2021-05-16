@@ -6,48 +6,39 @@
 class variableDeclaration : public ProgramStructure<statementType> {
 private:
 	std::string m_tag;
-	DataStructure* m_data;
+	size_t m_scopeNesting;
+	DataStructure m_data;
 public:
-	variableDeclaration(size_t orderedID, const std::string& tag, DataStructure* data)noexcept;
-	std::string getTag();
-	DataStructure* getData();
-	void setData(DataStructure* data)noexcept;
+	variableDeclaration(size_t orderedID, const std::string& tag, size_t scopeNesting = 0)noexcept;
+	std::string getTag()const noexcept;
+	const DataStructure& getData()const noexcept;
+	size_t getScopeNesting()const noexcept;
+	void setData(const DataStructure& data);
 };
 
 class functionCall : public ProgramStructure<statementType> {
 private:
 	std::string m_functionCalledTag;
-	std::map<std::string, DataStructure*> m_args;
+	std::map<std::string, operand> m_args;
 	size_t m_variableArgsNum = 0;
 public:
-	functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, DataStructure*>& args, size_t variableArgsNum = 0);
+	functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args, size_t variableArgsNum = 0);
 	functionCall();
 	size_t getVariableArgsNum()const noexcept;
 	std::string getFunctionCalledTag()const noexcept;
-	const std::map<std::string, DataStructure*>& getArgs()const noexcept;
-};
-
-enum class setType {
-	toLiteral,
-	toResult,
-	toVariable
+	const std::map<std::string, operand>& getArgs()const noexcept;
 };
 
 class setOperation : public ProgramStructure<statementType> {
 private:
-	setType m_setType;
+	operand m_toSet;
 	std::string m_settedName;
-	std::string m_toVarName;
-	DataStructure* m_toLiteralData;
 public:
-	setOperation(size_t orderedID, const std::string& settedName, const std::string& toVarName);
-	setOperation(size_t orderedID, const std::string& settedName, DataStructure* toLiteralData);
-	setOperation(size_t orderedID, const std::string& settedName);
 
-	setType getSetType()const noexcept;
+	setOperation(size_t orderedID, const std::string & settedName, const operand& op);
 	std::string getSettedName()const noexcept;
-	std::string getToVarName()const noexcept;
-	DataStructure* getToLiteralData();
+	
+	const operand& getToSet()const noexcept;
 
 };
 
@@ -59,20 +50,15 @@ enum class arithmeticOperationType {
 class arithmeticOperation : public ProgramStructure<statementType> {
 private:
 	arithmeticOperationType m_opType;
-	std::string m_lhsVarName = "";
-	std::string m_rhsVarName = "";
-	DataStructure* m_lhsLiteral = nullptr;
-	DataStructure* m_rhsLiteral = nullptr;
+
+	operand m_lhs;
+	operand m_rhs;
 public:
-	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string&lhs, const std::string& rhs);
-	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure *lhs, const std::string& rhs);
-	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const std::string&lhs, DataStructure* rhs);
-	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, DataStructure* lhs, DataStructure* rhs);
 
+	arithmeticOperation(size_t orderedID, arithmeticOperationType opType, const operand& lhs,const operand& rhs);
 
-	std::string getLhsVarName()const noexcept;
-	std::string getRhsVarName()const noexcept;
+	const operand& getLhs()const noexcept;
+	const operand& getRhs()const noexcept;
 	arithmeticOperationType getOperationType()const noexcept;
-	DataStructure *getLhsLiteral()const noexcept;
-	DataStructure *getRhsLiteral()const noexcept;
+
 };

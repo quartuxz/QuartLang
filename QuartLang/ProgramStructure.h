@@ -1,7 +1,7 @@
 #pragma once
 
 
-#define SUBPROGRAM_TYPE_ENUM(extra) extra baseBlock, functionBlock, ifBlock, classBlock
+#define SUBPROGRAM_TYPE_ENUM(extra) extra baseBlock, functionBlock, conditionalBlock, classBlock
 #define BLOCKIFY(x) {x}
 #define STATEMENT_TYPE_ENUM variableDeclarationSttt, arithmeticOperationSttt, functionCallSttt, setOperationSttt
 #define ADD_COMMA(x) x##,

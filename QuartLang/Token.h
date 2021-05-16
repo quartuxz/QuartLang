@@ -13,21 +13,24 @@
 
 BEGIN_ENUM(Token) {
 	DECL_ENUM_ELEMENT(lambdaTok),
-		DECL_ENUM_ELEMENT(declareTok),
-		DECL_ENUM_ELEMENT(functionTok),
-		DECL_ENUM_ELEMENT(variableTok),
-		DECL_ENUM_ELEMENT(tagTok),
-		DECL_ENUM_ELEMENT(floatLiteralTok),
-		DECL_ENUM_ELEMENT(intLiteralTok),
-		DECL_ENUM_ELEMENT(stringLiteralTok),
-		DECL_ENUM_ELEMENT(boolLiteralTok),
-		DECL_ENUM_ELEMENT(callFunctionTok),
-		DECL_ENUM_ELEMENT(passArgTok),
-		DECL_ENUM_ELEMENT(thenTok),
-		DECL_ENUM_ELEMENT(setTok),
-		DECL_ENUM_ELEMENT(resultToken),
-		DECL_ENUM_ELEMENT(addTok),
-		DECL_ENUM_ELEMENT(endTok)
+	DECL_ENUM_ELEMENT(declareTok),
+	DECL_ENUM_ELEMENT(functionTok),
+	DECL_ENUM_ELEMENT(variableTok),
+	DECL_ENUM_ELEMENT(tagTok),
+	DECL_ENUM_ELEMENT(floatLiteralTok),
+	DECL_ENUM_ELEMENT(intLiteralTok),
+	DECL_ENUM_ELEMENT(stringLiteralTok),
+	DECL_ENUM_ELEMENT(boolLiteralTok),
+	DECL_ENUM_ELEMENT(callFunctionTok),
+	DECL_ENUM_ELEMENT(passArgTok),
+	DECL_ENUM_ELEMENT(setTok),
+	DECL_ENUM_ELEMENT(resultTok),
+	DECL_ENUM_ELEMENT(addTok),
+	DECL_ENUM_ELEMENT(subtractTok),
+	DECL_ENUM_ELEMENT(multiplyTok),
+	DECL_ENUM_ELEMENT(divideTok),
+	DECL_ENUM_ELEMENT(ifTok),
+	DECL_ENUM_ELEMENT(endTok)
 }; END_ENUM(Token)
 
 #endif

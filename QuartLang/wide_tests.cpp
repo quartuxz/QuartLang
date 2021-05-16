@@ -6,21 +6,16 @@
 
 std::vector<WideTest> wideTests = {
 WideTest("helloWorldTest","hello_world_test.txt","hello world"),
-WideTest("variableTest","variables_test.txt","7.6")
+WideTest("variableTest","variables_test.txt","7.6"),
+WideTest("doubleSetTest","double_set_test.txt","hello"),
+WideTest("arithmeticTest","arithmetic_test.txt","3"),
+WideTest("resultTest","result_test.txt","8")
 
 };
 
 bool doWideTests()
 {
-	bool retVal = true;
-	for (size_t i = 0; i < wideTests.size(); i++)
-	{
-		if (!wideTests[i].doTest()) {
-			retVal = false;
-		}
-		wideTests[i].displayResult();
-	}
-    return retVal;
+	return Test::doTests(wideTests);
 }
 
 WideTest::WideTest(const std::string& testName, const std::string& testFile, const std::string& required):
@@ -30,31 +25,25 @@ WideTest::WideTest(const std::string& testName, const std::string& testFile, con
 {
 }
 
-bool WideTest::doTest()
+bool WideTest::m_doTest()
 {
 	bool retval = true;
-	try{
-		Logger logger;
-		logger.toggleLogging(false);
-		Parser parser(m_testFile, &logger);
-		Recognizer recognizer(&parser, &logger);
-		Engine engine(recognizer.getProgram(), &logger);
-		engine.run();
+	Logger logger;
+	logger.toggleLogging(false);
+	Parser parser(m_testFile, &logger);
+	Recognizer recognizer(&parser, &logger);
+	Engine engine(recognizer.getProgram(), &logger);
+	engine.run();
 
-		if (testOutput.str() == m_required) {
-			m_passTestType = passTestType::success;
-		}
-		else {
-			retval = false;
-			m_passTestType = passTestType::failure;
-		}
+	if (testOutput.str() == m_required) {
+		m_passTestType = passTestType::success;
+	}
+	else {
+		retval = false;
+		m_passTestType = passTestType::failure;
+	}
 
-		testOutput.str(std::string());
-		testOutput.clear();
-	}
-	catch (...) {
-		m_passTestType = passTestType::exceptionThrown;
-		throw;
-	}
+	testOutput.str(std::string());
+	testOutput.clear();
     return retval;
 }

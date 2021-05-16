@@ -1,6 +1,6 @@
 
-
 add 2 to 2
+
 declare variable var1
 
 set var1 to result
@@ -16,4 +16,3 @@ divide result by var1
 set var2 to result
 
 call print giving var2 as words
-
