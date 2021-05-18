@@ -1,19 +1,13 @@
 
 
-add 2 to 2
-declare variable var1
-
-set var1 to result
-
-multiply var1 by var1
-
-declare variable var2
-set var2 to result
 
 
-subtract var2 by var1
-divide result by var1
-set var2 to result
+if true
 
-call print giving var2 as words
+call print giving "..." for words
+
+call print_new_line
+
+finally repeat while true
+
 

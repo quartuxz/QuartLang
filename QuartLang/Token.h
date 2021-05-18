@@ -30,6 +30,10 @@ BEGIN_ENUM(Token) {
 	DECL_ENUM_ELEMENT(multiplyTok),
 	DECL_ENUM_ELEMENT(divideTok),
 	DECL_ENUM_ELEMENT(ifTok),
+	DECL_ENUM_ELEMENT(finallyTok),
+	DECL_ENUM_ELEMENT(endBlockTok),
+	DECL_ENUM_ELEMENT(repeatTok),
+	DECL_ENUM_ELEMENT(giveTok),
 	DECL_ENUM_ELEMENT(endTok)
 }; END_ENUM(Token)
 

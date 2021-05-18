@@ -115,9 +115,6 @@
     <Text Include="README.txt">
       <Filter>design docs</Filter>
     </Text>
-    <Text Include="..\..\..\..\Desktop\ishleng_protocode.txt">
-      <Filter>design docs</Filter>
-    </Text>
     <Text Include="hello_world_test.txt">
       <Filter>program-wide tests\source</Filter>
     </Text>
@@ -134,5 +131,8 @@
       <Filter>program-wide tests\source</Filter>
     </Text>
     <Text Include="LICENSE.txt" />
+    <Text Include="conditional_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -7,27 +7,127 @@
 void Recognizer::m_makeProgram()
 {
 
+
+
+	auto createLiteral = [](const std::string &literalStr, Token token) {
+		//IMPLEMENT THE OTHER CASES
+		switch (token)
+		{
+		case Token::stringLiteralTok:
+			return DataStructure(literalStr);
+			break;
+		case Token::intLiteralTok:
+			return DataStructure(std::atoi(literalStr.c_str()));
+			break;
+		case Token::floatLiteralTok:
+			return DataStructure((float)std::atof(literalStr.c_str()));
+			break;
+		case Token::boolLiteralTok:
+			return DataStructure((literalStr == "true" ? true : false));
+			break;
+		default:
+			throw std::invalid_argument("Token is not a literal!");
+			break;
+		}
+
+		return DataStructure();
+	};
+
+	auto createOperand = [&createLiteral](Token currentToken, const Parser* parser) {
+
+		operand retval;
+
+		if (tokenIsLiteral(currentToken)) {
+			retval = operand(createLiteral(parser->getLiteralTokPosMinus(), currentToken));
+		}
+		else if (currentToken == Token::tagTok) {
+			retval = operand(parser->getTagStringTokPosMinus());
+		}
+		//this is not strictly neccesary
+		else if (currentToken == Token::resultTok) {
+			retval = operand();
+		}
+
+		return retval;
+	};
+
+
 	Token currentToken = m_parser->getNextToken();
 	Subprogram *currentProgram = &m_program;
-	size_t currentStructure = 1;
+	size_t currentStructure = 0;
 	size_t currentScopeNesting = 0;
+
+	auto addProgramContent = [&](statementType stttType){
+		programContent stt;
+		stt.isStatement = true;
+		stt.orderedID = currentStructure;
+		stt.type = stttType;
+		currentProgram->m_contents.push_back(stt);
+		
+	};
+
 	while (currentToken != Token::endTok) {
 		switch (currentToken)
 		{
-		case Token::ifTok:
+		case Token::finallyTok:
+		{
+			addProgramContent(statementType::finallySttt);
+			currentToken = m_parser->getNextToken();
+			
+			finallyType fType = finallyType::end;
 
+			bool hasOperand = false;
+
+			switch (currentToken)
+			{
+			case Token::endBlockTok:
+				fType = finallyType::end;
+				break;
+			case Token::repeatTok:
+				hasOperand = true;
+				fType = finallyType::repeat;
+				break;
+			case Token::giveTok:
+				hasOperand = true;
+				fType = finallyType::give;
+				break;
+			default:
+				break;
+			}
+
+			operand op;
+			if (hasOperand) {
+				currentToken = m_parser->getNextToken();
+				op = createOperand(currentToken, m_parser);
+			}
+
+
+			currentProgram->m_finallySttts[currentStructure] = new finallySttt(currentStructure,fType, op);
+
+			--currentScopeNesting;
+			currentProgram = currentProgram->m_parent;
+		}
+			break;
+		case Token::ifTok:
+		{
+			programContent blockSttt;
+			blockSttt.orderedID = currentStructure;
+			blockSttt.isStatement = false;
+			currentProgram->m_contents.push_back(blockSttt);
+			currentScopeNesting++;
+			currentToken = m_parser->getNextToken();
+			
+			Subprogram *newBlock = new conditionalBlock(currentStructure,createOperand(currentToken,m_parser));
+			currentProgram->m_addSubprogram(currentStructure, newBlock);
+			currentProgram = newBlock;
+		}
 			break;
 		case Token::divideTok:
 		case Token::multiplyTok:
 		case Token::subtractTok:
 		case Token::addTok:
 		{
-			
-			programContent stt;
-			stt.isStatement = true;
-			stt.orderedID = currentStructure;
-			stt.type = statementType::arithmeticOperationSttt;
-			currentProgram->m_contents.push_back(stt);
+			addProgramContent(statementType::arithmeticOperationSttt);
 
 			Token operationType = currentToken;
 
@@ -35,15 +135,7 @@ void Recognizer::m_makeProgram()
 			for (size_t i = 0; i < 2; i++)
 			{
 				currentToken = m_parser->getNextToken();
-				if (tokenIsLiteral(currentToken)) {
-					operands.push_back(operand(m_program.m_addLiteral(m_parser->getLiteralTokPosMinus(), currentToken)));
-				}
-				else if (currentToken == Token::tagTok) {
-					operands.push_back(operand(m_parser->getTagStringTokPosMinus()));
-				}
-				else if (currentToken == Token::resultTok) {
-					operands.push_back(operand());
-				}
+				operands.push_back(createOperand(currentToken, m_parser));
 			}
 
 			currentToken = m_parser-> getNextToken();
@@ -70,11 +162,7 @@ void Recognizer::m_makeProgram()
 		break;
 		case Token::setTok:
 		{
-			programContent stt;
-			stt.isStatement = true;
-			stt.orderedID = currentStructure;
-			stt.type = statementType::setOperationSttt;
-			currentProgram->m_contents.push_back(stt);
+			addProgramContent(statementType::setOperationSttt);
 
 			currentToken = m_parser->getNextToken();
 			std::string varTag = m_parser->getTagStringTokPosMinus();
@@ -96,7 +184,7 @@ void Recognizer::m_makeProgram()
 
 			//setting to literal
 			if (tokenIsLiteral(currentToken)) {
-				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure, varTag,m_program.m_addLiteral(m_parser->getLiteralTokPosMinus(),currentToken));
+				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure, varTag,createLiteral(m_parser->getLiteralTokPosMinus(),currentToken));
 			}
 
 			//setOperation setOp(currentStructure, varTag);
@@ -111,13 +199,9 @@ void Recognizer::m_makeProgram()
 			{
 			case Token::variableTok:
 			{
-				programContent stt;
-				stt.isStatement = true;
-				stt.orderedID = currentStructure;
-				stt.type = statementType::variableDeclarationSttt;
+				addProgramContent(statementType::variableDeclarationSttt);
 				currentToken = m_parser->getNextToken();
 				currentProgram->m_variables[currentStructure] = new variableDeclaration(currentStructure, m_parser->getTagStringTokPosMinus(), currentScopeNesting);
-				currentProgram->m_contents.push_back(stt);
 			}
 				break;
 			default:
@@ -126,14 +210,7 @@ void Recognizer::m_makeProgram()
 			break;
 		case Token::callFunctionTok:
 		{
-			programContent stt;
-
-			stt.isStatement = true;
-			stt.orderedID = currentStructure;
-			stt.type = statementType::functionCallSttt;
-			
-			size_t numberOfVariableArgs = 0;
-			currentProgram->m_contents.push_back(stt);
+			addProgramContent(statementType::functionCallSttt);
 			size_t functionTagTokenPos = m_parser->getCurrentTokenPosition();
 			LOG_ISHLENG((*m_logger), "Recognizer", m_parser->getTagString(m_parser->getCurrentTokenPosition()));
 			std::map<std::string, operand> args;
@@ -146,23 +223,7 @@ void Recognizer::m_makeProgram()
 
 				//first we parse the argument
 				if (it % 2 == 0) {
-					op = operand();
-					//we detect a variable
-					if (currentToken == Token::tagTok) {
-						numberOfVariableArgs++;
-						op.type = operandType::variable;
-						op.varName = m_parser->getTagStringTokPosMinus();
-					}
-					else if (currentToken == Token::resultTok) {
-						op.type = operandType::result;
-					}
-					//we detect a literal
-					else {
-						op.type = operandType::literal;
-						op.literalData = m_program.m_addLiteral(m_parser->getLiteralTokPosMinus(), currentToken);
-						LOG_ISHLENG((*m_logger), "Recognizer, Literal", m_parser->getLiteralTokPosMinus());
-						
-					}
+					op = createOperand(currentToken, m_parser);
 				}
 				//then we parse the place where it is put
 				else {
@@ -176,16 +237,18 @@ void Recognizer::m_makeProgram()
 			}
 			LOG_ISHLENG((*m_logger), "Recognizer", m_parser->getTagString(functionTagTokenPos));
 			//we insert a function call at the specified orderer place
-			currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, m_parser->getTagString(functionTagTokenPos), args, numberOfVariableArgs);
+			currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, m_parser->getTagString(functionTagTokenPos), args);
 			LOG_ISHLENG((*m_logger), "Recognizer, Function tag", currentProgram->m_functionCalls[currentStructure]->getFunctionCalledTag());
 		}
 			break;
 		default:
+			//this gets called if the token is not a valid start of a new statement and also pretty much once after every statement
+			//as the last token is kept as current.
 			currentToken = m_parser->getNextToken();
 			break;
 		}
-
-		LOG_ISHLENG((*m_logger),"Recognizer",std::to_string(++currentStructure));
+		++currentStructure;
+		LOG_ISHLENG((*m_logger),"Recognizer",std::to_string(currentStructure));
 	}
 
 }

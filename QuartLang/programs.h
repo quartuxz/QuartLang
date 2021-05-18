@@ -24,21 +24,28 @@ protected:
 	std::map<size_t, functionCall*> m_functionCalls;
 	std::map<size_t, setOperation*> m_setOperations;
 	std::map<size_t, arithmeticOperation*> m_arithmeticOperations;
+	std::map<size_t, finallySttt*> m_finallySttts;
 
 	std::map<size_t, Subprogram*> m_subprograms;
 
+	void m_addSubprogram(size_t orderedID, Subprogram *subprogram);
+
 public:
 	Subprogram(size_t orderedID, subprogramType type)noexcept;
-	void addSubprogram(const Subprogram& subprogram);
 
 	std::string getTag()const noexcept;
 
+	const Subprogram* getSubprogram(size_t orderedID)const;
+
+	//all the accessors for statements
 	const variableDeclaration* getVariable(size_t orderedID)const;
 	const setOperation* getSetOperation(size_t orderedID)const;
 
-	//all the accessors for statements
+
+
 	const functionCall* getFunctionCall(size_t orderedID)const;
 
+	const finallySttt* getFinallySttt(size_t orderedID)const;
 
 	const arithmeticOperation* getArithmeticOperation(size_t orderedID)const;
 
@@ -47,12 +54,12 @@ public:
 };
 
 class conditionalBlock : public Subprogram {
+	friend class Recognizer;
 private:
 	operand m_condition;
-	bool m_repeats;
 public:
-	conditionalBlock(size_t orderedID, const operand& condition, bool repeats);
-
+	conditionalBlock(size_t orderedID, const operand& condition);
+	const operand& getCondition()const noexcept;
 };
 
 class functionBlock : public Subprogram {
@@ -67,8 +74,6 @@ private:
 	std::map<std::string, builtinFunction*> m_includedBuiltins;
 	//END NOTE.
 	std::vector<DataStructure> m_literals;
-
-	const DataStructure& m_addLiteral(std::string literalStr, Token token);
 public:
 	Program()noexcept;
 

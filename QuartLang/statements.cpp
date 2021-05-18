@@ -32,22 +32,16 @@ void variableDeclaration::setData(const DataStructure& data)
 
 
 
-functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args, size_t variableArgsNum) :
+functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args) :
 	ProgramStructure<statementType>(orderedID, statementType::functionCallSttt),
 	m_functionCalledTag(functionCalledTag),
-	m_args(args),
-	m_variableArgsNum(variableArgsNum)
+	m_args(args)
 {
 }
 
 functionCall::functionCall() :
 	ProgramStructure<statementType>(0, statementType::functionCallSttt)
 {
-}
-
-size_t functionCall::getVariableArgsNum() const noexcept
-{
-	return m_variableArgsNum;
 }
 
 std::string functionCall::getFunctionCalledTag() const noexcept
@@ -100,4 +94,23 @@ const operand& arithmeticOperation::getRhs() const noexcept
 arithmeticOperationType arithmeticOperation::getOperationType() const noexcept
 {
 	return m_opType;
+}
+
+finallySttt::finallySttt(size_t orderedID, finallyType fType, const std::optional<operand>& op) :
+	ProgramStructure<statementType>(orderedID, statementType::finallySttt),
+	m_finallyType(fType)
+{
+	if (op.has_value()) {
+		m_optionalOperand = op.value();
+	}
+}
+
+finallyType finallySttt::getFinallyType() const noexcept
+{
+	return m_finallyType;
+}
+
+const operand& finallySttt::getOptionalOperand() const noexcept
+{
+	return m_optionalOperand;
 }

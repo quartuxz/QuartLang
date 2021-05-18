@@ -26,6 +26,8 @@ const std::map<std::string, Token> Parser::m_matches = {
 	{"execution", Token::lambdaTok},
 	{"giving", Token::lambdaTok},
 	{"then", Token::lambdaTok},
+	{"for", Token::lambdaTok},
+	{"while", Token::lambdaTok},
 
 
 	//then we define all other tokens
@@ -37,9 +39,14 @@ const std::map<std::string, Token> Parser::m_matches = {
 	{"add", Token::addTok},
 	{"subtract", Token::subtractTok},
 	{"multiply", Token::multiplyTok},
-	{"divide", Token::divideTok}
+	{"divide", Token::divideTok},
+	{"finally", Token::finallyTok},
+	{"repeat", Token::repeatTok},
+	{"give", Token::giveTok},
+	{"if", Token::ifTok},
+	{"end", Token::endBlockTok}
 
-
+	
 
 };
 

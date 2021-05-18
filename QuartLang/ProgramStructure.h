@@ -1,9 +1,9 @@
 #pragma once
 
 
-#define SUBPROGRAM_TYPE_ENUM(extra) extra baseBlock, functionBlock, conditionalBlock, classBlock
+#define SUBPROGRAM_TYPE_ENUM(extra) extra baseBlock, functionBlock, conditionalBlock
 #define BLOCKIFY(x) {x}
-#define STATEMENT_TYPE_ENUM variableDeclarationSttt, arithmeticOperationSttt, functionCallSttt, setOperationSttt
+#define STATEMENT_TYPE_ENUM variableDeclarationSttt, arithmeticOperationSttt, functionCallSttt, setOperationSttt, finallySttt
 #define ADD_COMMA(x) x##,
 
 enum class subprogramType BLOCKIFY(SUBPROGRAM_TYPE_ENUM());

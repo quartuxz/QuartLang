@@ -1,0 +1,10 @@
+
+
+
+if false
+
+call print giving "LOL" for words
+
+finally end if
+
+

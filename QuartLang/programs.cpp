@@ -2,47 +2,27 @@
 #include <stdexcept>
 
 
-//IMPLEMENT THIS FULLY
-const DataStructure& Program::m_addLiteral(std::string literalStr, Token token)
+
+
+void Subprogram::m_addSubprogram(size_t orderedID, Subprogram* subprogram)
 {
-
-	DataStructure data;
-	std::string type;
-	//IMPLEMENT THE OTHER CASES
-	switch (token)
-	{
-	case Token::stringLiteralTok:
-		m_literals.push_back(DataStructure(literalStr));
-		break;
-	case Token::intLiteralTok:
-		m_literals.push_back(DataStructure(std::atoi(literalStr.c_str())));
-		break;
-	case Token::floatLiteralTok:
-		m_literals.push_back(DataStructure((float)std::atof(literalStr.c_str())));
-		break;
-	case Token::boolLiteralTok:
-		m_literals.push_back(DataStructure((literalStr == "true" ? true : false)));
-		break;
-	default:
-		throw std::invalid_argument("Token is not a literal!");
-		break;
-	}
-
-	return m_literals.back();
+	m_subprograms[orderedID] = subprogram;
+	subprogram->m_parent = this;
 }
 
 Subprogram::Subprogram(size_t orderedID, subprogramType type) noexcept :
-	ProgramStructure(orderedID, type)
-{
-}
-
-void Subprogram::addSubprogram(const Subprogram& subprogram)
+	ProgramStructure<subprogramType>(orderedID, type)
 {
 }
 
 std::string Subprogram::getTag() const noexcept
 {
 	return m_tag;
+}
+
+const Subprogram* Subprogram::getSubprogram(size_t orderedID) const
+{
+	return m_subprograms.at(orderedID);
 }
 
 const variableDeclaration* Subprogram::getVariable(size_t orderedID)const
@@ -71,15 +51,16 @@ Subprogram::~Subprogram()
 	{
 		delete x.second;
 	}
-
 	for (auto x : m_functionCalls) {
 		delete x.second;
 	}
-
 	for (auto x : m_setOperations) {
 		delete x.second;
 	}
-
+	for (auto x : m_arithmeticOperations)
+	{
+		delete x.second;
+	}
 	for (auto x : m_subprograms) {
 		delete x.second;
 	}
@@ -88,6 +69,11 @@ Subprogram::~Subprogram()
 const functionCall* Subprogram::getFunctionCall(size_t orderedID)const
 {
 	return m_functionCalls.at(orderedID);
+}
+
+const finallySttt* Subprogram::getFinallySttt(size_t orderedID) const
+{
+	return m_finallySttts.at(orderedID);
 }
 
 builtinFunction* Program::getIncludedBuiltin(std::string m_name)const
@@ -113,9 +99,13 @@ Program::Program() noexcept :
 
 }
 
-conditionalBlock::conditionalBlock(size_t orderedID, const operand& condition, bool repeats):
+conditionalBlock::conditionalBlock(size_t orderedID, const operand& condition):
 	Subprogram(orderedID, subprogramType::conditionalBlock),
-	m_condition(condition),
-	m_repeats(repeats)
+	m_condition(condition)
 {
+}
+
+const operand& conditionalBlock::getCondition() const noexcept
+{
+	return m_condition;
 }
