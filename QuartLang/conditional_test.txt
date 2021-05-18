@@ -1,10 +1,32 @@
 
 
 
-if false
 
-call print giving "LOL" for words
 
-finally end if
+declare variable var1
+
+set var1 to 0
+
+if true
+
+
+
+
+
+	call print giving var1 for words
+
+
+
+	declare variable condition
+
+
+	add 1 to var1
+	set var1 to result
+	evaluate var1 is less than or equal to 10
+	set condition to result
+
+finally repeat while condition
+
+
 
 

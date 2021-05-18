@@ -32,13 +32,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuartLang.cpp" />
-    <ClCompile Include="Parser.cpp">
+    <ClCompile Include="Lexer.cpp">
       <Filter>core\parser</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="builtinFunctions.cpp" />
     <ClCompile Include="EnumToString.cpp" />
-    <ClCompile Include="Recognizer.cpp">
+    <ClCompile Include="Parser.cpp">
       <Filter>core\Recognizer</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
@@ -62,18 +62,18 @@
     <ClCompile Include="DataStructure.cpp">
       <Filter>core\program structures</Filter>
     </ClCompile>
-    <ClCompile Include="ParserTest.cpp">
+    <ClCompile Include="LexerTest.cpp">
       <Filter>core\parser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Parser.h">
+    <ClInclude Include="Lexer.h">
       <Filter>core\parser</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h" />
     <ClInclude Include="builtinFunctions.h" />
     <ClInclude Include="EnumToString.h" />
-    <ClInclude Include="Recognizer.h">
+    <ClInclude Include="Parser.h">
       <Filter>core\Recognizer</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
@@ -103,7 +103,7 @@
     <ClInclude Include="DataStructure.h">
       <Filter>core\program structures</Filter>
     </ClInclude>
-    <ClInclude Include="ParserTest.h">
+    <ClInclude Include="LexerTest.h">
       <Filter>core\parser</Filter>
     </ClInclude>
   </ItemGroup>

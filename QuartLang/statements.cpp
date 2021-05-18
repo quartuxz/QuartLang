@@ -114,3 +114,26 @@ const operand& finallySttt::getOptionalOperand() const noexcept
 {
 	return m_optionalOperand;
 }
+
+evaluateOperation::evaluateOperation(size_t orderedID, evalType eType, const operand& lhs, const operand& rhs):
+	ProgramStructure<statementType>(orderedID,statementType::evaluateOpertionSttt),
+	m_evalType(eType),
+	m_lhs(lhs),
+	m_rhs(rhs)
+{
+}
+
+const operand& evaluateOperation::getRhs() const noexcept
+{
+	return m_rhs;
+}
+
+const operand& evaluateOperation::getLhs() const noexcept
+{
+	return m_lhs;
+}
+
+evalType evaluateOperation::getEvalType() const noexcept
+{
+	return m_evalType;
+}

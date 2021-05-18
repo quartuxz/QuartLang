@@ -77,3 +77,19 @@ public:
 	finallyType getFinallyType()const noexcept;
 	const operand& getOptionalOperand()const noexcept;
 };
+
+enum class evalType {
+	equal, lessThan, moreThan, orEval, andEval, lessThanOrEqual, moreThanOrEqual, moreThanOrLessThan
+};
+
+class evaluateOperation : public ProgramStructure<statementType> {
+private:
+	evalType m_evalType;
+	operand m_lhs;
+	operand m_rhs;
+public:
+	evaluateOperation(size_t orderedID, evalType eType, const operand &lhs, const operand &rhs);
+	const operand& getRhs()const noexcept;
+	const operand& getLhs()const noexcept;
+	evalType getEvalType()const noexcept;
+};

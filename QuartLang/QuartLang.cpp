@@ -1,4 +1,4 @@
-#include "Parser.h"
+#include "Lexer.h"
 #include <iostream>
 #include <string>
 #include "allTests.h"
@@ -17,10 +17,10 @@ int main()
 #else
 	Logger logger;
 	logger.toggleLogging(false);
-	Parser parser("Source.txt", &logger);
-	Recognizer recognizer(&parser, &logger);
+	Lexer Lexer("Source.txt", &logger);
+	Parser parser(&Lexer, &logger);
 
-	Engine engine(recognizer.getProgram(), &logger);
+	Engine engine(parser.getProgram(), &logger);
 	engine.run();
 	std::cout << std::endl;
 

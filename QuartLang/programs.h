@@ -12,7 +12,7 @@ struct programContent {
 
 //we define a structure for scoped blocks
 class Subprogram : public ProgramStructure<subprogramType> {
-	friend class Recognizer;
+	friend class Parser;
 protected:
 	std::string m_tag;
 	Subprogram* m_parent = nullptr;
@@ -25,6 +25,7 @@ protected:
 	std::map<size_t, setOperation*> m_setOperations;
 	std::map<size_t, arithmeticOperation*> m_arithmeticOperations;
 	std::map<size_t, finallySttt*> m_finallySttts;
+	std::map<size_t, evaluateOperation*> m_evaluateOperations;
 
 	std::map<size_t, Subprogram*> m_subprograms;
 
@@ -41,7 +42,7 @@ public:
 	const variableDeclaration* getVariable(size_t orderedID)const;
 	const setOperation* getSetOperation(size_t orderedID)const;
 
-
+	const evaluateOperation* getEvaluateOperation(size_t orderedID)const;
 
 	const functionCall* getFunctionCall(size_t orderedID)const;
 
@@ -54,7 +55,7 @@ public:
 };
 
 class conditionalBlock : public Subprogram {
-	friend class Recognizer;
+	friend class Parser;
 private:
 	operand m_condition;
 public:
@@ -68,7 +69,7 @@ class functionBlock : public Subprogram {
 
 
 class Program : public Subprogram {
-	friend class Recognizer;
+	friend class Parser;
 private:
 	//NOTE: the contents of the map are "mutable"
 	std::map<std::string, builtinFunction*> m_includedBuiltins;
@@ -76,6 +77,7 @@ private:
 	std::vector<DataStructure> m_literals;
 public:
 	Program()noexcept;
+
 
 
 	builtinFunction* getIncludedBuiltin(std::string m_name)const;

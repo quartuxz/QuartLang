@@ -35,6 +35,11 @@ const setOperation* Subprogram::getSetOperation(size_t orderedID)const
 	return m_setOperations.at(orderedID);
 }
 
+const evaluateOperation* Subprogram::getEvaluateOperation(size_t orderedID) const
+{
+	return m_evaluateOperations.at(orderedID);
+}
+
 const arithmeticOperation* Subprogram::getArithmeticOperation(size_t orderedID) const
 {
 	return m_arithmeticOperations.at(orderedID);
@@ -62,6 +67,9 @@ Subprogram::~Subprogram()
 		delete x.second;
 	}
 	for (auto x : m_subprograms) {
+		delete x.second;
+	}
+	for (auto x : m_evaluateOperations) {
 		delete x.second;
 	}
 }

@@ -1,6 +1,6 @@
 #include "wide_tests.h"
+#include "Lexer.h"
 #include "Parser.h"
-#include "Recognizer.h"
 #include "Engine.h"
 
 
@@ -9,7 +9,8 @@ WideTest("helloWorldTest","hello_world_test.txt","hello world"),
 WideTest("variableTest","variables_test.txt","7.6"),
 WideTest("doubleSetTest","double_set_test.txt","hello"),
 WideTest("arithmeticTest","arithmetic_test.txt","3"),
-WideTest("resultTest","result_test.txt","8")
+WideTest("resultTest","result_test.txt","8"),
+WideTest("conditionalTest","conditional_test.txt","012345678910"),
 
 };
 
@@ -30,9 +31,9 @@ bool WideTest::m_doTest()
 	bool retval = true;
 	Logger logger;
 	logger.toggleLogging(false);
-	Parser parser(m_testFile, &logger);
-	Recognizer recognizer(&parser, &logger);
-	Engine engine(recognizer.getProgram(), &logger);
+	Lexer Lexer(m_testFile, &logger);
+	Parser parser(&Lexer, &logger);
+	Engine engine(parser.getProgram(), &logger);
 	engine.run();
 
 	if (testOutput.str() == m_required) {

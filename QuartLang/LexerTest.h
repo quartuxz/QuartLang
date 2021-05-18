@@ -5,7 +5,7 @@
 
 
 
-class ParserTest: public Test
+class LexerTest: public Test
 {
 private:
 	std::string m_testInput;
@@ -13,9 +13,9 @@ private:
 	std::vector<std::string> m_expectedLiteralsAndTags;
 	bool m_doTest()override;
 public:
-	ParserTest(const std::string& testName, const std::string& testInput, const std::vector<Token>& expected, const std::vector<std::string>& expectedLiteralsAndTags);
+	LexerTest(const std::string& testName, const std::string& testInput, const std::vector<Token>& expected, const std::vector<std::string>& expectedLiteralsAndTags);
 
 
 };
 
-bool doParserTests();
+bool doLexerTests();

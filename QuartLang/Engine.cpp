@@ -1,7 +1,7 @@
 #include "Engine.h"
 
 
-#define DO_ARITHEMTIC_OPERATION(lhs, rhs, op)\
+#define DO_OPERATION_ISHLENG(lhs, rhs, op)\
             if (lhs.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) { \
                     if (rhs.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) { \
                         *result = DataStructure(lhs.getFloatData() op rhs.getFloatData());\
@@ -41,12 +41,21 @@ variableDeclaration* getVariable(const std::map<std::string, std::vector<variabl
     return nullptr;
 }
 
-runType Engine::m_run(const Subprogram* currentProgram, DataStructure *p_result = nullptr, const std::map<std::string, variableDeclaration*>& p_variables)
+
+#define START_FROM_ZERO 0
+#define START_FROM_LAST_STATEMENT -1
+
+runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStructure *p_result, const std::map<std::string, variableDeclaration*>& p_variables)
 {
     std::vector<programContent> currentContents = currentProgram->getContent();
 
     std::map<std::string, variableDeclaration*> variables = p_variables;
     std::vector<variableDeclaration*> newVariables;
+
+
+    if (startPoint == START_FROM_LAST_STATEMENT) {
+        startPoint = currentContents.size() - 1;
+    }
 
 
     size_t currentScopeNested = 0;
@@ -90,15 +99,53 @@ runType Engine::m_run(const Subprogram* currentProgram, DataStructure *p_result 
         newVariables.clear();
     };
 
-    for (int i = 0; i < currentContents.size(); i++)
+    for (int i = startPoint; i < currentContents.size(); i++)
     {
         size_t currentContentsOrderedId = currentContents[i].orderedID;
         if (currentContents[i].isStatement) {
             switch (currentContents[i].type)
             {
+            case statementType::evaluateOpertionSttt:
+            {
+                const evaluateOperation* evalOp = currentProgram->getEvaluateOperation(currentContentsOrderedId);
+                auto lhs = opToDat(evalOp->getLhs());
+                auto rhs = opToDat(evalOp->getRhs());
+                
+                switch (evalOp->getEvalType())
+                {
+                case evalType::equal:
+                    DO_OPERATION_ISHLENG(lhs, rhs, ==);
+                    break;
+                case evalType::lessThan:
+                    DO_OPERATION_ISHLENG(lhs, rhs, < );
+                    break;
+                case evalType::moreThan:
+                    DO_OPERATION_ISHLENG(lhs, rhs, > );
+                    break;
+                case evalType::orEval:
+                    DO_OPERATION_ISHLENG(lhs, rhs, || );
+                    break;
+                case evalType::andEval:
+                    DO_OPERATION_ISHLENG(lhs, rhs, && );
+                    break;
+                case evalType::lessThanOrEqual:
+                    DO_OPERATION_ISHLENG(lhs, rhs, <= );
+                    break;
+                case evalType::moreThanOrEqual:
+                    DO_OPERATION_ISHLENG(lhs, rhs, >= );
+                    break;
+                case evalType::moreThanOrLessThan:
+                    DO_OPERATION_ISHLENG(lhs, rhs, != );
+                    break;
+                default:
+                    break;
+                }
+            }
+                break;
+
             case statementType::finallySttt:
             {
-                const finallySttt* fSttt = currentProgram->getFinallySttt(currentContents[i].orderedID);
+                const finallySttt* fSttt = currentProgram->getFinallySttt(currentContentsOrderedId);
                 switch (fSttt->getFinallyType())
                 {
                 case finallyType::end:
@@ -125,16 +172,16 @@ runType Engine::m_run(const Subprogram* currentProgram, DataStructure *p_result 
                 switch (arithmeticOp->getOperationType())
                 {
                 case arithmeticOperationType::add:
-                    DO_ARITHEMTIC_OPERATION(lhs, rhs, +);
+                    DO_OPERATION_ISHLENG(lhs, rhs, +);
                     break;
                 case arithmeticOperationType::subtract:
-                    DO_ARITHEMTIC_OPERATION(lhs, rhs, -);
+                    DO_OPERATION_ISHLENG(lhs, rhs, -);
                     break;
                 case arithmeticOperationType::multiply:
-                    DO_ARITHEMTIC_OPERATION(lhs, rhs, *);
+                    DO_OPERATION_ISHLENG(lhs, rhs, *);
                     break;
                 case arithmeticOperationType::divide:
-                    DO_ARITHEMTIC_OPERATION(lhs, rhs, / );
+                    DO_OPERATION_ISHLENG(lhs, rhs, / );
                     break;
                 default:
                     break;
@@ -194,7 +241,7 @@ runType Engine::m_run(const Subprogram* currentProgram, DataStructure *p_result 
             {
                 const conditionalBlock* condBlock = dynamic_cast<const conditionalBlock*>(candidateNext);
                 if (opToDat(condBlock->getCondition()).getBoolData()) {
-                    m_run(condBlock,result,p_variables);
+                    m_run(condBlock,START_FROM_ZERO,result,variables);
                 }
             }
                 break;
