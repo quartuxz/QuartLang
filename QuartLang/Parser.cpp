@@ -33,22 +33,42 @@ void Parser::m_makeProgram()
 		return DataStructure();
 	};
 
-	auto createOperand = [&createLiteral](Token currentToken, const Lexer* Lexer) {
+
+	std::string lastTag;
+
+
+	auto createOperand = [&createLiteral, &lastTag](Token currentToken, const Lexer* lexer) {
 
 		operand retval;
 
 		if (tokenIsLiteral(currentToken)) {
-			retval = operand(createLiteral(Lexer->getLiteralTokPosMinus(), currentToken));
+			retval = operand(createLiteral(lexer->getLiteralTokPosMinus(), currentToken));
 		}
 		else if (currentToken == Token::tagTok) {
-			retval = operand(Lexer->getTagStringTokPosMinus());
+			retval = operand(lexer->getTagStringTokPosMinus());
 		}
 		//this is not strictly neccesary
 		else if (currentToken == Token::resultTok) {
 			retval = operand();
 		}
+		else if (currentToken == Token::itTok) {
+			retval = operand(lastTag);
+		}
 
 		return retval;
+	};
+
+	auto getVariableName = [&lastTag](Token currentToken, const Lexer* lexer) {
+
+		std::string varTag;
+
+		if (tokenIsLiteralOrTag(currentToken)) {
+			varTag = lexer->getTagStringTokPosMinus();
+		}
+		else if (currentToken == Token::itTok) {
+			varTag = lastTag;
+		}
+		return varTag;
 	};
 
 
@@ -69,9 +89,74 @@ void Parser::m_makeProgram()
 	while (currentToken != Token::endTok) {
 		switch (currentToken)
 		{
+		case Token::referTok:
+		{
+			addProgramContent(statementType::referOperationSttt);
+
+			
+			
+			currentToken = m_lexer->getNextToken();
+			auto op = createOperand(currentToken, m_lexer);
+			currentToken = m_lexer->getNextToken();
+
+
+			auto varName = getVariableName(currentToken, m_lexer);
+
+			currentToken = m_lexer->getNextToken();
+			auto referantName = m_lexer->getTagStringTokPosMinus();
+
+			lastTag = referantName;
+
+			currentProgram->m_referOperations[currentStructure] = new referOperation(currentStructure, varName,op, referantName);
+		}
+			break;
+		
+		case Token::appendTok:
+		{
+			addProgramContent(statementType::appendOperationSttt);
+
+
+			currentToken = m_lexer->getNextToken();
+			auto content = createOperand(currentToken, m_lexer);
+
+			currentToken = m_lexer->getNextToken();
+
+			operand placeAt;
+
+			appendType appType;
+
+			if (!tokenIsLiteralOrTag(currentToken)) {
+				switch (currentToken) {
+				case Token::backTok:
+					appType = appendType::push_back;
+					break;
+				case Token::frontTok:
+					appType = appendType::push_front;
+					break;
+				}
+			}
+			else {
+				appType = appendType::map_to;
+				placeAt = createOperand(currentToken, m_lexer);
+			}
+
+			currentToken = m_lexer->getNextToken();
+			auto varName = getVariableName(currentToken, m_lexer);
+
+			currentProgram->m_appendOperations[currentStructure] = new appendOperation(currentStructure,appType,placeAt,content,varName);
+		}
+			break;
+
+		case Token::flipTok:
+		{
+			addProgramContent(statementType::flipOperationSttt);
+			currentToken = m_lexer->getNextToken();
+			currentProgram->m_flipOperations[currentStructure] = new flipOperation(currentStructure,createOperand(currentToken, m_lexer));
+		}
+			break;
 		case Token::evaluateTok:
 		{
-			addProgramContent(statementType::evaluateOpertionSttt);
+			addProgramContent(statementType::evaluateOperationSttt);
 			//the first operand is read after the evaluate token
 			currentToken = m_lexer->getNextToken();
 			//declare both operands assign the first
@@ -266,7 +351,7 @@ void Parser::m_makeProgram()
 			addProgramContent(statementType::setOperationSttt);
 
 			currentToken = m_lexer->getNextToken();
-			std::string varTag = m_lexer->getTagStringTokPosMinus();
+			std::string varTag = getVariableName(currentToken, m_lexer);
 			currentToken = m_lexer->getNextToken();
 
 			
@@ -303,6 +388,7 @@ void Parser::m_makeProgram()
 				addProgramContent(statementType::variableDeclarationSttt);
 				currentToken = m_lexer->getNextToken();
 				currentProgram->m_variables[currentStructure] = new variableDeclaration(currentStructure, m_lexer->getTagStringTokPosMinus(), currentScopeNesting);
+				lastTag = m_lexer->getTagStringTokPosMinus();
 			}
 				break;
 			default:
@@ -361,8 +447,8 @@ Parser::Parser(Lexer* Lexer, Logger *logger):
 {
 	m_makeProgram();
 	//we include all the basic BIFs
-	m_program.m_includedBuiltins["print"] = new print_BIF();
-	m_program.m_includedBuiltins["print_new_line"] = new print_new_line_BIF();
+	m_program.m_includedBuiltins["print-anything"] = new print_anything_BIF();
+	m_program.m_includedBuiltins["print-new-line"] = new print_new_line_BIF();
 }
 
 const Program* Parser::getProgram() const noexcept

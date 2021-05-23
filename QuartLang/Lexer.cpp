@@ -11,7 +11,7 @@
 
 
 const std::map<std::string, Token> Lexer::m_matches = {
-	//we first define all lambda tokens, those that are not parsed and also arent tags
+	/*we first define all lambda tokens, those that are not parsed and also arent tags DEPRECATED
 	{"a", Token::lambdaTok},
 	{"named", Token::lambdaTok},
 	{"as", Token::lambdaTok},
@@ -31,7 +31,7 @@ const std::map<std::string, Token> Lexer::m_matches = {
 	{"than", Token::lambdaTok},
 	{"is", Token::lambdaTok},
 	{"than", Token::lambdaTok},
-
+	*/
 
 	//then we define all other tokens
 	{"declare", Token::declareTok},
@@ -55,17 +55,20 @@ const std::map<std::string, Token> Lexer::m_matches = {
 	{"greater", Token::moreThanTok},
 	{"equal", Token::equalToTok},
 	{"or", Token::orTok},
-	{"and", Token::andTok}
-
-
-	
-
+	{"and", Token::andTok},
+	{"flip", Token::flipTok},
+	{"refer", Token::referTok},
+	{"append", Token::appendTok},
+	{"back", Token::backTok},
+	{"front", Token::frontTok},
+	{"it", Token::itTok}
 };
 
 
 
 Lexer::Lexer(std::string filenameOrCode, Logger *logger,bool isFileTrueIsCodeFalse):
-	m_logger(logger)
+	m_logger(logger),
+	m_dictionaryLexer("words_alpha.txt",m_matches)
 {
 
 	m_bindFileOrCode(filenameOrCode, isFileTrueIsCodeFalse);
@@ -185,12 +188,11 @@ void Lexer::m_tokenize()
 			m_addLiteral(currentTokenString, Token::boolLiteralTok);
 		}
 		else {
-			if (m_matches.find(currentTokenString) != m_matches.end()) {
-				Token tok = m_matches.at(currentTokenString);
+			if (m_dictionaryLexer.checkIfStringHasToken(currentTokenString)) {
+				Token tok = m_dictionaryLexer.getTokenForString(currentTokenString);
 				if (tok != Token::lambdaTok) {
-					m_tokens.push_back(m_matches.at(currentTokenString));
+					m_tokens.push_back(m_dictionaryLexer.getTokenForString(currentTokenString));
 				}
-				
 			}
 			//if the token is not in the list, it is a tag
 			else {
@@ -284,5 +286,5 @@ bool tokenIsLiteral(Token token)
 
 bool tokenIsOperand(Token token)
 {
-	return (tokenIsLiteralOrTag(token) || token == Token::resultTok);
+	return (tokenIsLiteralOrTag(token) || token == Token::resultTok || token == Token::itTok);
 }

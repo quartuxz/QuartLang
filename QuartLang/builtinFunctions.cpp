@@ -24,22 +24,22 @@ const char* WrongArgsNumberException::what() const
 #define OUTPUT_STREAM_TEST_OR_REAL_ISHLENG std::cout
 #endif
 
-DataStructure print_BIF::call(const std::map<std::string, DataStructure>& args)
+DataStructure print_anything_BIF::call(const std::map<std::string, DataStructure>& args)
 {
     if (args.size() > 1) {
         throw WrongArgsNumberException(1, args.size());
     }
-    if (args.at("words").getTypeOrPrimitiveTag() == "string") {
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("words").getString();
+    if (args.at("input-words").getTypeOrPrimitiveTag() == "string") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getString();
     }
-    else if (args.at("words").getTypeOrPrimitiveTag() == "float") {
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("words").getFloatData();
+    else if (args.at("input-words").getTypeOrPrimitiveTag() == "float") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getFloatData();
     }
-    else if (args.at("words").getTypeOrPrimitiveTag() == "int") {
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("words").getIntData();
+    else if (args.at("input-words").getTypeOrPrimitiveTag() == "int") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getIntData();
     }
-    else if(args.at("words").getTypeOrPrimitiveTag() == "bool"){
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("words").getBoolData();
+    else if(args.at("input-words").getTypeOrPrimitiveTag() == "bool"){
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getBoolData();
     }
     return DataStructure();
 }

@@ -1,0 +1,15 @@
+
+evaluate 1 is greater than 2
+
+call print-anything giving result as input-words
+
+evaluate 3 is greater than 2
+
+call print-anything giving result as input-words
+
+evaluate 2 is greater than or equal to 2
+
+call print-anything giving result as input-words
+
+
+

@@ -27,7 +27,7 @@ public:
 };
 
 
-class print_BIF : public builtinFunction {
+class print_anything_BIF : public builtinFunction {
 public:
 	DataStructure call(const std::map<std::string, DataStructure>& args)override;
 };

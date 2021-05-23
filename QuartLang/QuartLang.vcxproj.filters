@@ -8,14 +8,8 @@
     <Filter Include="core">
       <UniqueIdentifier>{70b91568-823d-4348-abcf-d9a71c78e8e9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="core\parser">
-      <UniqueIdentifier>{7df99fc3-2354-440c-805f-c1d1a39f7a38}</UniqueIdentifier>
-    </Filter>
     <Filter Include="design docs">
       <UniqueIdentifier>{8034c7ba-d03f-4bd0-a015-6cb45fe21c3e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="core\Recognizer">
-      <UniqueIdentifier>{1843b207-2c05-4ec9-b72e-39f9e345a0ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="core\Engine">
       <UniqueIdentifier>{6210d654-b70a-4381-ad8c-f7ea8fe984d8}</UniqueIdentifier>
@@ -29,17 +23,23 @@
     <Filter Include="core\program structures">
       <UniqueIdentifier>{a2b33d14-b6e6-4fff-9169-5a0d69593c1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core\lexer">
+      <UniqueIdentifier>{7df99fc3-2354-440c-805f-c1d1a39f7a38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\parser">
+      <UniqueIdentifier>{1843b207-2c05-4ec9-b72e-39f9e345a0ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuartLang.cpp" />
     <ClCompile Include="Lexer.cpp">
-      <Filter>core\parser</Filter>
+      <Filter>core\lexer</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="builtinFunctions.cpp" />
     <ClCompile Include="EnumToString.cpp" />
     <ClCompile Include="Parser.cpp">
-      <Filter>core\Recognizer</Filter>
+      <Filter>core\parser</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
       <Filter>core\Engine</Filter>
@@ -63,18 +63,21 @@
       <Filter>core\program structures</Filter>
     </ClCompile>
     <ClCompile Include="LexerTest.cpp">
-      <Filter>core\parser</Filter>
+      <Filter>core\lexer</Filter>
+    </ClCompile>
+    <ClCompile Include="DictionaryLexer.cpp">
+      <Filter>core\lexer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer.h">
-      <Filter>core\parser</Filter>
+      <Filter>core\lexer</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h" />
     <ClInclude Include="builtinFunctions.h" />
     <ClInclude Include="EnumToString.h" />
     <ClInclude Include="Parser.h">
-      <Filter>core\Recognizer</Filter>
+      <Filter>core\parser</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
       <Filter>core\Engine</Filter>
@@ -98,13 +101,16 @@
       <Filter>core\program structures</Filter>
     </ClInclude>
     <ClInclude Include="Token.h">
-      <Filter>core\parser</Filter>
+      <Filter>core\lexer</Filter>
     </ClInclude>
     <ClInclude Include="DataStructure.h">
       <Filter>core\program structures</Filter>
     </ClInclude>
     <ClInclude Include="LexerTest.h">
-      <Filter>core\parser</Filter>
+      <Filter>core\lexer</Filter>
+    </ClInclude>
+    <ClInclude Include="DictionaryLexer.h">
+      <Filter>core\lexer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -134,5 +140,21 @@
     <Text Include="conditional_test.txt">
       <Filter>program-wide tests\source</Filter>
     </Text>
+    <Text Include="evaluation_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="words_alpha.txt" />
+    <Text Include="verbose_variable_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="append_and_refer_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="it_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="make_dictionary_cpp.py" />
   </ItemGroup>
 </Project>

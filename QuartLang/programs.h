@@ -26,6 +26,9 @@ protected:
 	std::map<size_t, arithmeticOperation*> m_arithmeticOperations;
 	std::map<size_t, finallySttt*> m_finallySttts;
 	std::map<size_t, evaluateOperation*> m_evaluateOperations;
+	std::map<size_t, flipOperation*> m_flipOperations;
+	std::map<size_t, referOperation*> m_referOperations;
+	std::map<size_t, appendOperation*> m_appendOperations;
 
 	std::map<size_t, Subprogram*> m_subprograms;
 
@@ -38,11 +41,17 @@ public:
 
 	const Subprogram* getSubprogram(size_t orderedID)const;
 
+
+
 	//all the accessors for statements
 	const variableDeclaration* getVariable(size_t orderedID)const;
 	const setOperation* getSetOperation(size_t orderedID)const;
 
 	const evaluateOperation* getEvaluateOperation(size_t orderedID)const;
+	const flipOperation* getFlipOperation(size_t orderedID)const;
+
+	const referOperation* getReferOperation(size_t orderedID)const;
+	const appendOperation* getAppendOperation(size_t orderedID)const;
 
 	const functionCall* getFunctionCall(size_t orderedID)const;
 
@@ -53,6 +62,8 @@ public:
 	std::vector<programContent> getContent()const noexcept;
 	virtual ~Subprogram();
 };
+
+
 
 class conditionalBlock : public Subprogram {
 	friend class Parser;

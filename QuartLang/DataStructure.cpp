@@ -43,19 +43,40 @@ bool DataStructure::getIsArray() const noexcept
 }
 
 
-const DataStructure& DataStructure::getSubobject(std::string name)const
+std::string DataStructure::getTypeOrPrimitiveTag() const noexcept
+{
+	return m_typeOrPrimitiveTag;
+}
+
+const DataStructure& DataStructure::getNamedSubobject(std::string name) const
 {
 	return m_subobjects[m_subobjectNames.at(name)];
 }
 
-const DataStructure& DataStructure::getArrayElement(size_t id) const
+const DataStructure& DataStructure::getSubobject(size_t id) const
 {
 	return m_subobjects[id];
 }
 
-std::string DataStructure::getTypeOrPrimitiveTag() const noexcept
+DataStructure& DataStructure::getNamedSubobject(std::string name)
 {
-	return m_typeOrPrimitiveTag;
+	return m_subobjects[m_subobjectNames[name]];
+}
+
+DataStructure& DataStructure::getSubobject(size_t id)
+{
+	return m_subobjects[id];
+}
+
+void DataStructure::pushBackSubobject(const DataStructure& subobject)
+{
+	m_subobjects.push_back(subobject);
+}
+
+void DataStructure::addNamedSubobject(const DataStructure& subobject, const std::string& name)
+{
+	m_subobjectNames[name] = m_subobjects.size();
+	m_subobjects.push_back(subobject);
 }
 
 DataStructure::DataStructure(int intData):

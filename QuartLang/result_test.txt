@@ -3,4 +3,4 @@
 add 2 to 2
 add result to result
 
-call print with result as words
+call print-anything with result as input-words

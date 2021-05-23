@@ -1,28 +1,11 @@
 
 
 
-declare variable var1
+declare variable asdasdd
 
-set var1 to 0
+set it to 10
 
-if true
+call print-anything with it as input-words
 
-
-
-
-
-	call print giving var1 for words
-
-
-
-	declare variable condition
-
-
-	add 1 to var1
-	set var1 to result
-	evaluate var1 is less than or equal to 10
-	set condition to result
-
-finally repeat while condition
 
 

@@ -12,11 +12,12 @@ class Parser
 {
 private:
 
+
 	Logger *m_logger;
 
 	Program m_program;
 	Lexer* m_lexer;
-
+	
 
 	size_t m_entryPoint;
 

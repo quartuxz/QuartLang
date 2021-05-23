@@ -53,8 +53,14 @@ public:
 
 	std::string getTypeOrPrimitiveTag()const noexcept;
 
-	const DataStructure& getSubobject(std::string name)const;
-	const DataStructure& getArrayElement(size_t id)const;
+	const DataStructure& getNamedSubobject(std::string name)const;
+	const DataStructure& getSubobject(size_t id)const;
+	DataStructure& getNamedSubobject(std::string name);
+	DataStructure& getSubobject(size_t id);
+
+
+	void pushBackSubobject(const DataStructure & subobject);
+	void addNamedSubobject(const DataStructure & subobject, const std::string &name );
 };
 
 

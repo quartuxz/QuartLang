@@ -13,6 +13,7 @@ public:
 	variableDeclaration(size_t orderedID, const std::string& tag, size_t scopeNesting = 0)noexcept;
 	std::string getTag()const noexcept;
 	const DataStructure& getData()const noexcept;
+
 	size_t getScopeNesting()const noexcept;
 	void setData(const DataStructure& data);
 };
@@ -92,4 +93,47 @@ public:
 	const operand& getRhs()const noexcept;
 	const operand& getLhs()const noexcept;
 	evalType getEvalType()const noexcept;
+};
+
+
+class flipOperation : public ProgramStructure<statementType> {
+private:
+	operand m_op;
+public:
+	flipOperation(size_t orderedId, const operand &op);
+
+	const operand& getOperand()const noexcept;
+};
+
+
+class referOperation : public ProgramStructure<statementType> {
+private:
+	operand m_where;
+	std::string m_varName;
+	std::string m_referantName;
+public:
+	referOperation(size_t orderedId, const std::string& varName, const operand& whereOp, const std::string &referantName);
+	const operand& getWhere()const;
+	std::string getVarName()const;
+	std::string getReferantName()const;
+};
+
+
+enum class appendType {
+	push_back, push_front, map_to
+};
+
+class appendOperation: public ProgramStructure<statementType> {
+private:
+	appendType m_appendType;
+	operand m_content;
+	operand m_place;
+	std::string m_varName;
+public:
+	appendOperation(size_t orderedId, appendType appType,const operand& place,const operand& content, const std::string& varName);
+	appendType getAppendType()const noexcept;
+	const operand& getContent()const noexcept;
+	std::string getVarName()const noexcept;
+	const operand& getPlace()const noexcept;
+
 };

@@ -116,7 +116,7 @@ const operand& finallySttt::getOptionalOperand() const noexcept
 }
 
 evaluateOperation::evaluateOperation(size_t orderedID, evalType eType, const operand& lhs, const operand& rhs):
-	ProgramStructure<statementType>(orderedID,statementType::evaluateOpertionSttt),
+	ProgramStructure<statementType>(orderedID,statementType::evaluateOperationSttt),
 	m_evalType(eType),
 	m_lhs(lhs),
 	m_rhs(rhs)
@@ -136,4 +136,69 @@ const operand& evaluateOperation::getLhs() const noexcept
 evalType evaluateOperation::getEvalType() const noexcept
 {
 	return m_evalType;
+}
+
+flipOperation::flipOperation(size_t orderedId, const operand& op):
+	ProgramStructure<statementType>(orderedId,statementType::flipOperationSttt),
+	m_op(op)
+{
+
+}
+
+const operand& flipOperation::getOperand() const noexcept
+{
+	return m_op;
+}
+
+appendOperation::appendOperation(size_t orderedId, appendType appType, const operand& place, const operand& content, const std::string& varName):
+	ProgramStructure<statementType>(orderedId, statementType::appendOperationSttt),
+	m_appendType(appType),
+	m_place(place),
+	m_content(content),
+	m_varName(varName)
+{
+}
+
+appendType appendOperation::getAppendType() const noexcept
+{
+	return m_appendType;
+}
+
+const operand& appendOperation::getContent() const noexcept
+{
+	return m_content;
+}
+
+std::string appendOperation::getVarName() const noexcept
+{
+	return m_varName;
+}
+
+const operand& appendOperation::getPlace() const noexcept
+{
+	return m_place;
+}
+
+referOperation::referOperation(size_t orderedId, const std::string& varName, const operand& whereOp, const std::string& referantName):
+	ProgramStructure<statementType>(orderedId, statementType::referOperationSttt),
+	m_where(whereOp),
+	m_varName(varName),
+	m_referantName(referantName)
+{
+}
+
+const operand& referOperation::getWhere() const
+{
+	// TODO: insert return statement here
+	return m_where;
+}
+
+std::string referOperation::getVarName() const
+{
+	return m_varName;
+}
+
+std::string referOperation::getReferantName() const
+{
+	return m_referantName;
 }

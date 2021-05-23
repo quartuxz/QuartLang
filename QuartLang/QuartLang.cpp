@@ -26,5 +26,6 @@ int main()
 
 #endif // MUST_TEST_ISHLEND
 	system("pause");
+	DictionaryLexer::cleanupDictionaries();
 }
   

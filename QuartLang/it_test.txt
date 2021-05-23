@@ -1,0 +1,5 @@
+declare variable asdasdd
+
+set it to 10
+
+call print-anything with it as input-words

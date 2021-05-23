@@ -15,4 +15,4 @@ subtract var2 by var1
 divide result by var1
 set var2 to result
 
-call print giving var2 as words
+call print-anything giving var2 as input-words

@@ -25,6 +25,22 @@ const Subprogram* Subprogram::getSubprogram(size_t orderedID) const
 	return m_subprograms.at(orderedID);
 }
 
+const flipOperation* Subprogram::getFlipOperation(size_t orderedID) const
+{
+	return m_flipOperations.at(orderedID);
+}
+
+
+const referOperation* Subprogram::getReferOperation(size_t orderedID) const
+{
+	return m_referOperations.at(orderedID);
+}
+
+const appendOperation* Subprogram::getAppendOperation(size_t orderedID) const
+{
+	return m_appendOperations.at(orderedID);
+}
+
 const variableDeclaration* Subprogram::getVariable(size_t orderedID)const
 {
 	return m_variables.at(orderedID);

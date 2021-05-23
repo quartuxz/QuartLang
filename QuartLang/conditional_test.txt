@@ -1,6 +1,6 @@
 
 
-
+hello this program prints many numbers
 
 
 declare variable var1
@@ -10,22 +10,19 @@ set var1 to 0
 if true
 
 
+	call print-anything giving var1 for input-words
 
 
 
-	call print giving var1 for words
-
-
-
-	declare variable condition
+	declare variable VarCondition
 
 
 	add 1 to var1
 	set var1 to result
 	evaluate var1 is less than or equal to 10
-	set condition to result
+	set VarCondition to result
 
-finally repeat while condition
+finally repeat while VarCondition
 
 
 

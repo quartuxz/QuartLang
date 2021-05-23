@@ -1,0 +1,32 @@
+
+
+declare variable var31 
+
+append 10 to the back of var31
+
+refer to 0 in var31 as var31[0]
+
+declare variable thing-contents
+
+set thing-contents to "first"
+
+append  thing-contents to "subvar" of var31[0]  
+
+declare variable var0
+
+set var0 to "subvar"
+
+refer to var0 in var31[0] as var31[0][0]
+
+
+
+set var31[0][0] to "second"
+
+
+refer to 0 in var31 as var..
+refer to "xd" in var.. as var...
+
+
+
+call print-anything with var... as input-words
+

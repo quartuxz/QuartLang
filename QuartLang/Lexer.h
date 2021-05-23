@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <optional>
+#include "DictionaryLexer.h"
 
 #include "Token.h"
 
@@ -16,10 +17,12 @@ bool tokenIsLiteral(Token token);
 bool tokenIsOperand(Token token);
 
 
-//Only parses the files, it does not verify a grammar.
+//tokenizes code
 class Lexer
 {
 private:
+
+	DictionaryLexer m_dictionaryLexer;
 
 	Logger* m_logger;
 
