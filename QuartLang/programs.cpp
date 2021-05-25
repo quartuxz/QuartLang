@@ -15,11 +15,6 @@ Subprogram::Subprogram(size_t orderedID, subprogramType type) noexcept :
 {
 }
 
-std::string Subprogram::getTag() const noexcept
-{
-	return m_tag;
-}
-
 const Subprogram* Subprogram::getSubprogram(size_t orderedID) const
 {
 	return m_subprograms.at(orderedID);
@@ -61,6 +56,11 @@ const arithmeticOperation* Subprogram::getArithmeticOperation(size_t orderedID) 
 	return m_arithmeticOperations.at(orderedID);
 }
 
+const finishOperation* Subprogram::getFinishOperation(size_t orderedID) const 
+{
+	return m_finishOperations.at(orderedID);
+}
+
 std::vector<programContent> Subprogram::getContent() const noexcept
 {
 	return m_contents;
@@ -82,12 +82,27 @@ Subprogram::~Subprogram()
 	{
 		delete x.second;
 	}
-	for (auto x : m_subprograms) {
-		delete x.second;
-	}
+
 	for (auto x : m_evaluateOperations) {
 		delete x.second;
 	}
+	
+	for (auto x : m_flipOperations) {
+		delete x.second;
+	}
+	
+	for (auto x : m_referOperations) {
+		delete x.second;
+	}
+	
+	for (auto x : m_appendOperations) {
+		delete x.second;
+	}
+
+	for (auto x : m_subprograms) {
+		delete x.second;
+	}
+
 }
 
 const functionCall* Subprogram::getFunctionCall(size_t orderedID)const
@@ -132,4 +147,15 @@ conditionalBlock::conditionalBlock(size_t orderedID, const operand& condition):
 const operand& conditionalBlock::getCondition() const noexcept
 {
 	return m_condition;
+}
+
+functionBlock::functionBlock(size_t orderedID, const std::string& tag) :
+	Subprogram(orderedID, subprogramType::functionBlock),
+	m_tag(tag)
+{
+}
+
+const std::string& functionBlock::getTag() const
+{
+	return m_tag;
 }

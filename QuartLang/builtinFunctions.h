@@ -22,17 +22,22 @@ class builtinFunction
 public:
 
 
-	virtual DataStructure call(const std::map<std::string, DataStructure>& args) = 0;
+	virtual void call(const std::map<std::string, DataStructure*>& args, DataStructure *retval) = 0;
 
 };
 
 
 class print_anything_BIF : public builtinFunction {
 public:
-	DataStructure call(const std::map<std::string, DataStructure>& args)override;
+	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };
 
 class print_new_line_BIF : public builtinFunction {
 public:
-	DataStructure call(const std::map<std::string, DataStructure>& args)override;
+	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+};
+
+class is_empty_BIF : public builtinFunction {
+public:
+	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };

@@ -1,5 +1,5 @@
 
-evaluate 1 is greater than 2
+evaluate -1 is greater than 2
 
 call print-anything giving result as input-words
 

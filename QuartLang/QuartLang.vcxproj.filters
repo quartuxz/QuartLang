@@ -29,6 +29,9 @@
     <Filter Include="core\parser">
       <UniqueIdentifier>{1843b207-2c05-4ec9-b72e-39f9e345a0ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="try them yourself tests">
+      <UniqueIdentifier>{a479c958-b361-4543-b412-5ab370d8a7ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuartLang.cpp" />
@@ -152,6 +155,18 @@
     </Text>
     <Text Include="it_test.txt">
       <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="flip_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="function_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="multiprocessing_fibonacci_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="multithreaded_proof.txt">
+      <Filter>try them yourself tests</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

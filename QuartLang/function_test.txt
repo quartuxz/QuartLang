@@ -1,0 +1,56 @@
+
+
+
+declare function func1
+	
+	declare variable max-recursion
+	set max-recursion to 4
+
+	declare variable recursive-iterations
+
+	call is-empty giving recursive-iterations as test-input
+
+	if result
+		
+		set recursive-iterations to 0
+		
+	finally end
+
+	
+	call print-anything with recursive-iterations as input-words
+	call print-anything with input-thing as input-words
+
+
+	add 1 to recursive-iterations
+	
+	set recursive-iterations to result
+
+
+
+	evaluate recursive-iterations is less than max-recursion
+
+	declare variable recursion-condition
+	set it to result
+
+
+	if recursion-condition
+
+		call func1 giving recursive-iterations as recursive-iterations also input-thing as input-thing
+
+	finally end
+
+	
+
+finally give max-recursion
+
+
+call func1 with "th step, " as input-thing
+
+declare variable retval
+
+set retval to result
+
+
+call print-anything with "total steps: " as #
+call print-anything with retval as #
+

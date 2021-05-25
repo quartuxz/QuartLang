@@ -19,8 +19,6 @@ declare function fibonacci-func
 finally end
 
 
-comment "so this is just a simple comment"
-
 declare variable iterationsVar
 
 set iterationsVar to 100

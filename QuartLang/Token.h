@@ -21,6 +21,7 @@ BEGIN_ENUM(Token) {
 	DECL_ENUM_ELEMENT(intLiteralTok),
 	DECL_ENUM_ELEMENT(stringLiteralTok),
 	DECL_ENUM_ELEMENT(boolLiteralTok),
+	DECL_ENUM_ELEMENT(charLiteralTok),
 	DECL_ENUM_ELEMENT(callFunctionTok),
 	DECL_ENUM_ELEMENT(passArgTok),
 	DECL_ENUM_ELEMENT(setTok),
@@ -46,6 +47,9 @@ BEGIN_ENUM(Token) {
 	DECL_ENUM_ELEMENT(backTok),
 	DECL_ENUM_ELEMENT(frontTok),
 	DECL_ENUM_ELEMENT(itTok),
+	DECL_ENUM_ELEMENT(launchTok),
+	DECL_ENUM_ELEMENT(finishTok),
+	DECL_ENUM_ELEMENT(commentTok),
 	DECL_ENUM_ELEMENT(endTok)
 }; END_ENUM(Token)
 

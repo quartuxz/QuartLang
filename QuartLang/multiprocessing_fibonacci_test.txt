@@ -1,0 +1,67 @@
+
+
+declare function fibonacci-func
+	
+	declare variable iterationsVar
+
+	set iterationsVar to 0
+
+	declare variable fibonacciVals
+	
+
+	append 1 to the back of fibonacciVals
+	append 1 to the back of fibonacciVals
+
+	if true
+		
+		add 1 to iterationsVar
+		set iterationsVar to result
+		
+		refer to -1 in fibonacciVals as lastVal
+		refer to -2 in fibonacciVals as lastLastVal
+		
+		add lastLastVal to lastVal
+
+		append result to the back of fibonacciVals
+
+		evaluate iterationsVar is less than max-iterations
+	finally repeat while result
+
+finally give fibonacciVals
+
+
+declare variable fibIterations
+set it to 40
+
+
+launch fibFuncThread1 fibonacci-func giving fibIterations as max-iterations
+
+call print-anything with "..." as #
+
+finish fibFuncThread1
+
+declare variable fibonacciResult
+set fibonacciResult to result
+
+
+declare variable iterationsVar
+set iterationsVar to 0
+
+
+if true
+
+	refer to iterationsVar in fibonacciResult as currentFibonacci
+
+	call print-anything with currentFibonacci as #
+	call print-anything with ", " as #
+
+
+	add 1 to iterationsVar
+	set iterationsVar to result
+	evaluate iterationsVar is less than fibIterations
+
+finally repeat while result 
+
+
+
+

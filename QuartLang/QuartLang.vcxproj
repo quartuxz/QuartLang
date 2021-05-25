@@ -183,9 +183,13 @@
     <Text Include="conditional_test.txt" />
     <Text Include="double_set_test.txt" />
     <Text Include="evaluation_test.txt" />
+    <Text Include="multiprocessing_fibonacci_test.txt" />
+    <Text Include="flip_test.txt" />
+    <Text Include="function_test.txt" />
     <Text Include="hello_world_test.txt" />
     <Text Include="it_test.txt" />
     <Text Include="LICENSE.txt" />
+    <Text Include="multithreaded_proof.txt" />
     <Text Include="README.txt" />
     <Text Include="result_test.txt" />
     <Text Include="Source.txt" />

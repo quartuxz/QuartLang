@@ -14,7 +14,6 @@ struct programContent {
 class Subprogram : public ProgramStructure<subprogramType> {
 	friend class Parser;
 protected:
-	std::string m_tag;
 	Subprogram* m_parent = nullptr;
 	//the table of contents, sorted by order of appearance
 	std::vector<programContent> m_contents;
@@ -29,6 +28,7 @@ protected:
 	std::map<size_t, flipOperation*> m_flipOperations;
 	std::map<size_t, referOperation*> m_referOperations;
 	std::map<size_t, appendOperation*> m_appendOperations;
+	std::map<size_t, finishOperation*> m_finishOperations;
 
 	std::map<size_t, Subprogram*> m_subprograms;
 
@@ -59,6 +59,9 @@ public:
 
 	const arithmeticOperation* getArithmeticOperation(size_t orderedID)const;
 
+	const finishOperation* getFinishOperation(size_t orderedID)const;
+
+
 	std::vector<programContent> getContent()const noexcept;
 	virtual ~Subprogram();
 };
@@ -75,7 +78,11 @@ public:
 };
 
 class functionBlock : public Subprogram {
-
+private:
+	std::string m_tag;
+public:
+	functionBlock(size_t orderedID, const std::string& tag);
+	const std::string& getTag()const;
 };
 
 
@@ -95,3 +102,4 @@ public:
 
 	~Program();
 };
+

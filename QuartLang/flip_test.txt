@@ -1,0 +1,23 @@
+
+
+declare variable var1
+set var1 to -1
+
+flip var1
+
+call print-anything with result as input-words
+
+
+flip 2
+
+call print-anything with result as input-words
+
+
+flip true
+
+call print-anything with result as input-words
+
+
+flip 3.5
+
+call print-anything with result as input-words

@@ -24,28 +24,36 @@ const char* WrongArgsNumberException::what() const
 #define OUTPUT_STREAM_TEST_OR_REAL_ISHLENG std::cout
 #endif
 
-DataStructure print_anything_BIF::call(const std::map<std::string, DataStructure>& args)
+
+
+void print_anything_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
     if (args.size() > 1) {
         throw WrongArgsNumberException(1, args.size());
     }
-    if (args.at("input-words").getTypeOrPrimitiveTag() == "string") {
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getString();
+    if (args.begin()->second->getTypeOrPrimitiveTag() == "string") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.begin()->second->getString();
     }
-    else if (args.at("input-words").getTypeOrPrimitiveTag() == "float") {
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getFloatData();
+    else if (args.begin()->second->getTypeOrPrimitiveTag() == "float") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.begin()->second->getFloatData();
     }
-    else if (args.at("input-words").getTypeOrPrimitiveTag() == "int") {
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getIntData();
+    else if (args.begin()->second->getTypeOrPrimitiveTag() == "int") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.begin()->second->getIntData();
     }
-    else if(args.at("input-words").getTypeOrPrimitiveTag() == "bool"){
-        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.at("input-words").getBoolData();
+    else if (args.begin()->second->getTypeOrPrimitiveTag() == "bool") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.begin()->second->getBoolData();
     }
-    return DataStructure();
+    else if (args.begin()->second->getTypeOrPrimitiveTag() == "char") {
+        OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.begin()->second->getCharData();
+    }
 }
 
-DataStructure print_new_line_BIF::call(const std::map<std::string, DataStructure>& args)
+void print_new_line_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
     OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << "\n";
-    return DataStructure();
+}
+
+void is_empty_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+{
+    *retval = DataStructure(args.begin()->second->isEmpty());
 }

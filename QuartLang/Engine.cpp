@@ -1,5 +1,5 @@
 #include "Engine.h"
-
+#include <thread>
 
 #define DO_OPERATION_ISHLENG(lhs, rhs, op)\
             if (lhs.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) { \
@@ -48,12 +48,24 @@ variableDeclaration* getVariable(const std::map<std::string, std::vector<variabl
 #define START_FROM_LAST_STATEMENT -1
 
 
-runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStructure *p_result, const std::map<std::string, DataStructure*>& p_variables)
+runType m_run(Logger *logger, const Program* mainProgram, 
+    const Subprogram* currentProgram,
+    int startPoint = 0, 
+    DataStructure* p_result = nullptr, 
+    const std::map<std::string, DataStructure*>& p_variables = std::map<std::string, DataStructure*>(),
+    const std::map<std::string, const functionBlock*>&p_functions = std::map<std::string, const functionBlock*>(),
+    const std::map<std::string, std::pair<DataStructure*, std::thread*> > &p_runningThreads = std::map<std::string, std::pair<DataStructure*, std::thread*> >())
 {
     std::vector<programContent> currentContents = currentProgram->getContent();
 
     std::map<std::string, DataStructure*> variables = p_variables;
     std::vector<DataStructure*> newVariables;
+
+    std::map<std::string, const functionBlock*> functions = p_functions;
+
+    std::map<std::string, std::pair<DataStructure*, std::thread*> > runningThreads = p_runningThreads;
+    std::vector<std::pair<DataStructure*, std::thread*>> newRunningThreads;
+
 
 
     if (startPoint == START_FROM_LAST_STATEMENT) {
@@ -93,12 +105,21 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
     };
 
     auto clearStack = [&]() {
-        
+        variables = p_variables;
         for (auto x : newVariables)
         {
+
             delete x;
+            
+        }
+
+        runningThreads = p_runningThreads;
+        for (auto x: newRunningThreads) {
+            delete x.first;
+            delete x.second;
         }
         newVariables.clear();
+        newRunningThreads.clear();
     };
 
     for (int i = startPoint; i < currentContents.size(); i++)
@@ -107,6 +128,14 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
         if (currentContents[i].isStatement) {
             switch (currentContents[i].type)
             {
+            case statementType::finishSttt:
+            {
+                const finishOperation* finishOperation = currentProgram->getFinishOperation(currentContentsOrderedId);
+                auto threadInstanceName = finishOperation->getThreadInstanceName();
+                runningThreads[threadInstanceName].second->join();
+                *result = *runningThreads[threadInstanceName].first;
+            }
+                break;
             case statementType::referOperationSttt:
             {
                 const referOperation* referOp = currentProgram->getReferOperation(currentContentsOrderedId);
@@ -132,11 +161,11 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
                 case appendType::map_to:
                     
                     variables[appOp->getVarName()]->addNamedSubobject(appOpContent, opToDat(appOp->getPlace()).getString());
-
                     break;
                 case appendType::push_back:
                     variables[appOp->getVarName()]->pushBackSubobject(appOpContent);
                     break;
+                //IMPLEMENT THIS
                 case appendType::push_front:
                     
                     break;
@@ -147,9 +176,21 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
             {
                 const flipOperation* flipOp = currentProgram->getFlipOperation(currentContentsOrderedId);
                 
-                const operand &op = flipOp->getOperand();
+                auto op = opToDat(flipOp->getOperand());
 
-                *result = DataStructure(!opToDat(op).getBoolData());
+
+                if (op.getTypeOrPrimitiveTag() == BOOL_TYPE_STR) {
+                    *result = DataStructure(!op.getBoolData());
+                }
+                else if (op.getTypeOrPrimitiveTag() == INT_TYPE_STR) {
+                    *result = DataStructure(-op.getIntData());
+                }
+                else if (op.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) {
+                    *result = DataStructure(-op.getFloatData());
+                }
+
+
+
 
             }   
                 
@@ -198,6 +239,9 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
                 const finallySttt* fSttt = currentProgram->getFinallySttt(currentContentsOrderedId);
                 switch (fSttt->getFinallyType())
                 {
+                case finallyType::give:
+                    *result = opToDat(fSttt->getOptionalOperand());
+                    break;
                 case finallyType::end:
                     
                     break;
@@ -249,21 +293,39 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
 
                 auto fCall = currentProgram->getFunctionCall(currentContentsOrderedId);
                 auto args = fCall->getArgs();
-                std::map<std::string, DataStructure> realArgs;
+                std::map<std::string, DataStructure*> realArgs;
                 for (auto x : args) {
-                    realArgs[x.first] = opToDat(x.second);
+                    newVariables.push_back(new DataStructure(opToDat(x.second)));
+                    realArgs[x.first] = newVariables.back();
                 }
 
-                builtinFunction* builtin = m_program->getIncludedBuiltin(fCall->getFunctionCalledTag());
-                m_logger->log("Engine", fCall->getFunctionCalledTag());
+                builtinFunction* builtin = mainProgram->getIncludedBuiltin(fCall->getFunctionCalledTag());
+                logger->log("Engine", fCall->getFunctionCalledTag());
                 //a builtin matching the function was found
-                if (builtin != nullptr) {
+                if(!fCall->getIsMultithreaded()){
+                    if (builtin != nullptr) {
 
-                    *result = builtin->call(realArgs);
+                        builtin->call(realArgs, result);
+                    }
+                    //a builtin was not found
+                    else {
+                        m_run(logger,mainProgram,functions[fCall->getFunctionCalledTag()],START_FROM_ZERO,result,realArgs,functions);
+                    }
                 }
-                //a builtin was not found
                 else {
-
+                    auto threadInstanceName = fCall->getThreadInstanceName();
+                    if (builtin != nullptr) {
+                        DataStructure* mtRes = new DataStructure();
+                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(&builtinFunction::call,builtin,realArgs,mtRes));
+                        newRunningThreads.push_back(runningThreads[threadInstanceName]);
+                        
+                    }
+                    //a builtin was not found
+                    else {
+                        DataStructure* mtRes = new DataStructure();
+                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes,new std::thread(m_run, logger, mainProgram, functions[fCall->getFunctionCalledTag()], START_FROM_ZERO,  mtRes, realArgs, functions, std::map<std::string, std::pair<DataStructure*, std::thread*> >()));
+                        newRunningThreads.push_back(runningThreads[threadInstanceName]);
+                    }
                 }
             }
             break;
@@ -271,11 +333,14 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
             {
                 auto var = currentProgram->getVariable(currentContents[i].orderedID);
                 if (variables.find(var->getTag()) != variables.end()) {
-                    //THROW EXCEPTION HERE(VARIABLE REDECLARATION)
+                    //we allow variable redeclaration here to allow default values for functions
                 }
-                auto newVar = new DataStructure(var->getData());
-                variables[var->getTag()] = newVar;
-                newVariables.push_back(newVar);
+                else {
+                    auto newVar = new DataStructure(var->getData());
+                    variables[var->getTag()] = newVar;
+                    newVariables.push_back(newVar);
+                }
+
             }
             break;
             default:
@@ -291,11 +356,15 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
             {
                 const conditionalBlock* condBlock = dynamic_cast<const conditionalBlock*>(candidateNext);
                 if (opToDat(condBlock->getCondition()).getBoolData()) {
-                    m_run(condBlock,START_FROM_ZERO,result,variables);
+                    m_run(logger, mainProgram,condBlock,START_FROM_ZERO,result,variables,functions,runningThreads);
                 }
             }
                 break;
             case subprogramType::functionBlock:
+            {
+                const functionBlock* fBlock = dynamic_cast<const functionBlock*>(candidateNext);
+                functions[fBlock->getTag()] = fBlock;
+            }
                 break;
             default:
                 break;
@@ -317,5 +386,5 @@ runType Engine::m_run(const Subprogram* currentProgram, int startPoint, DataStru
 runType Engine::run()
 {
     
-    return m_run(m_program);
+    return m_run(m_logger, m_program, m_program);
 }

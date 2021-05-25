@@ -5,7 +5,7 @@
 
 std::vector<LexerTest> LexerTests = {
 	LexerTest("basicTest", "   \n\n\n \t\t declare", {Token::declareTok, Token::endTok},{}),
-	LexerTest("ManyTokens", "   \n\n\n \t\n\t\n declare \t as \n giving an to  \t add \n subtract   \n VARNAME \t 200", {Token::declareTok, Token::addTok, Token::subtractTok, Token::tagTok, Token::intLiteralTok, Token::endTok},{"VARNAME", "200"})
+	LexerTest("ManyTokens", "   \n\n\n \t\n\t\n declare \t as \n giving an to  \t add \n subtract   \n VARNAME \t -200", {Token::declareTok, Token::addTok, Token::subtractTok, Token::tagTok, Token::intLiteralTok, Token::endTok},{"VARNAME", "-200"})
 };
 
 

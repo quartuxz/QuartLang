@@ -9,7 +9,7 @@ that you could execute
 say i wanted to declare this variable named var2
 then set var2 to 5
 
-and then when i finish doing that
+and then when im done doing that
 i just display it like so
 call print-anything giving var2 as the input-words
 i just printed something on screen

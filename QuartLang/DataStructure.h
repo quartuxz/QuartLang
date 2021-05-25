@@ -31,6 +31,7 @@ public:
 
 	DataStructure(const std::string &typeOrPrimitiveTag, const std::vector<DataStructure>& listElements);
 	DataStructure(const std::string &typeOrPrimitiveTag, const std::vector<std::pair<std::string, DataStructure>>& subobjects);
+	//construct a string data structure(x subobjects with chars for each string char)
 	DataStructure(const std::string &str);
 	//constructors for primitive types
 	DataStructure(int intData);
@@ -40,6 +41,7 @@ public:
 
 	DataStructure();
 
+	bool isEmpty();
 
 	int getIntData()const noexcept;
 	float getFloatData()const noexcept;
@@ -56,7 +58,7 @@ public:
 	const DataStructure& getNamedSubobject(std::string name)const;
 	const DataStructure& getSubobject(size_t id)const;
 	DataStructure& getNamedSubobject(std::string name);
-	DataStructure& getSubobject(size_t id);
+	DataStructure& getSubobject(int id);
 
 
 	void pushBackSubobject(const DataStructure & subobject);

@@ -61,7 +61,12 @@ const std::map<std::string, Token> Lexer::m_matches = {
 	{"append", Token::appendTok},
 	{"back", Token::backTok},
 	{"front", Token::frontTok},
-	{"it", Token::itTok}
+	{"it", Token::itTok},
+	{"function", Token::functionTok},
+	{"launch", Token::launchTok},
+	{"finish", Token::finishTok},
+	{"comment", Token::commentTok}
+
 };
 
 
@@ -167,10 +172,16 @@ void Lexer::m_tokenize()
 			}
 			std::string tempStr = ss.str();
 			std::string finalStr(++tempStr.begin(), --tempStr.end());
-			m_addLiteral(finalStr, Token::stringLiteralTok);
+			if (finalStr.size() == 1) {
+				m_addLiteral(finalStr, Token::charLiteralTok);
+			}else {
+				m_addLiteral(finalStr, Token::stringLiteralTok);
+
+			}
+
 		}
 		//finding a integer or a floating point
-		else if (isdigit(currentTokenString[0])) {
+		else if (isdigit(currentTokenString[0]) || currentTokenString[0] == '-') {
 			bool isInteger = true;
 			for (auto x: currentTokenString) {
 				if (x == '.') {
@@ -281,7 +292,7 @@ bool tokenIsLiteralOrTag(Token token)
 
 bool tokenIsLiteral(Token token)
 {
-	return (token == Token::floatLiteralTok || token == Token::intLiteralTok || token == Token::stringLiteralTok || token == Token::boolLiteralTok);
+	return (token == Token::floatLiteralTok || token == Token::intLiteralTok || token == Token::stringLiteralTok || token == Token::boolLiteralTok || token == Token::charLiteralTok);
 }
 
 bool tokenIsOperand(Token token)

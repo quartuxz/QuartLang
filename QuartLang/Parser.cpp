@@ -25,6 +25,9 @@ void Parser::m_makeProgram()
 		case Token::boolLiteralTok:
 			return DataStructure((literalStr == "true" ? true : false));
 			break;
+		case Token::charLiteralTok:
+			return DataStructure(literalStr[0]);
+			break;
 		default:
 			throw std::invalid_argument("Token is not a literal!");
 			break;
@@ -86,9 +89,62 @@ void Parser::m_makeProgram()
 		
 	};
 
+	auto addProgramBlock = [&](Subprogram* subprogram) {
+		programContent stt;
+		stt.isStatement = false;
+		stt.orderedID = currentStructure;
+		currentProgram->m_contents.push_back(stt);
+		currentScopeNesting++;
+		currentProgram->m_addSubprogram(currentStructure, subprogram);
+		currentProgram = subprogram;
+	};
+
+
+	auto addFunctionCallStatement = [&](bool isMultithreaded = false, const std::string &threadInstanceName = "") {
+		addProgramContent(statementType::functionCallSttt);
+		size_t functionTagTokenPos = m_lexer->getCurrentTokenPosition();
+		LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagString(m_lexer->getCurrentTokenPosition()));
+		std::map<std::string, operand> args;
+		operand op;
+		currentToken = m_lexer->getNextToken();
+		currentToken = m_lexer->getNextToken();
+
+		size_t it = 0;
+		while (tokenIsOperand(currentToken)) {
+
+			//first we parse the argument
+			if (it % 2 == 0) {
+				op = createOperand(currentToken, m_lexer);
+			}
+			//then we parse the place where it is put
+			else {
+				//we populate the args
+				args[m_lexer->getTagStringTokPosMinus()] = op;
+				LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagStringTokPosMinus());
+			}
+			it++;
+			currentToken = m_lexer->getNextToken();
+
+		}
+		LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagString(functionTagTokenPos));
+		//we insert a function call at the specified orderer place
+		currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, m_lexer->getTagString(functionTagTokenPos), args, isMultithreaded,threadInstanceName);
+		LOG_ISHLENG((*m_logger), "Parser, Function tag", currentProgram->m_functionCalls[currentStructure]->getFunctionCalledTag());
+	};
+
 	while (currentToken != Token::endTok) {
 		switch (currentToken)
 		{
+		case Token::finishTok:
+		{
+			addProgramContent(statementType::finishSttt);
+			
+
+			currentToken = m_lexer->getNextToken();
+
+			currentProgram->m_finishOperations[currentStructure] = new finishOperation(currentStructure,m_lexer->getTagStringTokPosMinus());
+		}
+			break;
 		case Token::referTok:
 		{
 			addProgramContent(statementType::referOperationSttt);
@@ -296,16 +352,11 @@ void Parser::m_makeProgram()
 			break;
 		case Token::ifTok:
 		{
-			programContent blockSttt;
-			blockSttt.orderedID = currentStructure;
-			blockSttt.isStatement = false;
-			currentProgram->m_contents.push_back(blockSttt);
-			currentScopeNesting++;
+
 			currentToken = m_lexer->getNextToken();
-			
-			Subprogram *newBlock = new conditionalBlock(currentStructure,createOperand(currentToken,m_lexer));
-			currentProgram->m_addSubprogram(currentStructure, newBlock);
-			currentProgram = newBlock;
+
+			addProgramBlock(new conditionalBlock(currentStructure, createOperand(currentToken, m_lexer)));
+
 		}
 			break;
 		case Token::divideTok:
@@ -391,41 +442,25 @@ void Parser::m_makeProgram()
 				lastTag = m_lexer->getTagStringTokPosMinus();
 			}
 				break;
+			case Token::functionTok:
+			{
+				currentToken = m_lexer->getNextToken();
+				lastTag = m_lexer->getTagStringTokPosMinus();
+				addProgramBlock(new functionBlock(currentStructure,lastTag));
+				
+			}
 			default:
 				break;
 			}
 			break;
+		case Token::launchTok:
+			currentToken = m_lexer->getNextToken();
+			
+			addFunctionCallStatement(true,m_lexer->getTagStringTokPosMinus());
+			break;
 		case Token::callFunctionTok:
 		{
-			addProgramContent(statementType::functionCallSttt);
-			size_t functionTagTokenPos = m_lexer->getCurrentTokenPosition();
-			LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagString(m_lexer->getCurrentTokenPosition()));
-			std::map<std::string, operand> args;
-			operand op;
-			currentToken = m_lexer->getNextToken();
-			currentToken = m_lexer->getNextToken();
-
-			size_t it = 0;
-			while(tokenIsOperand(currentToken)) {
-
-				//first we parse the argument
-				if (it % 2 == 0) {
-					op = createOperand(currentToken, m_lexer);
-				}
-				//then we parse the place where it is put
-				else {
-					//we populate the args
-					args[m_lexer->getTagStringTokPosMinus()] = op;
-					LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagStringTokPosMinus());
-				}
-				it++;
-				currentToken = m_lexer->getNextToken();
-				
-			}
-			LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagString(functionTagTokenPos));
-			//we insert a function call at the specified orderer place
-			currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, m_lexer->getTagString(functionTagTokenPos), args);
-			LOG_ISHLENG((*m_logger), "Parser, Function tag", currentProgram->m_functionCalls[currentStructure]->getFunctionCalledTag());
+			addFunctionCallStatement();
 		}
 			break;
 		default:
@@ -449,6 +484,7 @@ Parser::Parser(Lexer* Lexer, Logger *logger):
 	//we include all the basic BIFs
 	m_program.m_includedBuiltins["print-anything"] = new print_anything_BIF();
 	m_program.m_includedBuiltins["print-new-line"] = new print_new_line_BIF();
+	m_program.m_includedBuiltins["is-empty"] = new is_empty_BIF();
 }
 
 const Program* Parser::getProgram() const noexcept

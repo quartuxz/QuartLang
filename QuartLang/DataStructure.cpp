@@ -63,20 +63,27 @@ DataStructure& DataStructure::getNamedSubobject(std::string name)
 	return m_subobjects[m_subobjectNames[name]];
 }
 
-DataStructure& DataStructure::getSubobject(size_t id)
+DataStructure& DataStructure::getSubobject(int id)
 {
-	return m_subobjects[id];
+	if (id >= 0) {
+		return m_subobjects[id];
+	}
+	else {
+		return m_subobjects[m_subobjects.size() + id];
+	}
 }
 
 void DataStructure::pushBackSubobject(const DataStructure& subobject)
 {
 	m_subobjects.push_back(subobject);
+	m_isArray = true;
 }
 
 void DataStructure::addNamedSubobject(const DataStructure& subobject, const std::string& name)
 {
 	m_subobjectNames[name] = m_subobjects.size();
 	m_subobjects.push_back(subobject);
+	m_isComposite = true;
 }
 
 DataStructure::DataStructure(int intData):
@@ -115,6 +122,11 @@ DataStructure::DataStructure()
 {
 }
 
+bool DataStructure::isEmpty()
+{
+	return !m_isArray && !m_isComposite && m_typeOrPrimitiveTag.empty();
+}
+
 DataStructure::DataStructure(const std::string& typeOrPrimitiveTag, const std::vector<std::pair<std::string, DataStructure>>& subobjects) :
 	m_typeOrPrimitiveTag(typeOrPrimitiveTag),
 	m_isComposite(true)
@@ -130,7 +142,7 @@ DataStructure::DataStructure(const std::string& str):
 	m_isArray(true)
 {
 	for (auto x : str) {
-		m_subobjects.push_back(x);
+		m_subobjects.push_back(DataStructure(x));
 	}
 
 }
