@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include "tests.h"
+#include "Ishleng.h"
 
 WrongArgsNumberException::WrongArgsNumberException(size_t expected, size_t given) :
     m_expected(expected),
@@ -56,4 +57,27 @@ void print_new_line_BIF::call(const std::map<std::string, DataStructure*>& args,
 void is_empty_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
     *retval = DataStructure(args.begin()->second->isEmpty());
+}
+
+void get_input_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+{
+    std::string inString;
+    std::cin >> inString;
+    *retval = DataStructure(inString);
+}
+
+void run_ishleng_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+{
+
+    Logger logger;
+    logger.toggleLogging(false);
+
+    DictionaryLexer dict("words_alpha.txt",m_matches);
+
+
+    Ishleng ishleng(&logger,&dict, args.begin()->second->getString());
+    ishleng.lex();
+    ishleng.parse();
+    *retval = DataStructure((int)ishleng.run());
+
 }

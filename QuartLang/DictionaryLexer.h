@@ -3,6 +3,10 @@
 #include <map>
 #include "Token.h"
 
+
+extern const std::map<std::string, Token> m_matches;
+
+
 class DictionaryLexer {
 private:
 	std::string m_file;

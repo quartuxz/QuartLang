@@ -5,7 +5,7 @@
 
 std::vector<LexerTest> LexerTests = {
 	LexerTest("basicTest", "   \n\n\n \t\t declare", {Token::declareTok, Token::endTok},{}),
-	LexerTest("ManyTokens", "   \n\n\n \t\n\t\n declare \t as \n giving an to  \t add \n subtract   \n VARNAME \t -200", {Token::declareTok, Token::addTok, Token::subtractTok, Token::tagTok, Token::intLiteralTok, Token::endTok},{"VARNAME", "-200"})
+	LexerTest("ManyTokens", "   \n\n\n \t\n\t\n deCLarE \t as \n giving an to  \t aDd \n Subtract   \n VARNAME \t -200", {Token::declareTok, Token::addTok, Token::subtractTok, Token::tagTok, Token::intLiteralTok, Token::endTok},{"VARNAME", "-200"})
 };
 
 
@@ -21,7 +21,10 @@ bool LexerTest::m_doTest()
 {
 	Logger logger;
 	logger.toggleLogging(false);
-	Lexer Lexer(m_testInput,&logger,false);
+
+	DictionaryLexer dict("words_alpha.txt",m_matches);
+
+	Lexer Lexer(m_testInput,&dict,&logger,false);
 	Token currentToken;
 	size_t i = 0;
 	size_t litAndTagCurrent = 0;

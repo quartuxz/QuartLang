@@ -50,6 +50,9 @@ BEGIN_ENUM(Token) {
 	DECL_ENUM_ELEMENT(launchTok),
 	DECL_ENUM_ELEMENT(finishTok),
 	DECL_ENUM_ELEMENT(commentTok),
+	DECL_ENUM_ELEMENT(includeTok),
+	DECL_ENUM_ELEMENT(bindTok),
+	DECL_ENUM_ELEMENT(openTok),
 	DECL_ENUM_ELEMENT(endTok)
 }; END_ENUM(Token)
 

@@ -1,0 +1,9 @@
+
+
+declare function func1
+	declare variable var1
+
+	set var1 to 5
+
+	call print-anything with var1 as #
+finally end

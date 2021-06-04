@@ -21,6 +21,19 @@ private:
 
 	size_t m_entryPoint;
 
+
+
+
+	std::string lastTag;
+	Token currentToken;
+	Subprogram* currentProgram = &m_program;
+	size_t currentStructure = 0;
+	size_t currentScopeNesting = 0;
+
+
+	std::map<std::string, std::pair<Token,std::string>> m_bindings;
+
+	void m_makeProgram(Lexer *lexer);
 	void m_makeProgram();
 public:
 	Parser(Lexer* Lexer, Logger *logger);

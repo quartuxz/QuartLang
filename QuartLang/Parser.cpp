@@ -1,15 +1,14 @@
 #include "Parser.h"
 #include <stdexcept>
+#include <fstream>
 
 
-
-//note that this will only end prematurely if the grammar is invalid
-void Parser::m_makeProgram()
+void Parser::m_makeProgram(Lexer* lexer)
 {
+	currentToken = lexer->getNextToken();
 
 
-
-	auto createLiteral = [](const std::string &literalStr, Token token) {
+	auto createLiteral = [](const std::string& literalStr, Token token) {
 		//IMPLEMENT THE OTHER CASES
 		switch (token)
 		{
@@ -37,10 +36,21 @@ void Parser::m_makeProgram()
 	};
 
 
-	std::string lastTag;
+
+	auto getBinding = [&m_bindings = m_bindings](Token currentTok, const Lexer* lex) {
+		if (tokenIsLiteral(currentTok)) {
+			return std::make_pair(currentTok, lex->getLiteralTokPosMinus());
+		}
+		else if (currentTok == Token::tagTok) {
+			return m_bindings[lex->getTagStringTokPosMinus()];
+		}
+		else {
+			//ERROR
+		}
+	};
 
 
-	auto createOperand = [&createLiteral, &lastTag](Token currentToken, const Lexer* lexer) {
+	auto createOperand = [&createLiteral, &lastTag = lastTag, &m_bindings = m_bindings](Token currentToken, const Lexer* lexer) {
 
 		operand retval;
 
@@ -48,7 +58,15 @@ void Parser::m_makeProgram()
 			retval = operand(createLiteral(lexer->getLiteralTokPosMinus(), currentToken));
 		}
 		else if (currentToken == Token::tagTok) {
-			retval = operand(lexer->getTagStringTokPosMinus());
+			if (m_bindings.find(lexer->getTagStringTokPosMinus()) != m_bindings.end()) {
+				//we search for the binding tag and get its literal and literal type
+				auto temp = m_bindings[lexer->getTagStringTokPosMinus()];
+				retval = operand(createLiteral(temp.second, temp.first));
+			}
+			else {
+				retval = operand(lexer->getTagStringTokPosMinus());
+			}
+
 		}
 		//this is not strictly neccesary
 		else if (currentToken == Token::resultTok) {
@@ -61,7 +79,7 @@ void Parser::m_makeProgram()
 		return retval;
 	};
 
-	auto getVariableName = [&lastTag](Token currentToken, const Lexer* lexer) {
+	auto getVariableName = [&lastTag = lastTag](Token currentToken, const Lexer* lexer) {
 
 		std::string varTag;
 
@@ -75,21 +93,18 @@ void Parser::m_makeProgram()
 	};
 
 
-	Token currentToken = m_lexer->getNextToken();
-	Subprogram *currentProgram = &m_program;
-	size_t currentStructure = 0;
-	size_t currentScopeNesting = 0;
 
-	auto addProgramContent = [&](statementType stttType){
+
+	auto addProgramContent = [&currentStructure = currentStructure,&currentProgram = currentProgram](statementType stttType) {
 		programContent stt;
 		stt.isStatement = true;
 		stt.orderedID = currentStructure;
 		stt.type = stttType;
 		currentProgram->m_contents.push_back(stt);
-		
+
 	};
 
-	auto addProgramBlock = [&](Subprogram* subprogram) {
+	auto addProgramBlock = [&currentScopeNesting = currentScopeNesting, &currentStructure = currentStructure, &currentProgram = currentProgram](Subprogram* subprogram) {
 		programContent stt;
 		stt.isStatement = false;
 		stt.orderedID = currentStructure;
@@ -100,82 +115,126 @@ void Parser::m_makeProgram()
 	};
 
 
-	auto addFunctionCallStatement = [&](bool isMultithreaded = false, const std::string &threadInstanceName = "") {
+	auto addFunctionCallStatement = [&addProgramContent,&lexer = lexer,&m_logger = m_logger,&currentToken = currentToken,&createOperand, &currentProgram = currentProgram, &currentStructure = currentStructure](bool isMultithreaded = false, const std::string& threadInstanceName = "") {
+		
 		addProgramContent(statementType::functionCallSttt);
-		size_t functionTagTokenPos = m_lexer->getCurrentTokenPosition();
-		LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagString(m_lexer->getCurrentTokenPosition()));
+		size_t functionTagTokenPos = lexer->getCurrentTokenPosition();
+		LOG_ISHLENG((*m_logger), "Parser", lexer->getTagString(lexer->getCurrentTokenPosition()));
 		std::map<std::string, operand> args;
 		operand op;
-		currentToken = m_lexer->getNextToken();
-		currentToken = m_lexer->getNextToken();
+		currentToken = lexer->getNextToken();
+		currentToken = lexer->getNextToken();
 
 		size_t it = 0;
 		while (tokenIsOperand(currentToken)) {
 
 			//first we parse the argument
 			if (it % 2 == 0) {
-				op = createOperand(currentToken, m_lexer);
+				op = createOperand(currentToken, lexer);
 			}
 			//then we parse the place where it is put
 			else {
 				//we populate the args
-				args[m_lexer->getTagStringTokPosMinus()] = op;
-				LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagStringTokPosMinus());
+				args[lexer->getTagStringTokPosMinus()] = op;
+				LOG_ISHLENG((*m_logger), "Parser", lexer->getTagStringTokPosMinus());
 			}
 			it++;
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 
 		}
-		LOG_ISHLENG((*m_logger), "Parser", m_lexer->getTagString(functionTagTokenPos));
+		LOG_ISHLENG((*m_logger), "Parser", lexer->getTagString(functionTagTokenPos));
 		//we insert a function call at the specified orderer place
-		currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, m_lexer->getTagString(functionTagTokenPos), args, isMultithreaded,threadInstanceName);
+		currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, lexer->getTagString(functionTagTokenPos), args, isMultithreaded, threadInstanceName);
 		LOG_ISHLENG((*m_logger), "Parser, Function tag", currentProgram->m_functionCalls[currentStructure]->getFunctionCalledTag());
 	};
+
+
 
 	while (currentToken != Token::endTok) {
 		switch (currentToken)
 		{
+		case Token::openTok:
+		case Token::bindTok:
+		{
+			auto keywordTok = currentToken;
+			std::string bindingName;
+			std::pair<Token, std::string> literalContents;
+
+			//the enxt token is a literal
+			currentToken = lexer->getNextToken();
+			//we get the literal itself or expand a binding with the given tag to get it
+			auto contents = getBinding(currentToken, lexer);
+			//we open a file and bind its contents
+			if (keywordTok == Token::openTok) {
+				const std::string& filepath = contents.second;
+
+				std::ifstream t(filepath);
+				literalContents = std::make_pair(Token::stringLiteralTok, std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>()));
+
+			}
+			//we just bind whatever is passed.
+			else {
+				literalContents = contents;
+			}
+
+
+			//we parse the tag
+			currentToken = lexer->getNextToken();
+			bindingName = lexer->getTagStringTokPosMinus();
+
+
+			m_bindings[bindingName] = literalContents;
+		}
+			break;
+		case Token::includeTok:
+		{
+			currentToken = lexer->getNextToken();
+			Lexer nestedLexer(getBinding(currentToken,lexer).second,lexer->getDictionaryLexer(),m_logger,false);
+			m_makeProgram(&nestedLexer);
+			currentToken = lexer->getNextToken();
+		}
+			break;
 		case Token::finishTok:
 		{
 			addProgramContent(statementType::finishSttt);
-			
 
-			currentToken = m_lexer->getNextToken();
 
-			currentProgram->m_finishOperations[currentStructure] = new finishOperation(currentStructure,m_lexer->getTagStringTokPosMinus());
+			currentToken = lexer->getNextToken();
+
+			currentProgram->m_finishOperations[currentStructure] = new finishOperation(currentStructure, lexer->getTagStringTokPosMinus());
 		}
-			break;
+		break;
 		case Token::referTok:
 		{
 			addProgramContent(statementType::referOperationSttt);
 
-			
-			
-			currentToken = m_lexer->getNextToken();
-			auto op = createOperand(currentToken, m_lexer);
-			currentToken = m_lexer->getNextToken();
 
 
-			auto varName = getVariableName(currentToken, m_lexer);
+			currentToken = lexer->getNextToken();
+			auto op = createOperand(currentToken, lexer);
+			currentToken = lexer->getNextToken();
 
-			currentToken = m_lexer->getNextToken();
-			auto referantName = m_lexer->getTagStringTokPosMinus();
+
+			auto varName = getVariableName(currentToken, lexer);
+
+			currentToken = lexer->getNextToken();
+			auto referantName = lexer->getTagStringTokPosMinus();
 
 			lastTag = referantName;
 
-			currentProgram->m_referOperations[currentStructure] = new referOperation(currentStructure, varName,op, referantName);
+			currentProgram->m_referOperations[currentStructure] = new referOperation(currentStructure, varName, op, referantName);
 		}
-			break;
-		
+		break;
+
 		case Token::appendTok:
 		{
 			addProgramContent(statementType::appendOperationSttt);
 
 
-			currentToken = m_lexer->getNextToken();
-			auto content = createOperand(currentToken, m_lexer);
+			currentToken = lexer->getNextToken();
+			auto content = createOperand(currentToken, lexer);
 
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 
 			operand placeAt;
 
@@ -193,61 +252,61 @@ void Parser::m_makeProgram()
 			}
 			else {
 				appType = appendType::map_to;
-				placeAt = createOperand(currentToken, m_lexer);
+				placeAt = createOperand(currentToken, lexer);
 			}
 
-			currentToken = m_lexer->getNextToken();
-			auto varName = getVariableName(currentToken, m_lexer);
+			currentToken = lexer->getNextToken();
+			auto varName = getVariableName(currentToken, lexer);
 
-			currentProgram->m_appendOperations[currentStructure] = new appendOperation(currentStructure,appType,placeAt,content,varName);
+			currentProgram->m_appendOperations[currentStructure] = new appendOperation(currentStructure, appType, placeAt, content, varName);
 		}
-			break;
+		break;
 
 		case Token::flipTok:
 		{
 			addProgramContent(statementType::flipOperationSttt);
-			currentToken = m_lexer->getNextToken();
-			currentProgram->m_flipOperations[currentStructure] = new flipOperation(currentStructure,createOperand(currentToken, m_lexer));
+			currentToken = lexer->getNextToken();
+			currentProgram->m_flipOperations[currentStructure] = new flipOperation(currentStructure, createOperand(currentToken, lexer));
 		}
-			break;
+		break;
 		case Token::evaluateTok:
 		{
 			addProgramContent(statementType::evaluateOperationSttt);
 			//the first operand is read after the evaluate token
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 			//declare both operands assign the first
-			auto lhs = createOperand(currentToken, m_lexer);
+			auto lhs = createOperand(currentToken, lexer);
 			operand rhs;
 
 
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 			evalType eType = evalType::equal;
-			if(!tokenIsOperand(currentToken)){
+			if (!tokenIsOperand(currentToken)) {
 
 				//the first operation is read if the token is not an operand(no the form: evaluate operand1 operand2; but the form: evaluate operand operation ... operand) after the first operand
 
 				auto firstOperation = currentToken;
 				Token secondOperation = Token::lambdaTok;
-			
-				currentToken = m_lexer->getNextToken();
+
+				currentToken = lexer->getNextToken();
 
 				//if the next token is an operand the evaluation is parsed
 				if (tokenIsOperand(currentToken)) {
 
-					rhs = createOperand(currentToken, m_lexer);
+					rhs = createOperand(currentToken, lexer);
 				}
 				//if the next token is not an operand the evaluation has a second operation
-				else{
+				else {
 					//optional or token to separate operations
 					if (currentToken == Token::orTok) {
 						//we just skip it
-						currentToken = m_lexer->getNextToken();
+						currentToken = lexer->getNextToken();
 					}
 					//if the optional token was not there, we read current one as the operation
 					secondOperation = currentToken;
-					currentToken = m_lexer->getNextToken();
+					currentToken = lexer->getNextToken();
 					//next and final is the second operand
-					rhs = createOperand(currentToken, m_lexer);
+					rhs = createOperand(currentToken, lexer);
 				}
 
 
@@ -304,18 +363,18 @@ void Parser::m_makeProgram()
 				}
 			}
 			else {
-				rhs = createOperand(currentToken,m_lexer);
+				rhs = createOperand(currentToken, lexer);
 			}
 
-			
-			currentProgram->m_evaluateOperations[currentStructure] = new evaluateOperation(currentStructure,eType,lhs,rhs);
+
+			currentProgram->m_evaluateOperations[currentStructure] = new evaluateOperation(currentStructure, eType, lhs, rhs);
 		}
-			break;
+		break;
 		case Token::finallyTok:
 		{
 			addProgramContent(statementType::finallySttt);
-			currentToken = m_lexer->getNextToken();
-			
+			currentToken = lexer->getNextToken();
+
 			finallyType fType = finallyType::end;
 
 			bool hasOperand = false;
@@ -339,26 +398,26 @@ void Parser::m_makeProgram()
 
 			operand op;
 			if (hasOperand) {
-				currentToken = m_lexer->getNextToken();
-				op = createOperand(currentToken, m_lexer);
+				currentToken = lexer->getNextToken();
+				op = createOperand(currentToken, lexer);
 			}
 
 
-			currentProgram->m_finallySttts[currentStructure] = new finallySttt(currentStructure,fType, op);
+			currentProgram->m_finallySttts[currentStructure] = new finallySttt(currentStructure, fType, op);
 
 			--currentScopeNesting;
 			currentProgram = currentProgram->m_parent;
 		}
-			break;
+		break;
 		case Token::ifTok:
 		{
 
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 
-			addProgramBlock(new conditionalBlock(currentStructure, createOperand(currentToken, m_lexer)));
+			addProgramBlock(new conditionalBlock(currentStructure, createOperand(currentToken, lexer)));
 
 		}
-			break;
+		break;
 		case Token::divideTok:
 		case Token::multiplyTok:
 		case Token::subtractTok:
@@ -371,11 +430,11 @@ void Parser::m_makeProgram()
 			std::vector<operand> operands;
 			for (size_t i = 0; i < 2; i++)
 			{
-				currentToken = m_lexer->getNextToken();
-				operands.push_back(createOperand(currentToken, m_lexer));
+				currentToken = lexer->getNextToken();
+				operands.push_back(createOperand(currentToken, lexer));
 			}
 
-			currentToken = m_lexer-> getNextToken();
+			currentToken = lexer->getNextToken();
 
 			arithmeticOperationType arithmeticOpType;
 
@@ -401,17 +460,17 @@ void Parser::m_makeProgram()
 		{
 			addProgramContent(statementType::setOperationSttt);
 
-			currentToken = m_lexer->getNextToken();
-			std::string varTag = getVariableName(currentToken, m_lexer);
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
+			std::string varTag = getVariableName(currentToken, lexer);
+			currentToken = lexer->getNextToken();
 
-			
+
 			switch (currentToken) {
-			//setting to variable
+				//setting to variable
 			case Token::tagTok:
-				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure,varTag,operand(m_lexer->getTagStringTokPosMinus()));
+				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure, varTag, operand(lexer->getTagStringTokPosMinus()));
 				break;
-			//setting to result
+				//setting to result
 			case Token::resultTok:
 				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure, varTag, operand());
 				break;
@@ -421,58 +480,64 @@ void Parser::m_makeProgram()
 
 			//setting to literal
 			if (tokenIsLiteral(currentToken)) {
-				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure, varTag,createLiteral(m_lexer->getLiteralTokPosMinus(),currentToken));
+				currentProgram->m_setOperations[currentStructure] = new setOperation(currentStructure, varTag, createLiteral(lexer->getLiteralTokPosMinus(), currentToken));
 			}
 
 			//setOperation setOp(currentStructure, varTag);
 			break;
 		}
 		case Token::lambdaTok:
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 			break;
 		case Token::declareTok:
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 			switch (currentToken)
 			{
 			case Token::variableTok:
 			{
 				addProgramContent(statementType::variableDeclarationSttt);
-				currentToken = m_lexer->getNextToken();
-				currentProgram->m_variables[currentStructure] = new variableDeclaration(currentStructure, m_lexer->getTagStringTokPosMinus(), currentScopeNesting);
-				lastTag = m_lexer->getTagStringTokPosMinus();
+				currentToken = lexer->getNextToken();
+				currentProgram->m_variables[currentStructure] = new variableDeclaration(currentStructure, lexer->getTagStringTokPosMinus(), currentScopeNesting);
+				lastTag = lexer->getTagStringTokPosMinus();
 			}
-				break;
+			break;
 			case Token::functionTok:
 			{
-				currentToken = m_lexer->getNextToken();
-				lastTag = m_lexer->getTagStringTokPosMinus();
-				addProgramBlock(new functionBlock(currentStructure,lastTag));
-				
+				currentToken = lexer->getNextToken();
+				lastTag = lexer->getTagStringTokPosMinus();
+				addProgramBlock(new functionBlock(currentStructure, lastTag));
+
 			}
 			default:
 				break;
 			}
 			break;
 		case Token::launchTok:
-			currentToken = m_lexer->getNextToken();
-			
-			addFunctionCallStatement(true,m_lexer->getTagStringTokPosMinus());
+			currentToken = lexer->getNextToken();
+
+			addFunctionCallStatement(true, lexer->getTagStringTokPosMinus());
 			break;
 		case Token::callFunctionTok:
 		{
 			addFunctionCallStatement();
 		}
-			break;
+		break;
 		default:
 			//this gets called if the token is not a valid start of a new statement and also pretty much once after every statement
 			//as the last token is kept as current.
-			currentToken = m_lexer->getNextToken();
+			currentToken = lexer->getNextToken();
 			break;
 		}
 		++currentStructure;
-		LOG_ISHLENG((*m_logger),"Parser",std::to_string(currentStructure));
+		LOG_ISHLENG((*m_logger), "Parser", std::to_string(currentStructure));
 	}
 
+}
+
+//note that this will only end prematurely if the grammar is invalid
+void Parser::m_makeProgram()
+{
+	m_makeProgram(m_lexer);
 }
 
 Parser::Parser(Lexer* Lexer, Logger *logger):
@@ -485,6 +550,8 @@ Parser::Parser(Lexer* Lexer, Logger *logger):
 	m_program.m_includedBuiltins["print-anything"] = new print_anything_BIF();
 	m_program.m_includedBuiltins["print-new-line"] = new print_new_line_BIF();
 	m_program.m_includedBuiltins["is-empty"] = new is_empty_BIF();
+	m_program.m_includedBuiltins["get-input"] = new get_input_BIF();
+	m_program.m_includedBuiltins["run-ishleng"] = new run_ishleng_BIF();
 }
 
 const Program* Parser::getProgram() const noexcept

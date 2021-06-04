@@ -1,0 +1,21 @@
+
+open "special_func.txt" as special_func
+include special_func
+
+
+
+bind "x" to first-binding
+
+bind 2.5 to some-float
+
+call func1
+
+call print-anything with first-binding as #1
+
+
+open "parser_bindings_test.txt" as parser_bindings
+include parser_bindings
+
+
+call print-anything with some-float as #1
+

@@ -1,0 +1,4 @@
+
+
+
+call print-anything with first-binding as #1

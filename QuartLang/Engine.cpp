@@ -22,7 +22,7 @@
 
 
 
-Engine::Engine(Program* program, Logger *logger):
+Engine::Engine(const Program* program, Logger *logger):
     m_program(program),
     m_logger(logger)
 {
@@ -364,6 +364,7 @@ runType m_run(Logger *logger, const Program* mainProgram,
             {
                 const functionBlock* fBlock = dynamic_cast<const functionBlock*>(candidateNext);
                 functions[fBlock->getTag()] = fBlock;
+
             }
                 break;
             default:

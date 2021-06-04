@@ -22,7 +22,7 @@ class Lexer
 {
 private:
 
-	DictionaryLexer m_dictionaryLexer;
+	const DictionaryLexer *m_dictionaryLexer;
 
 	Logger* m_logger;
 
@@ -51,7 +51,7 @@ private:
 
 public:
 
-	Lexer(std::string filenameOrCode, Logger *log,bool isFileTrueIsCodeFalse = true);
+	Lexer(std::string filenameOrCode, const DictionaryLexer *dict,Logger *logger,bool isFileTrueIsCodeFalse = true);
 
 
 	//returns the current token for reading sequentially
@@ -66,5 +66,8 @@ public:
 
 	std::string getTagString(size_t position)const;
 	
+
+	const DictionaryLexer* getDictionaryLexer()const noexcept;
+
 };
 

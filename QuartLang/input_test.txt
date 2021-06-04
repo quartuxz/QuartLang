@@ -1,0 +1,5 @@
+
+
+call get-input
+
+print print-anything with result as #

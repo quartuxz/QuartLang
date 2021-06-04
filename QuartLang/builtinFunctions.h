@@ -41,3 +41,13 @@ class is_empty_BIF : public builtinFunction {
 public:
 	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };
+
+class get_input_BIF : public builtinFunction {
+public:
+	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+};
+
+class run_ishleng_BIF : public builtinFunction {
+public:
+	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+};

@@ -10,79 +10,19 @@
 
 
 
-const std::map<std::string, Token> Lexer::m_matches = {
-	/*we first define all lambda tokens, those that are not parsed and also arent tags DEPRECATED
-	{"a", Token::lambdaTok},
-	{"named", Token::lambdaTok},
-	{"as", Token::lambdaTok},
-	{"an", Token::lambdaTok},
-	{"by", Token::lambdaTok},
-	{"to", Token::lambdaTok},
-	{"from", Token::lambdaTok},
-	{"with", Token::lambdaTok},
-	{"the", Token::lambdaTok},
-	{"of", Token::lambdaTok},
-	{"for", Token::lambdaTok},
-	{"execution", Token::lambdaTok},
-	{"giving", Token::lambdaTok},
-	{"then", Token::lambdaTok},
-	{"for", Token::lambdaTok},
-	{"while", Token::lambdaTok},
-	{"than", Token::lambdaTok},
-	{"is", Token::lambdaTok},
-	{"than", Token::lambdaTok},
-	*/
 
-	//then we define all other tokens
-	{"declare", Token::declareTok},
-	{"call", Token::callFunctionTok},
-	{"variable", Token::variableTok},
-	{"set", Token::setTok},
-	{"result", Token::resultTok},
-	{"add", Token::addTok},
-	{"subtract", Token::subtractTok},
-	{"multiply", Token::multiplyTok},
-	{"divide", Token::divideTok},
-	{"finally", Token::finallyTok},
-	{"repeat", Token::repeatTok},
-	{"give", Token::giveTok},
-	{"if", Token::ifTok},
-	{"end", Token::endBlockTok},
-	{"evaluate", Token::evaluateTok},
-	{"less", Token::lessThanTok},
-	{"lower", Token::lessThanTok},
-	{"more", Token::moreThanTok},
-	{"greater", Token::moreThanTok},
-	{"equal", Token::equalToTok},
-	{"or", Token::orTok},
-	{"and", Token::andTok},
-	{"flip", Token::flipTok},
-	{"refer", Token::referTok},
-	{"append", Token::appendTok},
-	{"back", Token::backTok},
-	{"front", Token::frontTok},
-	{"it", Token::itTok},
-	{"function", Token::functionTok},
-	{"launch", Token::launchTok},
-	{"finish", Token::finishTok},
-	{"comment", Token::commentTok}
-
-};
-
-
-
-Lexer::Lexer(std::string filenameOrCode, Logger *logger,bool isFileTrueIsCodeFalse):
+Lexer::Lexer(std::string filenameOrCode, const DictionaryLexer* dict, Logger* logger, bool isFileTrueIsCodeFalse):
 	m_logger(logger),
-	m_dictionaryLexer("words_alpha.txt",m_matches)
+	m_dictionaryLexer(dict)
 {
 
 	m_bindFileOrCode(filenameOrCode, isFileTrueIsCodeFalse);
 	m_tokenize();
 #ifdef MUST_LOG_ISHLENG
-	
+
 	logger->log("Lexer",m_text);
 
-	
+
 	std::stringstream sstream;
 
 	for (size_t i = 0; i < m_tokens.size(); i++)
@@ -92,10 +32,10 @@ Lexer::Lexer(std::string filenameOrCode, Logger *logger,bool isFileTrueIsCodeFal
 	sstream << "\n" << "\n";
 	logger->log("Lexer",sstream.str());
 
-	for (auto x:m_literals) {
+	for (auto x : m_literals) {
 		logger->log("Lexer, literals",x.second);
 	}
-	for (auto x:m_tags) {
+	for (auto x : m_tags) {
 		logger->log("Lexer, tags",x.second);
 	}
 
@@ -156,6 +96,7 @@ void Lexer::m_tokenize()
 	size_t i = 0;
 	while(true) {
 		currentTokenString = m_readNextWord();
+		//we encounter the end of file string which is an empty string
 		if (currentTokenString == "") {
 			break;
 		}
@@ -199,10 +140,11 @@ void Lexer::m_tokenize()
 			m_addLiteral(currentTokenString, Token::boolLiteralTok);
 		}
 		else {
-			if (m_dictionaryLexer.checkIfStringHasToken(currentTokenString)) {
-				Token tok = m_dictionaryLexer.getTokenForString(currentTokenString);
+			//we find the token in the list if there is one that matches
+			if (m_dictionaryLexer->checkIfStringHasToken(currentTokenString)) {
+				Token tok = m_dictionaryLexer->getTokenForString(currentTokenString);
 				if (tok != Token::lambdaTok) {
-					m_tokens.push_back(m_dictionaryLexer.getTokenForString(currentTokenString));
+					m_tokens.push_back(m_dictionaryLexer->getTokenForString(currentTokenString));
 				}
 			}
 			//if the token is not in the list, it is a tag
@@ -223,6 +165,7 @@ void Lexer::m_tokenize()
 	}
 	m_tokens.push_back(Token::endTok);
 }
+
 
 std::string Lexer::m_readNextWord(char separatingToken)
 {
@@ -283,6 +226,11 @@ size_t Lexer::getCurrentTokenPosition() const noexcept
 std::string Lexer::getTagString(size_t position)const
 {
 	return m_tags.at(position);
+}
+
+const DictionaryLexer* Lexer::getDictionaryLexer() const noexcept
+{
+	return m_dictionaryLexer;
 }
 
 bool tokenIsLiteralOrTag(Token token)

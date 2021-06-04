@@ -32,6 +32,9 @@
     <Filter Include="try them yourself tests">
       <UniqueIdentifier>{a479c958-b361-4543-b412-5ab370d8a7ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="program-wide tests\source\include_and_bindings_test">
+      <UniqueIdentifier>{c019c57f-ad7e-4fe5-ba32-386f5363b299}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuartLang.cpp" />
@@ -71,6 +74,7 @@
     <ClCompile Include="DictionaryLexer.cpp">
       <Filter>core\lexer</Filter>
     </ClCompile>
+    <ClCompile Include="Ishleng.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer.h">
@@ -115,6 +119,7 @@
     <ClInclude Include="DictionaryLexer.h">
       <Filter>core\lexer</Filter>
     </ClInclude>
+    <ClInclude Include="Ishleng.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source.txt" />
@@ -166,6 +171,18 @@
       <Filter>program-wide tests\source</Filter>
     </Text>
     <Text Include="multithreaded_proof.txt">
+      <Filter>try them yourself tests</Filter>
+    </Text>
+    <Text Include="include_and_bindings_test.txt">
+      <Filter>program-wide tests\source\include_and_bindings_test</Filter>
+    </Text>
+    <Text Include="parser_bindings_test.txt">
+      <Filter>program-wide tests\source\include_and_bindings_test</Filter>
+    </Text>
+    <Text Include="special_func.txt">
+      <Filter>program-wide tests\source\include_and_bindings_test</Filter>
+    </Text>
+    <Text Include="input_test.txt">
       <Filter>try them yourself tests</Filter>
     </Text>
   </ItemGroup>

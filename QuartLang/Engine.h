@@ -11,11 +11,11 @@ class Engine
 {
 private:
 	Logger* m_logger;
-	Program* m_program;
+	const Program* m_program;
 
 	
 public:
-	Engine(Program *program, Logger *logger);
+	Engine(const Program *program, Logger *logger);
 	
 	runType run();
 };
