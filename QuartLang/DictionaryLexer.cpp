@@ -65,7 +65,8 @@ const std::map<std::string, Token> m_matches = {
 	{"comment", Token::commentTok},
 	{"include", Token::includeTok},
 	{"bind", Token::bindTok},
-	{"open", Token::openTok}
+	{"open", Token::openTok},
+	{"import", Token::importTok}
 
 };
 

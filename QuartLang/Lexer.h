@@ -34,6 +34,8 @@ private:
 	std::map<size_t, std::string> m_tags;
 	std::map<size_t, std::string> m_literals;
 
+	std::vector<std::string> m_preliterals;
+
 	mutable size_t m_currentToken = 0;
 
 

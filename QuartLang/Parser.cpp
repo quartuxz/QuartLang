@@ -5,6 +5,7 @@
 
 void Parser::m_makeProgram(Lexer* lexer)
 {
+
 	currentToken = lexer->getNextToken();
 
 
@@ -108,6 +109,7 @@ void Parser::m_makeProgram(Lexer* lexer)
 		programContent stt;
 		stt.isStatement = false;
 		stt.orderedID = currentStructure;
+		stt.type = statementType::notASttt;
 		currentProgram->m_contents.push_back(stt);
 		currentScopeNesting++;
 		currentProgram->m_addSubprogram(currentStructure, subprogram);
@@ -153,6 +155,18 @@ void Parser::m_makeProgram(Lexer* lexer)
 	while (currentToken != Token::endTok) {
 		switch (currentToken)
 		{
+		case Token::importTok:
+		{
+
+			
+			addProgramContent(statementType::importSttt);
+			currentToken = m_lexer->getNextToken();
+			currentProgram->m_importOperations[currentStructure] = new importOperation(currentStructure,createOperand(currentToken,m_lexer));
+			
+			
+			
+		}
+			break;
 		case Token::openTok:
 		case Token::bindTok:
 		{
@@ -160,7 +174,7 @@ void Parser::m_makeProgram(Lexer* lexer)
 			std::string bindingName;
 			std::pair<Token, std::string> literalContents;
 
-			//the enxt token is a literal
+			//the next token is a literal
 			currentToken = lexer->getNextToken();
 			//we get the literal itself or expand a binding with the given tag to get it
 			auto contents = getBinding(currentToken, lexer);
@@ -540,8 +554,8 @@ void Parser::m_makeProgram()
 	m_makeProgram(m_lexer);
 }
 
-Parser::Parser(Lexer* Lexer, Logger *logger):
-	m_lexer(Lexer),
+Parser::Parser(Lexer* lexer, Logger *logger):
+	m_lexer(lexer),
 	m_program(),
 	m_logger(logger)
 {
@@ -562,4 +576,26 @@ const Program* Parser::getProgram() const noexcept
 Program* Parser::getProgram() noexcept
 {
 	return &m_program;
+}
+
+std::vector<functionBlock*> Parser::getFunctionsOnly(Lexer* lexer, Logger *logger, const Subprogram* parentProgram)
+{
+	std::vector<functionBlock*> retval;
+
+	auto newParser =  Parser(lexer,logger);
+	auto contents = newParser.m_program.getContent();
+	for (auto x:contents) {
+		if (!x.isStatement) {
+			auto candidate = newParser.m_program.m_subprograms[x.orderedID];
+			if (parentProgram != nullptr) {
+				candidate->m_parent = const_cast<Subprogram*>(parentProgram);
+			}
+
+			if (candidate->getType() == subprogramType::functionBlock) {
+				retval.push_back(new functionBlock(*dynamic_cast<functionBlock*>(candidate)));
+				
+			}
+		}
+	}
+	return retval;
 }

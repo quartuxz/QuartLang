@@ -20,6 +20,50 @@ const Subprogram* Subprogram::getSubprogram(size_t orderedID) const
 	return m_subprograms.at(orderedID);
 }
 
+
+#define DEEP_COPY(y, type) for(auto x : copy.y){y[x.first] = new type(*x.second); }
+
+Subprogram::Subprogram(const Subprogram& copy) :
+	ProgramStructure<subprogramType>(copy.m_orderedID, copy.m_type),
+	m_parent(copy.m_parent),
+	m_contents(copy.m_contents)
+{
+	DEEP_COPY(m_variables, variableDeclaration);
+	DEEP_COPY(m_functionCalls, functionCall);
+	DEEP_COPY(m_setOperations, setOperation);
+	DEEP_COPY(m_arithmeticOperations, arithmeticOperation);
+	DEEP_COPY(m_finallySttts, finallySttt);
+	DEEP_COPY(m_evaluateOperations, evaluateOperation);
+	DEEP_COPY(m_flipOperations, flipOperation);
+	DEEP_COPY(m_referOperations, referOperation);
+	DEEP_COPY(m_appendOperations, appendOperation);
+	DEEP_COPY(m_finishOperations, finishOperation);
+	DEEP_COPY(m_importOperations, importOperation);
+
+
+
+
+	for (auto x: copy.m_subprograms) {
+		Subprogram* toAddSubProgram = nullptr;
+		switch (x.second->m_type)
+		{
+		case subprogramType::functionBlock:
+			toAddSubProgram = new functionBlock(dynamic_cast<functionBlock&>(*x.second));
+			break;
+		case subprogramType::conditionalBlock:
+			toAddSubProgram = new conditionalBlock(dynamic_cast<conditionalBlock&>(*x.second));
+			break;
+		case subprogramType::baseBlock:
+			toAddSubProgram = new Subprogram(*x.second);
+			break;
+		default:
+			break;
+		}
+
+		m_addSubprogram(x.first,toAddSubProgram);
+	}
+}
+
 const flipOperation* Subprogram::getFlipOperation(size_t orderedID) const
 {
 	return m_flipOperations.at(orderedID);
@@ -61,48 +105,32 @@ const finishOperation* Subprogram::getFinishOperation(size_t orderedID) const
 	return m_finishOperations.at(orderedID);
 }
 
+const importOperation* Subprogram::getImportOperation(size_t orderedID) const
+{
+	return m_importOperations.at(orderedID);
+}
+
 std::vector<programContent> Subprogram::getContent() const noexcept
 {
 	return m_contents;
 }
 
+
+#define DELETE_STATEMENT_MAP(y) for(auto x : y){ delete x.second; }
+
 Subprogram::~Subprogram()
 {
-	for (auto x : m_variables)
-	{
-		delete x.second;
-	}
-	for (auto x : m_functionCalls) {
-		delete x.second;
-	}
-	for (auto x : m_setOperations) {
-		delete x.second;
-	}
-	for (auto x : m_arithmeticOperations)
-	{
-		delete x.second;
-	}
-
-	for (auto x : m_evaluateOperations) {
-		delete x.second;
-	}
-	
-	for (auto x : m_flipOperations) {
-		delete x.second;
-	}
-	
-	for (auto x : m_referOperations) {
-		delete x.second;
-	}
-	
-	for (auto x : m_appendOperations) {
-		delete x.second;
-	}
-
-	for (auto x : m_subprograms) {
-		delete x.second;
-	}
-
+	DELETE_STATEMENT_MAP(m_variables);
+	DELETE_STATEMENT_MAP(m_functionCalls);
+	DELETE_STATEMENT_MAP(m_setOperations);
+	DELETE_STATEMENT_MAP(m_arithmeticOperations);
+	DELETE_STATEMENT_MAP(m_evaluateOperations);
+	DELETE_STATEMENT_MAP(m_flipOperations);
+	DELETE_STATEMENT_MAP(m_referOperations);
+	DELETE_STATEMENT_MAP(m_appendOperations);
+	DELETE_STATEMENT_MAP(m_finishOperations);
+	DELETE_STATEMENT_MAP(m_importOperations);
+	DELETE_STATEMENT_MAP(m_subprograms);
 }
 
 const functionCall* Subprogram::getFunctionCall(size_t orderedID)const
@@ -158,4 +186,10 @@ functionBlock::functionBlock(size_t orderedID, const std::string& tag) :
 const std::string& functionBlock::getTag() const
 {
 	return m_tag;
+}
+
+functionBlock::functionBlock(const functionBlock& copy) :
+	Subprogram(copy),
+	m_tag(copy.m_tag)
+{
 }

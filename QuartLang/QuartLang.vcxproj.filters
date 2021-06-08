@@ -35,6 +35,9 @@
     <Filter Include="program-wide tests\source\include_and_bindings_test">
       <UniqueIdentifier>{c019c57f-ad7e-4fe5-ba32-386f5363b299}</UniqueIdentifier>
     </Filter>
+    <Filter Include="program-wide tests\source\import_test">
+      <UniqueIdentifier>{83901a6d-dab5-420d-baf5-1d15263c42af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QuartLang.cpp" />
@@ -184,6 +187,15 @@
     </Text>
     <Text Include="input_test.txt">
       <Filter>try them yourself tests</Filter>
+    </Text>
+    <Text Include="import_test.txt">
+      <Filter>program-wide tests\source\import_test</Filter>
+    </Text>
+    <Text Include="imported_test1.txt">
+      <Filter>program-wide tests\source\import_test</Filter>
+    </Text>
+    <Text Include="imported_test2.txt">
+      <Filter>program-wide tests\source\import_test</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

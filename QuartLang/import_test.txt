@@ -1,0 +1,17 @@
+
+
+open "imported_test1.txt" as firstImport
+open "imported_test2.txt" as secondImport
+
+import firstImport
+import secondImport
+
+
+call func1
+
+call func2 with result as arg1
+
+call func3 with result as arg1
+
+call print-anything with result as #
+

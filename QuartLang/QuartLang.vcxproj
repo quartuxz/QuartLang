@@ -185,6 +185,9 @@
     <Text Include="conditional_test.txt" />
     <Text Include="double_set_test.txt" />
     <Text Include="evaluation_test.txt" />
+    <Text Include="imported_test1.txt" />
+    <Text Include="import_test.txt" />
+    <Text Include="imported_test2.txt" />
     <Text Include="include_and_bindings_test.txt" />
     <Text Include="input_test.txt" />
     <Text Include="multiprocessing_fibonacci_test.txt" />

@@ -1,0 +1,19 @@
+
+
+declare function func1
+	
+	add 2 to 2
+	
+finally give result
+
+
+declare function func2
+	
+	evaluate arg1 is greater than 1
+
+	if result
+		multiply arg1 by arg1
+	finally end
+	
+	
+finall give result

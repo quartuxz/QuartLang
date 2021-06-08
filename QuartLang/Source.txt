@@ -1,0 +1,16 @@
+
+
+declare function func1
+	
+	if true
+		add 1 to 1
+	finally end
+
+finally end
+
+
+
+call func1
+
+
+call print-anything with result as #

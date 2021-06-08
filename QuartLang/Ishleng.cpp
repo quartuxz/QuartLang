@@ -31,7 +31,7 @@ void Ishleng::parse()
 runType Ishleng::run()
 {
 	DELETE_IF_NOT_NULL(m_engine);
-	m_engine = new Engine(m_parser->getProgram(), m_logger);
+	m_engine = new Engine(m_parser->getProgram(),m_dictionaryLexer, m_logger);
 	return m_engine->run();
 }
 

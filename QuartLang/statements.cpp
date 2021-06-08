@@ -221,6 +221,17 @@ finishOperation::finishOperation(size_t orderedId, const std::string &threadInst
 {
 }
 
+importOperation::importOperation(size_t orderedId, const operand& code):
+	ProgramStructure<statementType>(orderedId, statementType::importSttt),
+	m_code(code)
+{
+}
+
+const operand& importOperation::getCode() const noexcept
+{
+	return m_code;
+}
+
 const std::string& finishOperation::getThreadInstanceName() const noexcept
 {
 	return m_threadInstanceName;

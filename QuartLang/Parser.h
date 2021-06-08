@@ -10,7 +10,7 @@
 //turns a stream of tokens into a program class
 class Parser
 {
-private:
+protected:
 
 
 	Logger *m_logger;
@@ -20,8 +20,6 @@ private:
 	
 
 	size_t m_entryPoint;
-
-
 
 
 	std::string lastTag;
@@ -36,8 +34,12 @@ private:
 	void m_makeProgram(Lexer *lexer);
 	void m_makeProgram();
 public:
-	Parser(Lexer* Lexer, Logger *logger);
+	Parser(Lexer* lexer, Logger *logger);
 	
+	static std::vector<functionBlock*> getFunctionsOnly(Lexer *lexer, Logger *logger, const Subprogram *parentProgram = nullptr);
+
+
 	const Program *getProgram()const noexcept;
 	Program *getProgram()noexcept;
 };
+

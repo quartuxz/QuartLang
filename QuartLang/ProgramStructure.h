@@ -3,7 +3,7 @@
 
 #define SUBPROGRAM_TYPE_ENUM(extra) extra baseBlock, functionBlock, conditionalBlock
 #define BLOCKIFY(x) {x}
-#define STATEMENT_TYPE_ENUM variableDeclarationSttt, arithmeticOperationSttt, functionCallSttt, setOperationSttt, finallySttt, evaluateOperationSttt, flipOperationSttt, referOperationSttt, appendOperationSttt, finishSttt
+#define STATEMENT_TYPE_ENUM notASttt, variableDeclarationSttt, arithmeticOperationSttt, functionCallSttt, setOperationSttt, finallySttt, evaluateOperationSttt, flipOperationSttt, referOperationSttt, appendOperationSttt, finishSttt, importSttt
 #define ADD_COMMA(x) x##,
 
 enum class subprogramType BLOCKIFY(SUBPROGRAM_TYPE_ENUM());

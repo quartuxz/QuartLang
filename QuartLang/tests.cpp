@@ -41,7 +41,7 @@ std::string makePassTestString(passTestType psstt)
 		return "success";
 		break;
 	case passTestType::exceptionThrown:
-		return "exceptionn thrown";
+		return "exception thrown";
 		break;
 	case passTestType::failure:
 		return "failure";

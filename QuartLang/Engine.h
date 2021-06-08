@@ -13,9 +13,10 @@ private:
 	Logger* m_logger;
 	const Program* m_program;
 
+	const DictionaryLexer* m_dict;
 	
 public:
-	Engine(const Program *program, Logger *logger);
+	Engine(const Program *program, const DictionaryLexer *dict , Logger *logger);
 	
 	runType run();
 };

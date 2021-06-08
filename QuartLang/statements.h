@@ -153,3 +153,15 @@ public:
 	const std::string& getThreadInstanceName()const noexcept;
 
 };
+
+
+class importOperation : public ProgramStructure<statementType> {
+private:
+	operand m_code;
+public:
+	importOperation(size_t orderedId, const operand &code);
+
+
+	const operand& getCode()const noexcept;
+
+};

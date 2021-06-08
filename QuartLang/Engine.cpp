@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "Ishleng.h"
 #include <thread>
 
 #define DO_OPERATION_ISHLENG(lhs, rhs, op)\
@@ -22,9 +23,10 @@
 
 
 
-Engine::Engine(const Program* program, Logger *logger):
+Engine::Engine(const Program* program, const DictionaryLexer* dict,Logger *logger):
     m_program(program),
-    m_logger(logger)
+    m_logger(logger),
+    m_dict(dict)
 {
 }
 
@@ -48,7 +50,7 @@ variableDeclaration* getVariable(const std::map<std::string, std::vector<variabl
 #define START_FROM_LAST_STATEMENT -1
 
 
-runType m_run(Logger *logger, const Program* mainProgram, 
+runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainProgram, 
     const Subprogram* currentProgram,
     int startPoint = 0, 
     DataStructure* p_result = nullptr, 
@@ -128,6 +130,21 @@ runType m_run(Logger *logger, const Program* mainProgram,
         if (currentContents[i].isStatement) {
             switch (currentContents[i].type)
             {
+            case statementType::importSttt:
+            {
+                auto importOp = currentProgram->getImportOperation(currentContents[i].orderedID);
+
+
+                Lexer lex(opToDat(importOp->getCode()).getString(),dict,logger,false);
+                auto importedFuncs = Parser::getFunctionsOnly(&lex,logger,currentProgram);
+
+
+                for (auto x : importedFuncs) {
+                    functions[x->getTag()] = x;
+                }
+                
+            }
+                break;
             case statementType::finishSttt:
             {
                 const finishOperation* finishOperation = currentProgram->getFinishOperation(currentContentsOrderedId);
@@ -309,7 +326,7 @@ runType m_run(Logger *logger, const Program* mainProgram,
                     }
                     //a builtin was not found
                     else {
-                        m_run(logger,mainProgram,functions[fCall->getFunctionCalledTag()],START_FROM_ZERO,result,realArgs,functions);
+                        m_run(logger,dict,mainProgram,functions[fCall->getFunctionCalledTag()],START_FROM_ZERO,result,realArgs,functions);
                     }
                 }
                 else {
@@ -323,7 +340,7 @@ runType m_run(Logger *logger, const Program* mainProgram,
                     //a builtin was not found
                     else {
                         DataStructure* mtRes = new DataStructure();
-                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes,new std::thread(m_run, logger, mainProgram, functions[fCall->getFunctionCalledTag()], START_FROM_ZERO,  mtRes, realArgs, functions, std::map<std::string, std::pair<DataStructure*, std::thread*> >()));
+                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes,new std::thread(m_run, logger,dict, mainProgram, functions[fCall->getFunctionCalledTag()], START_FROM_ZERO,  mtRes, realArgs, functions, std::map<std::string, std::pair<DataStructure*, std::thread*> >()));
                         newRunningThreads.push_back(runningThreads[threadInstanceName]);
                     }
                 }
@@ -356,7 +373,7 @@ runType m_run(Logger *logger, const Program* mainProgram,
             {
                 const conditionalBlock* condBlock = dynamic_cast<const conditionalBlock*>(candidateNext);
                 if (opToDat(condBlock->getCondition()).getBoolData()) {
-                    m_run(logger, mainProgram,condBlock,START_FROM_ZERO,result,variables,functions,runningThreads);
+                    m_run(logger, dict,mainProgram,condBlock,START_FROM_ZERO,result,variables,functions,runningThreads);
                 }
             }
                 break;
@@ -387,5 +404,5 @@ runType m_run(Logger *logger, const Program* mainProgram,
 runType Engine::run()
 {
     
-    return m_run(m_logger, m_program, m_program);
+    return m_run(m_logger, m_dict,m_program, m_program);
 }

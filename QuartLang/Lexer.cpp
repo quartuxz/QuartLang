@@ -53,6 +53,33 @@ void Lexer::m_bindFileOrCode(std::string fileName, bool isFileTrueIsCodeFalse)
 		str = fileName;
 	}
 
+	std::stringstream nextLiteral;
+	bool readingLiteral = false;
+	char delimiter;
+
+	for (size_t i = 0; i < str.size(); i++) {
+		if (str[i] == '\"' || str[i] == '\"') {
+			
+			//we finish reading the literal
+			if (readingLiteral) {
+				if (str[i] == delimiter) {
+					readingLiteral = false;
+					m_preliterals.push_back(nextLiteral.str());
+					nextLiteral.str("");
+				}
+
+			}
+			else {
+				readingLiteral = true;
+				delimiter = str[i];
+			}
+
+
+		}
+		else if(readingLiteral){
+			nextLiteral << str[i];
+		}
+	}
 
 	//we remove all special characters and excess whitespaces
 	std::string noSpecialCharacters;
@@ -92,6 +119,9 @@ void Lexer::m_tokenize()
 	//we reset the previous tokens.
 	m_currentToken = 0;
 	m_tokens.clear();
+
+	size_t currentPreliteral = 0;
+
 	std::string currentTokenString;
 	size_t i = 0;
 	while(true) {
@@ -101,23 +131,23 @@ void Lexer::m_tokenize()
 			break;
 		}
 		//we encounter a string start
-		if (currentTokenString[0] == '\"') {
-			std::stringstream ss;
-			ss << currentTokenString;
+		if (currentTokenString[0] == '\"' || currentTokenString[0] == '\'') {
+			char delimiter = currentTokenString[0];
 
-			if (currentTokenString.back() != '\"') {
+			if (currentTokenString.back() != delimiter) {
+				std::string nextWord;
 				do {
-					ss << " ";
-					ss << m_readNextWord();
-				}while (ss.str().back() != '\"');
+					nextWord = m_readNextWord();
+
+				}while (nextWord.back() != delimiter);
 			}
-			std::string tempStr = ss.str();
-			std::string finalStr(++tempStr.begin(), --tempStr.end());
+
+			std::string finalStr = m_preliterals[currentPreliteral++];
+
 			if (finalStr.size() == 1) {
 				m_addLiteral(finalStr, Token::charLiteralTok);
 			}else {
 				m_addLiteral(finalStr, Token::stringLiteralTok);
-
 			}
 
 		}

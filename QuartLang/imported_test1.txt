@@ -1,0 +1,7 @@
+
+
+declare function func3
+	
+	divide arg1 by 2
+	
+finally give result

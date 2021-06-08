@@ -29,6 +29,7 @@ protected:
 	std::map<size_t, referOperation*> m_referOperations;
 	std::map<size_t, appendOperation*> m_appendOperations;
 	std::map<size_t, finishOperation*> m_finishOperations;
+	std::map<size_t, importOperation*> m_importOperations;
 
 	std::map<size_t, Subprogram*> m_subprograms;
 
@@ -37,11 +38,9 @@ protected:
 public:
 	Subprogram(size_t orderedID, subprogramType type)noexcept;
 
-	std::string getTag()const noexcept;
-
 	const Subprogram* getSubprogram(size_t orderedID)const;
 
-
+	Subprogram(const Subprogram &copy);
 
 	//all the accessors for statements
 	const variableDeclaration* getVariable(size_t orderedID)const;
@@ -61,6 +60,7 @@ public:
 
 	const finishOperation* getFinishOperation(size_t orderedID)const;
 
+	const importOperation* getImportOperation(size_t orderedID)const;
 
 	std::vector<programContent> getContent()const noexcept;
 	virtual ~Subprogram();
@@ -83,6 +83,8 @@ private:
 public:
 	functionBlock(size_t orderedID, const std::string& tag);
 	const std::string& getTag()const;
+
+	functionBlock(const functionBlock &copy);
 };
 
 
