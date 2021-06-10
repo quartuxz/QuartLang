@@ -86,6 +86,12 @@ void DataStructure::addNamedSubobject(const DataStructure& subobject, const std:
 	m_isComposite = true;
 }
 
+#define DELETE_IF_NOT_NULL(x) if(x != nullptr){ delete x; }
+
+DataStructure::~DataStructure()
+{
+}
+
 DataStructure::DataStructure(int intData):
 	m_typeOrPrimitiveTag(INT_TYPE_STR),
 	m_intData(intData)
@@ -127,6 +133,21 @@ bool DataStructure::isEmpty()
 	return !m_isArray && !m_isComposite && m_typeOrPrimitiveTag.empty();
 }
 
+const functionBlock* DataStructure::getFunction() const noexcept
+{
+	return m_function;
+}
+
+const builtinFunction* DataStructure::getBuiltinFunction() const noexcept
+{
+	return m_builtinFunction;
+}
+
+builtinFunction* DataStructure::getBuiltinFunction() noexcept
+{
+	return m_builtinFunction;
+}
+
 DataStructure::DataStructure(const std::string& typeOrPrimitiveTag, const std::vector<std::pair<std::string, DataStructure>>& subobjects) :
 	m_typeOrPrimitiveTag(typeOrPrimitiveTag),
 	m_isComposite(true)
@@ -135,6 +156,18 @@ DataStructure::DataStructure(const std::string& typeOrPrimitiveTag, const std::v
 		m_subobjectNames[x.first] = m_subobjects.size();
 		m_subobjects.push_back(x.second);
 	}
+}
+
+DataStructure::DataStructure(const functionBlock* function):
+	m_function(function),
+	m_typeOrPrimitiveTag(FUNCTION_TYPE_STR)
+{
+}
+
+DataStructure::DataStructure(builtinFunction* builtin):
+	m_builtinFunction(builtin),
+	m_typeOrPrimitiveTag(BUILTIN_FUNCTION_TYPE_STR)
+{
 }
 
 DataStructure::DataStructure(const std::string& str):
@@ -151,9 +184,9 @@ operand::operand()
 {
 }
 
-operand::operand(const std::string& p_varName):
-	type(operandType::variable),
-	varName(p_varName)
+operand::operand(const std::string& p_tagStr):
+	type(operandType::tag),
+	tagStr(p_tagStr)
 {
 }
 

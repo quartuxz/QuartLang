@@ -1,0 +1,31 @@
+
+
+
+declare function func1
+	
+	call print-anything with "-" as #1
+
+	add 1 to 1
+	
+finally give result
+
+
+declare function func2
+
+	call arg1
+	declare variable var1
+	set var1 to result
+
+	call print-anything with result as #
+
+finally give var1
+
+declare variable var1
+
+set var1 to func1
+
+
+
+call func2 with func1 as arg1
+
+call print-anything with result as #1

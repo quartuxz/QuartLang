@@ -30,20 +30,6 @@ Engine::Engine(const Program* program, const DictionaryLexer* dict,Logger *logge
 {
 }
 
-variableDeclaration* getVariable(const std::map<std::string, std::vector<variableDeclaration*>> &variables, const std::string &varName, size_t currentScopedBlock) {
-    if (variables.find(varName) != variables.end()) {
-        for (size_t i = 0; i < variables.at(varName).size(); i++)
-        {
-            auto currentVar = variables.at(varName)[i];
-            if (currentScopedBlock >= currentVar->getScopeNesting()) {
-                return currentVar;
-            }
-        }
-    }
-    return nullptr;
-}
-
-
 
 
 #define START_FROM_ZERO 0
@@ -92,9 +78,21 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
         case operandType::literal:
             retval = op.literalData;
             break;
-        case operandType::variable:
+        case operandType::tag:
         {
-            retval = *variables[op.varName];
+            if (variables.find(op.tagStr) != variables.end()) {
+                retval = *variables[op.tagStr];
+            }
+            else if (functions.find(op.tagStr) != functions.end()) {
+                retval = DataStructure(functions[op.tagStr]);
+            }
+            else {
+                auto* candidateBuiltin = mainProgram->getIncludedBuiltin(op.tagStr);
+                if (candidateBuiltin != nullptr) {
+                    retval = DataStructure(candidateBuiltin);
+                }
+            }
+
         }
         break;
         case operandType::result:
@@ -104,6 +102,24 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             break;
         }
         return retval;
+    };
+
+    auto getFunction = [&](const std::string& functionName) {
+        if (functions.find(functionName) != functions.end()) {
+            return functions[functionName];
+        }
+        else {
+            return variables[functionName]->getFunction();
+        }
+
+    };
+    
+    auto getBuiltin = [&](const std::string& functionName) {
+        auto candidateBuiltin = mainProgram->getIncludedBuiltin(functionName);
+        if (candidateBuiltin == nullptr && variables.find(functionName) != variables.end()) {
+            candidateBuiltin = variables[functionName]->getBuiltinFunction();
+        }
+        return candidateBuiltin;
     };
 
     auto clearStack = [&]() {
@@ -316,7 +332,9 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                     realArgs[x.first] = newVariables.back();
                 }
 
-                builtinFunction* builtin = mainProgram->getIncludedBuiltin(fCall->getFunctionCalledTag());
+                
+
+                builtinFunction* builtin = getBuiltin(fCall->getFunctionCalledTag());
                 logger->log("Engine", fCall->getFunctionCalledTag());
                 //a builtin matching the function was found
                 if(!fCall->getIsMultithreaded()){
@@ -326,9 +344,10 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                     }
                     //a builtin was not found
                     else {
-                        m_run(logger,dict,mainProgram,functions[fCall->getFunctionCalledTag()],START_FROM_ZERO,result,realArgs,functions);
+                        m_run(logger,dict,mainProgram,getFunction(fCall->getFunctionCalledTag()),START_FROM_ZERO,result,realArgs,functions);
                     }
                 }
+                //multithreaded function call.
                 else {
                     auto threadInstanceName = fCall->getThreadInstanceName();
                     if (builtin != nullptr) {
@@ -340,7 +359,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                     //a builtin was not found
                     else {
                         DataStructure* mtRes = new DataStructure();
-                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes,new std::thread(m_run, logger,dict, mainProgram, functions[fCall->getFunctionCalledTag()], START_FROM_ZERO,  mtRes, realArgs, functions, std::map<std::string, std::pair<DataStructure*, std::thread*> >()));
+                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes,new std::thread(m_run, logger,dict, mainProgram, getFunction(fCall->getFunctionCalledTag()), START_FROM_ZERO,  mtRes, realArgs, functions, std::map<std::string, std::pair<DataStructure*, std::thread*> >()));
                         newRunningThreads.push_back(runningThreads[threadInstanceName]);
                     }
                 }
