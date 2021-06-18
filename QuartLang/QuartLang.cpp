@@ -79,10 +79,16 @@ int main()
 			std::cout << "enter source file: ";
 			std::cin >> source;
 
-			Ishleng ishleng(&logger, &dict, source);
-			ishleng.lex();
-			ishleng.parse();
-			ishleng.run();
+
+			try{
+				Ishleng ishleng(&logger, &dict, source);
+				ishleng.lex();
+				ishleng.parse();
+				ishleng.run();
+			}
+			catch (const std::exception &expt) {
+				std::cout << std::endl << expt.what() << std::endl;
+			}
 
 			std::cout << std::endl;
 
@@ -103,5 +109,6 @@ int main()
 #endif // MUST_TEST_ISHLENG
 	system("pause");
 	DictionaryLexer::cleanupDictionaries();
+	Engine::cleanUpThreads();
 }
   

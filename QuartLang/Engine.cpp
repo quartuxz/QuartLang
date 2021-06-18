@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Ishleng.h"
+#include <mutex>
 #include <thread>
 
 #define DO_OPERATION_ISHLENG(lhs, rhs, op)\
@@ -31,6 +32,29 @@ Engine::Engine(const Program* program, const DictionaryLexer* dict,Logger *logge
 }
 
 
+std::map<size_t, std::pair<DataStructure*, std::thread*> > runningThreads;
+
+std::mutex runningThreadsMutex;
+
+size_t biggestID = 0;
+
+size_t getNewID() {
+    std::lock_guard<std::mutex> lck(runningThreadsMutex);
+    return biggestID++;
+}
+
+
+void addThread(size_t ID,const std::pair<DataStructure*, std::thread*>& thread) {
+    runningThreadsMutex.lock();
+    runningThreads[ID] = thread;
+    runningThreadsMutex.unlock();
+}
+
+std::pair < DataStructure*, std::thread*>& getRunningThread(size_t id) {
+    std::lock_guard<std::mutex> lck(runningThreadsMutex);
+    return runningThreads[id];
+}
+
 
 #define START_FROM_ZERO 0
 #define START_FROM_LAST_STATEMENT -1
@@ -41,8 +65,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
     int startPoint = 0, 
     DataStructure* p_result = nullptr, 
     const std::map<std::string, DataStructure*>& p_variables = std::map<std::string, DataStructure*>(),
-    const std::map<std::string, const functionBlock*>&p_functions = std::map<std::string, const functionBlock*>(),
-    const std::map<std::string, std::pair<DataStructure*, std::thread*> > &p_runningThreads = std::map<std::string, std::pair<DataStructure*, std::thread*> >())
+    const std::map<std::string, const functionBlock*>&p_functions = std::map<std::string, const functionBlock*>())
 {
     std::vector<programContent> currentContents = currentProgram->getContent();
 
@@ -50,9 +73,6 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
     std::vector<DataStructure*> newVariables;
 
     std::map<std::string, const functionBlock*> functions = p_functions;
-
-    std::map<std::string, std::pair<DataStructure*, std::thread*> > runningThreads = p_runningThreads;
-    std::vector<std::pair<DataStructure*, std::thread*>> newRunningThreads;
 
 
 
@@ -130,14 +150,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             delete x;
             
         }
-
-        runningThreads = p_runningThreads;
-        for (auto x: newRunningThreads) {
-            delete x.first;
-            delete x.second;
-        }
         newVariables.clear();
-        newRunningThreads.clear();
     };
 
     for (int i = startPoint; i < currentContents.size(); i++)
@@ -163,10 +176,12 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                 break;
             case statementType::finishSttt:
             {
-                const finishOperation* finishOperation = currentProgram->getFinishOperation(currentContentsOrderedId);
-                auto threadInstanceName = finishOperation->getThreadInstanceName();
-                runningThreads[threadInstanceName].second->join();
-                *result = *runningThreads[threadInstanceName].first;
+                const finishOperation* finishOp = currentProgram->getFinishOperation(currentContentsOrderedId);
+
+                auto runningThread = getRunningThread(opToDat(finishOp->getThreadID()).getIntData());
+                runningThread.second->join();
+                *result = *runningThread.first;
+
             }
                 break;
             case statementType::referOperationSttt:
@@ -349,19 +364,18 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                 }
                 //multithreaded function call.
                 else {
-                    auto threadInstanceName = fCall->getThreadInstanceName();
+                    auto threadInstanceID = getNewID();
                     if (builtin != nullptr) {
                         DataStructure* mtRes = new DataStructure();
-                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(&builtinFunction::call,builtin,realArgs,mtRes));
-                        newRunningThreads.push_back(runningThreads[threadInstanceName]);
+                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(&builtinFunction::call, builtin, realArgs, mtRes)));
                         
                     }
                     //a builtin was not found
                     else {
                         DataStructure* mtRes = new DataStructure();
-                        runningThreads[threadInstanceName] = std::pair<DataStructure*, std::thread*>(mtRes,new std::thread(m_run, logger,dict, mainProgram, getFunction(fCall->getFunctionCalledTag()), START_FROM_ZERO,  mtRes, realArgs, functions, std::map<std::string, std::pair<DataStructure*, std::thread*> >()));
-                        newRunningThreads.push_back(runningThreads[threadInstanceName]);
+                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(m_run, logger, dict, mainProgram, getFunction(fCall->getFunctionCalledTag()), START_FROM_ZERO, mtRes, realArgs, functions)));
                     }
+                    *result = DataStructure((int)threadInstanceID);
                 }
             }
             break;
@@ -392,7 +406,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             {
                 const conditionalBlock* condBlock = dynamic_cast<const conditionalBlock*>(candidateNext);
                 if (opToDat(condBlock->getCondition()).getBoolData()) {
-                    m_run(logger, dict,mainProgram,condBlock,START_FROM_ZERO,result,variables,functions,runningThreads);
+                    m_run(logger, dict,mainProgram,condBlock,START_FROM_ZERO,result,variables,functions);
                 }
             }
                 break;
@@ -420,8 +434,15 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
 }
 
 
+void Engine::cleanUpThreads()
+{
+    for (auto x : runningThreads) {
+        delete x.second.first;
+        delete x.second.second;
+    }
+}
+
 runType Engine::run()
 {
-    
     return m_run(m_logger, m_dict,m_program, m_program);
 }

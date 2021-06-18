@@ -22,6 +22,20 @@ void Ishleng::lex()
 	m_lexer = new Lexer(m_codeOrFile,m_dictionaryLexer,m_logger, m_isFileTrueIsCodeFalse);
 }
 
+void Ishleng::validate()
+{
+	DELETE_IF_NOT_NULL(m_syntaxValidator);
+	m_syntaxValidator = new SyntaxValidator(m_logger,m_lexer->getTokens(),defaultProductions);
+
+
+	const validateResult& valRes = m_syntaxValidator->validate();
+
+	if (!valRes.success) {
+		throw validationError(valRes, m_codeOrFile);
+	}
+
+}
+
 void Ishleng::parse()
 {
 	DELETE_IF_NOT_NULL(m_parser);
@@ -53,6 +67,7 @@ const Engine* Ishleng::getEngine() const noexcept
 Ishleng::~Ishleng()
 {
 	DELETE_IF_NOT_NULL(m_parser);
+	DELETE_IF_NOT_NULL(m_syntaxValidator);
 	DELETE_IF_NOT_NULL(m_lexer);
 	DELETE_IF_NOT_NULL(m_engine);
 }

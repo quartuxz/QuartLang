@@ -222,6 +222,11 @@ std::string Lexer::m_readNextWord(char separatingToken)
 	return retval;
 }
 
+std::vector<Token> Lexer::getTokens() const noexcept
+{
+	return m_tokens;
+}
+
 Token Lexer::getNextToken() const noexcept
 {
 	return m_tokens[m_currentToken++];

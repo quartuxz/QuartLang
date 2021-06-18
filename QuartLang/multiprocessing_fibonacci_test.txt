@@ -34,11 +34,15 @@ declare variable fibIterations
 set it to 40
 
 
-launch fibFuncThread1 fibonacci-func giving fibIterations as max-iterations
+launch fibonacci-func giving fibIterations as max-iterations
+
+declare variable fibThread
+
+set fibThread to result
 
 call print-anything with "..." as #
 
-finish fibFuncThread1
+finish fibThread
 
 declare variable fibonacciResult
 set fibonacciResult to result

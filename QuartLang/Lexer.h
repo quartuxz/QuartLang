@@ -56,6 +56,8 @@ public:
 	Lexer(std::string filenameOrCode, const DictionaryLexer *dict,Logger *logger,bool isFileTrueIsCodeFalse = true);
 
 
+	std::vector<Token> getTokens()const noexcept;
+
 	//returns the current token for reading sequentially
 	Token getNextToken()const noexcept;
 	size_t getCurrentTokenPosition()const noexcept;

@@ -26,9 +26,6 @@
     <Filter Include="core\lexer">
       <UniqueIdentifier>{7df99fc3-2354-440c-805f-c1d1a39f7a38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="core\parser">
-      <UniqueIdentifier>{1843b207-2c05-4ec9-b72e-39f9e345a0ba}</UniqueIdentifier>
-    </Filter>
     <Filter Include="try them yourself tests">
       <UniqueIdentifier>{a479c958-b361-4543-b412-5ab370d8a7ef}</UniqueIdentifier>
     </Filter>
@@ -37,6 +34,9 @@
     </Filter>
     <Filter Include="program-wide tests\source\import_test">
       <UniqueIdentifier>{83901a6d-dab5-420d-baf5-1d15263c42af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\syntax">
+      <UniqueIdentifier>{1843b207-2c05-4ec9-b72e-39f9e345a0ba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,7 +48,7 @@
     <ClCompile Include="builtinFunctions.cpp" />
     <ClCompile Include="EnumToString.cpp" />
     <ClCompile Include="Parser.cpp">
-      <Filter>core\parser</Filter>
+      <Filter>core\syntax</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
       <Filter>core\Engine</Filter>
@@ -78,6 +78,12 @@
       <Filter>core\lexer</Filter>
     </ClCompile>
     <ClCompile Include="Ishleng.cpp" />
+    <ClCompile Include="SyntaxValidator.cpp">
+      <Filter>core\syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="SyntaxValidatorTest.cpp">
+      <Filter>core\syntax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer.h">
@@ -87,7 +93,7 @@
     <ClInclude Include="builtinFunctions.h" />
     <ClInclude Include="EnumToString.h" />
     <ClInclude Include="Parser.h">
-      <Filter>core\parser</Filter>
+      <Filter>core\syntax</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
       <Filter>core\Engine</Filter>
@@ -123,6 +129,12 @@
       <Filter>core\lexer</Filter>
     </ClInclude>
     <ClInclude Include="Ishleng.h" />
+    <ClInclude Include="SyntaxValidator.h">
+      <Filter>core\syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="SyntaxValidatorTest.h">
+      <Filter>core\syntax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source.txt" />

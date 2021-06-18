@@ -23,12 +23,10 @@ private:
 	std::string m_functionCalledTag;
 	std::map<std::string, operand> m_args;
 	bool m_isMultithreaded;
-	std::string m_threadInstanceName;
 public:
-	functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args, bool isMultithreaded = false, const std::string& threadInstanceName = "");
+	functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args, bool isMultithreaded = false);
 	functionCall();
 	bool getIsMultithreaded()const noexcept;
-	const std::string& getThreadInstanceName()const noexcept;
 
 	std::string getFunctionCalledTag()const noexcept;
 	const std::map<std::string, operand>& getArgs()const noexcept;
@@ -146,11 +144,11 @@ public:
 
 class finishOperation : public ProgramStructure<statementType> {
 private:
-	std::string m_threadInstanceName;
+	operand m_threadID;
 public:
-	finishOperation(size_t orderedId, const std::string& threadInstanceName);
+	finishOperation(size_t orderedId, const operand& threadID);
 
-	const std::string& getThreadInstanceName()const noexcept;
+	const operand& getThreadID()const noexcept;
 
 };
 

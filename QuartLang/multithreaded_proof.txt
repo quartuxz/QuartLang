@@ -23,8 +23,16 @@ declare variable iterationsVar
 
 set iterationsVar to 100
 
-launch fibFuncThread1 fibonacci-func giving iterationsVar as max-iterations also "first " as display-thing 
-launch fibFuncThread2 fibonacci-func giving iterationsVar as max-iterations also "second " as display-thing 
+
+declare variable fibFuncThread1
+declare variable fibFuncThread2
+
+launch fibonacci-func giving iterationsVar as max-iterations also "first " as display-thing 
+set fibFuncThread1 to result
+
+launch fibonacci-func giving iterationsVar as max-iterations also "second " as display-thing 
+set fibFuncThread2 to result
+
 
 call print-anything with "..." as #
 

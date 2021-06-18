@@ -2,6 +2,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "Engine.h"
+#include "SyntaxValidator.h"
 #include "DictionaryLexer.h"
 
 
@@ -13,6 +14,7 @@ private:
 	Logger *m_logger;
 
 	Lexer *m_lexer;
+	SyntaxValidator* m_syntaxValidator;
 	Parser *m_parser;
 	Engine *m_engine;
 	
@@ -26,6 +28,8 @@ public:
 
 
 	void lex();
+	//throws exception when failed
+	void validate();
 	void parse();
 	runType run();
 

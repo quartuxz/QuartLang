@@ -18,6 +18,9 @@ private:
 public:
 	Engine(const Program *program, const DictionaryLexer *dict , Logger *logger);
 	
+
+	static void cleanUpThreads();
+
 	runType run();
 };
 

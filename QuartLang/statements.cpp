@@ -32,12 +32,11 @@ void variableDeclaration::setData(const DataStructure& data)
 
 
 
-functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args, bool isMultithreaded, const std::string& threadInstanceName):
+functionCall::functionCall(size_t orderedID, const std::string& functionCalledTag, const std::map<std::string, operand>& args, bool isMultithreaded):
 ProgramStructure<statementType>(orderedID, statementType::functionCallSttt),
 m_functionCalledTag(functionCalledTag),
 m_args(args),
-m_isMultithreaded(isMultithreaded),
-m_threadInstanceName(threadInstanceName)
+m_isMultithreaded(isMultithreaded)
 {
 }
 
@@ -51,10 +50,6 @@ bool functionCall::getIsMultithreaded() const noexcept
 	return m_isMultithreaded;
 }
 
-const std::string& functionCall::getThreadInstanceName() const noexcept
-{
-	return m_threadInstanceName;
-}
 
 std::string functionCall::getFunctionCalledTag() const noexcept
 {
@@ -215,12 +210,6 @@ std::string referOperation::getReferantName() const
 	return m_referantName;
 }
 
-finishOperation::finishOperation(size_t orderedId, const std::string &threadInstanceName):
-	ProgramStructure<statementType>(orderedId, statementType::finishSttt),
-	m_threadInstanceName(threadInstanceName)
-{
-}
-
 importOperation::importOperation(size_t orderedId, const operand& code):
 	ProgramStructure<statementType>(orderedId, statementType::importSttt),
 	m_code(code)
@@ -232,7 +221,13 @@ const operand& importOperation::getCode() const noexcept
 	return m_code;
 }
 
-const std::string& finishOperation::getThreadInstanceName() const noexcept
+finishOperation::finishOperation(size_t orderedId, const operand& threadID):
+	ProgramStructure<statementType>(orderedId, statementType::finishSttt),
+	m_threadID(threadID)
 {
-	return m_threadInstanceName;
+}
+
+const operand& finishOperation::getThreadID() const noexcept
+{
+	return m_threadID;
 }

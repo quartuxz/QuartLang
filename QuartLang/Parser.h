@@ -31,7 +31,7 @@ protected:
 
 	std::map<std::string, std::pair<Token,std::string>> m_bindings;
 
-	void m_makeProgram(Lexer *lexer);
+	void m_makeProgram(const Lexer *lexer);
 	void m_makeProgram();
 public:
 	Parser(Lexer* lexer, Logger *logger);

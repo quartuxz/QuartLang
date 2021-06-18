@@ -1,9 +1,9 @@
 #include "Parser.h"
 #include <stdexcept>
 #include <fstream>
+#include "Ishleng.h"
 
-
-void Parser::m_makeProgram(Lexer* lexer)
+void Parser::m_makeProgram(const Lexer* lexer)
 {
 
 	currentToken = lexer->getNextToken();
@@ -117,7 +117,7 @@ void Parser::m_makeProgram(Lexer* lexer)
 	};
 
 
-	auto addFunctionCallStatement = [&addProgramContent,&lexer = lexer,&m_logger = m_logger,&currentToken = currentToken,&createOperand, &currentProgram = currentProgram, &currentStructure = currentStructure](bool isMultithreaded = false, const std::string& threadInstanceName = "") {
+	auto addFunctionCallStatement = [&addProgramContent,&lexer = lexer,&m_logger = m_logger,&currentToken = currentToken,&createOperand, &currentProgram = currentProgram, &currentStructure = currentStructure](bool isMultithreaded = false) {
 		
 		addProgramContent(statementType::functionCallSttt);
 		size_t functionTagTokenPos = lexer->getCurrentTokenPosition();
@@ -146,7 +146,7 @@ void Parser::m_makeProgram(Lexer* lexer)
 		}
 		LOG_ISHLENG((*m_logger), "Parser", lexer->getTagString(functionTagTokenPos));
 		//we insert a function call at the specified orderer place
-		currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, lexer->getTagString(functionTagTokenPos), args, isMultithreaded, threadInstanceName);
+		currentProgram->m_functionCalls[currentStructure] = new functionCall(currentStructure, lexer->getTagString(functionTagTokenPos), args, isMultithreaded);
 		LOG_ISHLENG((*m_logger), "Parser, Function tag", currentProgram->m_functionCalls[currentStructure]->getFunctionCalledTag());
 	};
 
@@ -203,8 +203,13 @@ void Parser::m_makeProgram(Lexer* lexer)
 		case Token::includeTok:
 		{
 			currentToken = lexer->getNextToken();
-			Lexer nestedLexer(getBinding(currentToken,lexer).second,lexer->getDictionaryLexer(),m_logger,false);
-			m_makeProgram(&nestedLexer);
+
+
+			Ishleng nestedIshleng(m_logger, lexer->getDictionaryLexer(), getBinding(currentToken, lexer).second,false);
+
+			nestedIshleng.lex();
+			//TODO: use syntactic validator here
+			m_makeProgram(nestedIshleng.getLexer());
 			currentToken = lexer->getNextToken();
 		}
 			break;
@@ -215,7 +220,7 @@ void Parser::m_makeProgram(Lexer* lexer)
 
 			currentToken = lexer->getNextToken();
 
-			currentProgram->m_finishOperations[currentStructure] = new finishOperation(currentStructure, lexer->getTagStringTokPosMinus());
+			currentProgram->m_finishOperations[currentStructure] = new finishOperation(currentStructure, createOperand(currentToken,lexer));
 		}
 		break;
 		case Token::referTok:
@@ -527,15 +532,11 @@ void Parser::m_makeProgram(Lexer* lexer)
 			}
 			break;
 		case Token::launchTok:
-			currentToken = lexer->getNextToken();
-
-			addFunctionCallStatement(true, lexer->getTagStringTokPosMinus());
+			addFunctionCallStatement(true);
 			break;
 		case Token::callFunctionTok:
-		{
 			addFunctionCallStatement();
-		}
-		break;
+			break;
 		default:
 			//this gets called if the token is not a valid start of a new statement and also pretty much once after every statement
 			//as the last token is kept as current.

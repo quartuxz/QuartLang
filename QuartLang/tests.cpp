@@ -46,6 +46,9 @@ std::string makePassTestString(passTestType psstt)
 	case passTestType::failure:
 		return "failure";
 		break;
+	case passTestType::notRun:
+		throw std::invalid_argument("the test was not run! Cant make string for notRun!");
+		break;
 	default:
 		break;
 	}

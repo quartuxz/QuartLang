@@ -157,6 +157,8 @@
     <ClCompile Include="QuartLang.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="statements.cpp" />
+    <ClCompile Include="SyntaxValidator.cpp" />
+    <ClCompile Include="SyntaxValidatorTest.cpp" />
     <ClCompile Include="tests.cpp" />
     <ClCompile Include="wide_tests.cpp" />
   </ItemGroup>
@@ -175,6 +177,8 @@
     <ClInclude Include="ProgramStructure.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="statements.h" />
+    <ClInclude Include="SyntaxValidator.h" />
+    <ClInclude Include="SyntaxValidatorTest.h" />
     <ClInclude Include="tests.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="wide_tests.h" />
