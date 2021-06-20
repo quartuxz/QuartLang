@@ -14,8 +14,15 @@
 int main()
 {
 #ifdef MUST_TEST_ISHLENG
+	bool testResult = false;
+	try {
+		testResult = doAllTests();
+	}
+	catch (const std::exception & expt) {
+		std::cout << std::endl << expt.what() << std::endl;
+	}
 
-	bool testResult = doAllTests();
+
 
 	std::cout << "\n\n\n\t";
 	if (!testResult) {
@@ -81,10 +88,11 @@ int main()
 
 
 			try{
-				Ishleng ishleng(&logger, &dict, source);
-				ishleng.lex();
-				ishleng.parse();
-				ishleng.run();
+				Ishleng ishlengObj(&logger, &dict, source);
+				ishlengObj.lex();
+				ishlengObj.validate();
+				ishlengObj.parse();
+				ishlengObj.run();
 			}
 			catch (const std::exception &expt) {
 				std::cout << std::endl << expt.what() << std::endl;

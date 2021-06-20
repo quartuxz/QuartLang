@@ -16,4 +16,4 @@ declare function func2
 	finally end
 	
 	
-finall give result
+finally give result

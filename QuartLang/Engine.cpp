@@ -164,8 +164,12 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                 auto importOp = currentProgram->getImportOperation(currentContents[i].orderedID);
 
 
-                Lexer lex(opToDat(importOp->getCode()).getString(),dict,logger,false);
-                auto importedFuncs = Parser::getFunctionsOnly(&lex,logger,currentProgram);
+                Ishleng nestedIshleng(logger,dict, opToDat(importOp->getCode()).getString(),false);
+
+                nestedIshleng.lex();
+                nestedIshleng.validate();
+                
+                auto importedFuncs = Parser::getFunctionsOnly(nestedIshleng.getLexer(),logger,currentProgram);
 
 
                 for (auto x : importedFuncs) {

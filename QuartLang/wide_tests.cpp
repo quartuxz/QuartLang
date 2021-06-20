@@ -47,6 +47,7 @@ bool WideTest::m_doTest()
 
 	Ishleng ishleng(&logger, &dict, m_testFile);
 	ishleng.lex();
+	ishleng.validate();
 	ishleng.parse();
 	ishleng.run();
 

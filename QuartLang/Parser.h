@@ -16,7 +16,7 @@ protected:
 	Logger *m_logger;
 
 	Program m_program;
-	Lexer* m_lexer;
+	const Lexer* m_lexer;
 	
 
 	size_t m_entryPoint;
@@ -34,9 +34,9 @@ protected:
 	void m_makeProgram(const Lexer *lexer);
 	void m_makeProgram();
 public:
-	Parser(Lexer* lexer, Logger *logger);
+	Parser(const Lexer* lexer, Logger *logger);
 	
-	static std::vector<functionBlock*> getFunctionsOnly(Lexer *lexer, Logger *logger, const Subprogram *parentProgram = nullptr);
+	static std::vector<functionBlock*> getFunctionsOnly(const Lexer *lexer, Logger *logger, const Subprogram *parentProgram = nullptr);
 
 
 	const Program *getProgram()const noexcept;

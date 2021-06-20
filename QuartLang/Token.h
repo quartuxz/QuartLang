@@ -52,8 +52,7 @@ BEGIN_ENUM(Token) {
 	DECL_ENUM_ELEMENT(commentTok),
 	DECL_ENUM_ELEMENT(includeTok),
 	DECL_ENUM_ELEMENT(bindTok),
-	DECL_ENUM_ELEMENT(openTok),
-	DECL_ENUM_ELEMENT(importTok),
+	DECL_ENUM_ELEMENT(openTok),DECL_ENUM_ELEMENT(importTok),
 	DECL_ENUM_ELEMENT(endTok)
 }; END_ENUM(Token)
 

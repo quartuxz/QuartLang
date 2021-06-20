@@ -1,3 +1,21 @@
 
 
+declare var1
+
+declare function func1
+
+	call print-anything with "asd" as words?
+	
+finally end
+
+
+call func1
+
+finally end
+
+declare function func2
+	call func1
+finally end
+
+call func2
 

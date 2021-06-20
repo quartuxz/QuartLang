@@ -12,7 +12,9 @@ enum class nonTerminal {
 	arithmeticOpNT, evaluateOpNT, comparisonNT, functionCallOpNT, 
 	argumentsNT, arguments2NT, declareNT, finallyOpNT,  ifNT,
 	numericalComparisonNT, numericalComparison2NT, numericalComparisonOptNT,
-
+	setOpNT, tagOrStringLiteralNT, openOpNT, referOpNT, tagNT,
+	appendOpNT, appendOpSecondOperandNT, bindOpNT, literalNT,
+	skip
 };
 
 
@@ -55,6 +57,8 @@ private:
 	validateResult m_valRes;
 	std::string m_fileName;
 
+
+	std::string m_message;
 public:
 	validationError(const validateResult &res, const std::string &fileName);
 
@@ -75,9 +79,8 @@ public:
 	//Matias Chara normal form.
 	//productions must be in the form: (Token)*·(nonTerminal)*.
 	//non terminal symbols must not have more than 1/ONE production rule with only non-terminals or lambda as their product.
-	//this rule must be the first
+	//this rule must be the first for the nonterminal(this can be fixed, but its not worthwhile)
 	//no two rules may start with the same terminal
-	//no nonTerminal can have two rules with the same terminal substring
 	SyntaxValidator(Logger *logger,const std::vector<Token> &tokens, const std::map<nonTerminal, std::vector< std::vector< nonTerminalOrToken > > > &prod);
 	validateResult validate();
 	~SyntaxValidator();

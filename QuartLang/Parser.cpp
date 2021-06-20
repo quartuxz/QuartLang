@@ -208,6 +208,7 @@ void Parser::m_makeProgram(const Lexer* lexer)
 			Ishleng nestedIshleng(m_logger, lexer->getDictionaryLexer(), getBinding(currentToken, lexer).second,false);
 
 			nestedIshleng.lex();
+			nestedIshleng.validate();
 			//TODO: use syntactic validator here
 			m_makeProgram(nestedIshleng.getLexer());
 			currentToken = lexer->getNextToken();
@@ -259,7 +260,7 @@ void Parser::m_makeProgram(const Lexer* lexer)
 
 			appendType appType;
 
-			if (!tokenIsLiteralOrTag(currentToken)) {
+			if (!tokenIsOperand(currentToken)) {
 				switch (currentToken) {
 				case Token::backTok:
 					appType = appendType::push_back;
@@ -391,41 +392,47 @@ void Parser::m_makeProgram(const Lexer* lexer)
 		break;
 		case Token::finallyTok:
 		{
-			addProgramContent(statementType::finallySttt);
-			currentToken = lexer->getNextToken();
-
-			finallyType fType = finallyType::end;
-
-			bool hasOperand = false;
-
-			switch (currentToken)
-			{
-			case Token::endBlockTok:
-				fType = finallyType::end;
-				break;
-			case Token::repeatTok:
-				hasOperand = true;
-				fType = finallyType::repeat;
-				break;
-			case Token::giveTok:
-				hasOperand = true;
-				fType = finallyType::give;
-				break;
-			default:
-				break;
-			}
-
-			operand op;
-			if (hasOperand) {
+			//if none scopes were started then we ignore the finally token, it does nothing.
+			if(currentScopeNesting > 0){
+				addProgramContent(statementType::finallySttt);
 				currentToken = lexer->getNextToken();
-				op = createOperand(currentToken, lexer);
+
+				finallyType fType = finallyType::end;
+
+				bool hasOperand = false;
+
+				switch (currentToken)
+				{
+				case Token::endBlockTok:
+					fType = finallyType::end;
+					break;
+				case Token::repeatTok:
+					hasOperand = true;
+					fType = finallyType::repeat;
+					break;
+				case Token::giveTok:
+					hasOperand = true;
+					fType = finallyType::give;
+					break;
+				default:
+					break;
+				}
+
+				operand op;
+				if (hasOperand) {
+					currentToken = lexer->getNextToken();
+					op = createOperand(currentToken, lexer);
+				}
+
+
+				currentProgram->m_finallySttts[currentStructure] = new finallySttt(currentStructure, fType, op);
+
+				--currentScopeNesting;
+				currentProgram = currentProgram->m_parent;
 			}
-
-
-			currentProgram->m_finallySttts[currentStructure] = new finallySttt(currentStructure, fType, op);
-
-			--currentScopeNesting;
-			currentProgram = currentProgram->m_parent;
+			else {
+				currentToken = lexer->getNextToken();
+			}
 		}
 		break;
 		case Token::ifTok:
@@ -555,7 +562,7 @@ void Parser::m_makeProgram()
 	m_makeProgram(m_lexer);
 }
 
-Parser::Parser(Lexer* lexer, Logger *logger):
+Parser::Parser(const Lexer* lexer, Logger *logger):
 	m_lexer(lexer),
 	m_program(),
 	m_logger(logger)
@@ -579,7 +586,7 @@ Program* Parser::getProgram() noexcept
 	return &m_program;
 }
 
-std::vector<functionBlock*> Parser::getFunctionsOnly(Lexer* lexer, Logger *logger, const Subprogram* parentProgram)
+std::vector<functionBlock*> Parser::getFunctionsOnly(const Lexer* lexer, Logger *logger, const Subprogram* parentProgram)
 {
 	std::vector<functionBlock*> retval;
 

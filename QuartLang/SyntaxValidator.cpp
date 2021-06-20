@@ -22,13 +22,14 @@ std::vector<std::pair<std::string,  std::vector< bool (*)(Token)> > > defaultMat
     //std::make_pair("block starts and ends" ,std::vector<bool (*)(Token)>{blockStart,blockEnd})
 };
 
-
-
+//like lambda but skips a token
+#define skip nonTerminal::skip
 //when validating a string, if no terminal string matches and there is an alternative lambda production,
 //then no symbol is read, the current input string read symbol is not changed, and the next non-terminal is read
 std::map<nonTerminal, std::vector< std::vector< nonTerminalOrToken > > > defaultProductions  =
 {
     {nonTerminal::allNT, {
+        { skip },
         { Token::addTok, nonTerminal::arithmeticOpNT},
         { Token::subtractTok, nonTerminal::arithmeticOpNT},
         { Token::multiplyTok, nonTerminal::arithmeticOpNT},
@@ -36,17 +37,28 @@ std::map<nonTerminal, std::vector< std::vector< nonTerminalOrToken > > > default
         { Token::evaluateTok, nonTerminal::evaluateOpNT},
         { Token::callFunctionTok, nonTerminal::functionCallOpNT},
         { Token::declareTok, nonTerminal::declareNT},
-        { Token::finallyTok, nonTerminal::finallyOpNT},
+        //{ Token::finallyTok, nonTerminal::finallyOpNT},
         { Token::ifTok, nonTerminal::ifNT, nonTerminal::blockNT},
-        { Token::setTok, nonTerminal::tagResultOrItNT, nonTerminal::operandNT}
+        { Token::setTok, nonTerminal::setOpNT},
+        { Token::finishTok, nonTerminal::operandNT },
+        { Token::importTok, nonTerminal::tagOrStringLiteralNT },
+        { Token::openTok, nonTerminal::openOpNT },
+        { Token::includeTok, nonTerminal::tagOrStringLiteralNT },
+        { Token::flipTok, nonTerminal::operandNT},
+        { Token::launchTok, nonTerminal::functionCallOpNT },
+        { Token::commentTok, nonTerminal::tagOrStringLiteralNT },
+        { Token::referTok, nonTerminal::referOpNT },
+        { Token::appendTok, nonTerminal::appendOpNT },
+        { Token::bindTok, nonTerminal::bindOpNT }
     }},
     {nonTerminal::blockNT, {
         { nonTerminal::allNT, nonTerminal::blockNT},
-        { Token::finallyTok, nonTerminal::finallyOpNT},
+        { Token::finallyTok, nonTerminal::finallyOpNT}
     }},
     {nonTerminal::startNT, {
         { nonTerminal::allNT, nonTerminal::startNT},
         //we include lambda to allow for all not enumerated tokens to just fall through and not throw errors, this allows us 
+        
         { Token::endTok}
     }},
     {nonTerminal::arithmeticOpNT , { { nonTerminal::numericalOperandNT, nonTerminal::numericalOperandNT} } },
@@ -117,7 +129,42 @@ std::map<nonTerminal, std::vector< std::vector< nonTerminalOrToken > > > default
         {Token::lessThanTok},
         {Token::moreThanTok},
         {Token::equalToTok},
-    }}
+    }},
+    {nonTerminal::setOpNT, {
+        {Token::tagTok, nonTerminal::operandNT},
+        {Token::itTok, nonTerminal::operandNT}
+    }},
+    {nonTerminal::tagOrStringLiteralNT, {
+        {Token::tagTok},
+        {Token::stringLiteralTok}
+    }},
+    { nonTerminal::openOpNT, {
+        { nonTerminal::tagOrStringLiteralNT, nonTerminal::tagNT }
+    } },
+    {nonTerminal::tagNT, {
+        { Token::tagTok }
+    } },
+    { nonTerminal::referOpNT,{
+        {nonTerminal::operandNT, nonTerminal::tagNT, nonTerminal::tagNT }
+    } },
+    { nonTerminal::appendOpNT, {
+        { nonTerminal::operandNT, nonTerminal::appendOpSecondOperandNT, nonTerminal::tagNT }
+    } },
+    { nonTerminal::appendOpSecondOperandNT, {
+        {nonTerminal::operandNT},
+        { Token::frontTok },
+        { Token::backTok }
+    } },
+    { nonTerminal::bindOpNT, {
+        { nonTerminal::literalNT, nonTerminal::tagNT}
+    } },
+    { nonTerminal::literalNT, {
+        {Token::boolLiteralTok},
+        {Token::intLiteralTok},
+        {Token::floatLiteralTok},
+        {Token::stringLiteralTok},
+        {Token::charLiteralTok}
+    } }
 
 };
 
@@ -145,20 +192,40 @@ validateResult SyntaxValidator::validate()
 
         //NEXTS LOOP(THE REMAINING NON-TERMINALS TO PROCCESS)
 
+
+        if (lastToken >= m_tokens.size()) {
+            return validateResult(false, "", lastToken-1, 0);
+        }
+
+
+        //we increment the last token to skip the current token
+        if (nexts.top() == skip) {
+            lastToken++;
+
+            nexts.pop();
+            continue;
+        }
+
+
         auto rulesForNT = m_productions[nexts.top()];
+
         nexts.pop();
+
+
+
 
 
         bool foundRuleMatch = false;
         std::vector<nonTerminal> candidateStack;
         bool foundNonTerminalOrLambdaOnly = false;
 
-        //if the first rule is empty, we found a nonTerminal
+        //if the first rule is empty, we found a lambda rule
         if (rulesForNT[0].empty()) {
             foundNonTerminalOrLambdaOnly = true;
         }
         //if the first symbol is a nonTerminal then the whole chain is non-terminals, it is the only non-terminal chain for the production rules of a non-terminal.
         else if (!rulesForNT[0][0].trueForTerminal) {
+
 
             m_logger->log("SyntaxValidator", "found a non terminal only");
 
@@ -297,13 +364,16 @@ validationError::validationError(const validateResult& res, const std::string& f
     m_valRes(res),
     m_fileName(fileName)
 {
-}
-
-const char* validationError::what() const
-{
     std::stringstream ss;
 
     ss << m_valRes.getString() << ", filename: " << m_fileName;
 
-    return ss.str().c_str();
+    m_message = ss.str();
+}
+
+#include <iostream>
+
+const char* validationError::what() const
+{
+    return m_message.c_str();
 }
