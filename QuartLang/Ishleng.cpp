@@ -9,6 +9,7 @@ Ishleng::Ishleng(Logger* logger, const DictionaryLexer* dict, const std::string&
 	m_logger(logger),
 	m_dictionaryLexer(dict),
 	m_lexer(nullptr),
+	m_syntaxValidator(nullptr),
 	m_parser(nullptr),
 	m_engine(nullptr),
 	m_codeOrFile(codeOrFile),

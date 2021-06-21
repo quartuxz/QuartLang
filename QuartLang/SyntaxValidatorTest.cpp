@@ -12,8 +12,9 @@ std::vector<SyntaxValidatorTest> syntaxValudatorTests = {
 	SyntaxValidatorTest("declareFunctionTest2",{Token::declareTok, Token::functionTok, Token::tagTok,Token::endTok},validateResult(false,"",3)),
 	SyntaxValidatorTest("declareFunctionTest3",{Token::declareTok, Token::functionTok, Token::tagTok, Token::declareTok, Token::functionTok, Token::tagTok, Token::endTok},validateResult(false,"",6)),
 	SyntaxValidatorTest("declareFunctionTest4",{Token::declareTok, Token::functionTok, Token::tagTok, Token::declareTok, Token::functionTok, Token::tagTok, Token::finallyTok, Token::endBlockTok, Token::endTok},validateResult(false,"",8)),
-	SyntaxValidatorTest("declareFunctionTest5",{Token::declareTok, Token::functionTok, Token::tagTok, Token::declareTok, Token::functionTok, Token::tagTok, Token::finallyTok, Token::endBlockTok, Token::finallyTok, Token::endBlockTok, Token::endTok},validateResult(true))
-	
+	SyntaxValidatorTest("declareFunctionTest5",{Token::declareTok, Token::functionTok, Token::tagTok, Token::declareTok, Token::functionTok, Token::tagTok, Token::finallyTok, Token::endBlockTok, Token::finallyTok, Token::endBlockTok, Token::endTok},validateResult(true)),
+	SyntaxValidatorTest("ifTest",{Token::ifTok, Token::boolLiteralTok,Token::finallyTok,Token::endBlockTok, Token::endTok},validateResult(true)),
+	SyntaxValidatorTest("emptyFunctionTest",{Token::declareTok,Token::functionTok,Token::tagTok,Token::finallyTok,Token::endBlockTok,Token::endTok},validateResult(true))
 };
 
 
