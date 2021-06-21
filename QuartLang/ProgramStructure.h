@@ -1,5 +1,6 @@
 #pragma once
-
+#include <map>
+#include <string>
 
 #define SUBPROGRAM_TYPE_ENUM(extra) extra baseBlock, functionBlock, conditionalBlock
 #define BLOCKIFY(x) {x}
@@ -11,6 +12,9 @@ enum class subprogramType BLOCKIFY(SUBPROGRAM_TYPE_ENUM());
 enum class statementType BLOCKIFY(STATEMENT_TYPE_ENUM);
 
 enum class statementAndSubprogramType BLOCKIFY(SUBPROGRAM_TYPE_ENUM(ADD_COMMA(STATEMENT_TYPE_ENUM)));
+
+
+extern std::map<statementType, std::string> statementTypeToString;
 
 template<class T>
 class ProgramStructure {

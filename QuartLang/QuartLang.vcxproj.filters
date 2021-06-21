@@ -84,6 +84,9 @@
     <ClCompile Include="SyntaxValidatorTest.cpp">
       <Filter>core\syntax</Filter>
     </ClCompile>
+    <ClCompile Include="ProgramStructure.cpp">
+      <Filter>core\program structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer.h">
@@ -216,5 +219,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="make_dictionary_cpp.py" />
+    <None Include="engine_error_test.txt">
+      <Filter>try them yourself tests</Filter>
+    </None>
   </ItemGroup>
 </Project>

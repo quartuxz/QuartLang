@@ -8,6 +8,9 @@ struct programContent {
 	statementType type;
 	bool isStatement;
 	size_t orderedID;
+
+
+	std::string getString()const;
 };
 
 //we define a structure for scoped blocks

@@ -1,6 +1,6 @@
 #include "programs.h"
 #include <stdexcept>
-
+#include <sstream>
 
 
 
@@ -192,4 +192,12 @@ functionBlock::functionBlock(const functionBlock& copy) :
 	Subprogram(copy),
 	m_tag(copy.m_tag)
 {
+}
+
+std::string programContent::getString() const
+{
+	std::stringstream ss;
+	ss << "ordered id: " << orderedID << ", is statement?: "<< (isStatement?"true":"false") << ", statement type: " << statementTypeToString[type];
+
+	return ss.str();
 }

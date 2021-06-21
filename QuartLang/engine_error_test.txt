@@ -1,0 +1,16 @@
+
+declare function f2
+	add var1 to var1
+finally end
+
+
+declare function f1
+
+	call f2
+	
+finally end
+
+
+call print-anything with "asd" !
+
+call f1

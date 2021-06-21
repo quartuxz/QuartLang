@@ -154,6 +154,7 @@
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="LexerTest.cpp" />
     <ClCompile Include="programs.cpp" />
+    <ClCompile Include="ProgramStructure.cpp" />
     <ClCompile Include="QuartLang.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="statements.cpp" />
@@ -214,6 +215,7 @@
     <Text Include="words_alpha.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="engine_error_test.txt" />
     <None Include="make_dictionary_cpp.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

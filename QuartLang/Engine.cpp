@@ -3,6 +3,13 @@
 #include <mutex>
 #include <thread>
 
+
+
+std::map<engineErrorType, std::string> engineErrorTypeNames = {
+    {engineErrorType::tagNotFound, "tag not found"}
+
+};
+
 #define DO_OPERATION_ISHLENG(lhs, rhs, op)\
             if (lhs.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) { \
                     if (rhs.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) { \
@@ -60,9 +67,10 @@ std::pair < DataStructure*, std::thread*>& getRunningThread(size_t id) {
 #define START_FROM_LAST_STATEMENT -1
 
 
-runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainProgram, 
+runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainProgram,
     const Subprogram* currentProgram,
-    int startPoint = 0, 
+    const std::vector<std::string> &p_stackTrace,
+    int startPoint = 0,
     DataStructure* p_result = nullptr, 
     const std::map<std::string, DataStructure*>& p_variables = std::map<std::string, DataStructure*>(),
     const std::map<std::string, const functionBlock*>&p_functions = std::map<std::string, const functionBlock*>())
@@ -73,7 +81,6 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
     std::vector<DataStructure*> newVariables;
 
     std::map<std::string, const functionBlock*> functions = p_functions;
-
 
 
     if (startPoint == START_FROM_LAST_STATEMENT) {
@@ -91,7 +98,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
     }
     
 
-    auto opToDat = [&](const operand& op) {
+    auto opToDat = [&](const operand& op, size_t currentContentID) {
         DataStructure retval;
         switch (op.type)
         {
@@ -102,6 +109,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
         {
             if (variables.find(op.tagStr) != variables.end()) {
                 retval = *variables[op.tagStr];
+                
             }
             else if (functions.find(op.tagStr) != functions.end()) {
                 retval = DataStructure(functions[op.tagStr]);
@@ -110,6 +118,13 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                 auto* candidateBuiltin = mainProgram->getIncludedBuiltin(op.tagStr);
                 if (candidateBuiltin != nullptr) {
                     retval = DataStructure(candidateBuiltin);
+                }
+                else {
+                    std::stringstream ss;
+
+                    ss << "the given tag was not declared: " << op.tagStr;
+
+                    throw engineError(engineErrorType::tagNotFound, currentContents[currentContentID], ss.str(),p_stackTrace);
                 }
             }
 
@@ -164,7 +179,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                 auto importOp = currentProgram->getImportOperation(currentContents[i].orderedID);
 
 
-                Ishleng nestedIshleng(logger,dict, opToDat(importOp->getCode()).getString(),false);
+                Ishleng nestedIshleng(logger,dict, opToDat(importOp->getCode(),i).getString(),false);
 
                 nestedIshleng.lex();
                 nestedIshleng.validate();
@@ -181,8 +196,8 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             case statementType::finishSttt:
             {
                 const finishOperation* finishOp = currentProgram->getFinishOperation(currentContentsOrderedId);
-
-                auto runningThread = getRunningThread(opToDat(finishOp->getThreadID()).getIntData());
+                
+                auto runningThread = getRunningThread(opToDat(finishOp->getThreadID(),i).getIntData());
                 runningThread.second->join();
                 *result = *runningThread.first;
 
@@ -192,7 +207,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             {
                 const referOperation* referOp = currentProgram->getReferOperation(currentContentsOrderedId);
 
-                auto place = opToDat(referOp->getWhere());
+                auto place = opToDat(referOp->getWhere(),i);
                 
                 auto varFrom = variables[referOp->getVarName()];
 
@@ -208,11 +223,11 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             {
                 const appendOperation* appOp = currentProgram->getAppendOperation(currentContentsOrderedId);
                 appendType appType = appOp->getAppendType();
-                auto appOpContent = opToDat(appOp->getContent());
+                auto appOpContent = opToDat(appOp->getContent(),i);
                 switch (appType) {
                 case appendType::map_to:
                     
-                    variables[appOp->getVarName()]->addNamedSubobject(appOpContent, opToDat(appOp->getPlace()).getString());
+                    variables[appOp->getVarName()]->addNamedSubobject(appOpContent, opToDat(appOp->getPlace(),i).getString());
                     break;
                 case appendType::push_back:
                     variables[appOp->getVarName()]->pushBackSubobject(appOpContent);
@@ -228,7 +243,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             {
                 const flipOperation* flipOp = currentProgram->getFlipOperation(currentContentsOrderedId);
                 
-                auto op = opToDat(flipOp->getOperand());
+                auto op = opToDat(flipOp->getOperand(),i);
 
 
                 if (op.getTypeOrPrimitiveTag() == BOOL_TYPE_STR) {
@@ -251,8 +266,8 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             case statementType::evaluateOperationSttt:
             {
                 const evaluateOperation* evalOp = currentProgram->getEvaluateOperation(currentContentsOrderedId);
-                auto lhs = opToDat(evalOp->getLhs());
-                auto rhs = opToDat(evalOp->getRhs());
+                auto lhs = opToDat(evalOp->getLhs(),i);
+                auto rhs = opToDat(evalOp->getRhs(),i);
                 
                 switch (evalOp->getEvalType())
                 {
@@ -292,13 +307,13 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                 switch (fSttt->getFinallyType())
                 {
                 case finallyType::give:
-                    *result = opToDat(fSttt->getOptionalOperand());
+                    *result = opToDat(fSttt->getOptionalOperand(),i);
                     break;
                 case finallyType::end:
                     
                     break;
                 case finallyType::repeat:
-                    if (opToDat(fSttt->getOptionalOperand()).getBoolData()) {
+                    if (opToDat(fSttt->getOptionalOperand(),i).getBoolData()) {
                         i = -1;
                         clearStack();
                         continue;
@@ -312,8 +327,8 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             case statementType::arithmeticOperationSttt:
             {
                 const arithmeticOperation* arithmeticOp = currentProgram->getArithmeticOperation(currentContentsOrderedId);
-                auto lhs = opToDat(arithmeticOp->getLhs());
-                auto rhs = opToDat(arithmeticOp->getRhs());
+                auto lhs = opToDat(arithmeticOp->getLhs(),i);
+                auto rhs = opToDat(arithmeticOp->getRhs(),i);
 
                 switch (arithmeticOp->getOperationType())
                 {
@@ -337,7 +352,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             case statementType::setOperationSttt:
             {
                 const setOperation* setOp = currentProgram->getSetOperation(currentContentsOrderedId);
-                *variables[setOp->getSettedName()] = opToDat(setOp->getToSet());
+                *variables[setOp->getSettedName()] = opToDat(setOp->getToSet(),i);
             }
             break;
             case statementType::functionCallSttt:
@@ -347,11 +362,12 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                 auto args = fCall->getArgs();
                 std::map<std::string, DataStructure*> realArgs;
                 for (auto x : args) {
-                    newVariables.push_back(new DataStructure(opToDat(x.second)));
+                    newVariables.push_back(new DataStructure(opToDat(x.second,i)));
                     realArgs[x.first] = newVariables.back();
                 }
 
-                
+                auto stackTracePlusThisFunction = p_stackTrace;
+                stackTracePlusThisFunction.push_back(fCall->getFunctionCalledTag());
 
                 builtinFunction* builtin = getBuiltin(fCall->getFunctionCalledTag());
                 logger->log("Engine", fCall->getFunctionCalledTag());
@@ -363,7 +379,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                     }
                     //a builtin was not found
                     else {
-                        m_run(logger,dict,mainProgram,getFunction(fCall->getFunctionCalledTag()),START_FROM_ZERO,result,realArgs,functions);
+                        m_run(logger,dict,mainProgram,getFunction(fCall->getFunctionCalledTag()), stackTracePlusThisFunction,START_FROM_ZERO,result,realArgs,functions);
                     }
                 }
                 //multithreaded function call.
@@ -377,7 +393,7 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
                     //a builtin was not found
                     else {
                         DataStructure* mtRes = new DataStructure();
-                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(m_run, logger, dict, mainProgram, getFunction(fCall->getFunctionCalledTag()), START_FROM_ZERO, mtRes, realArgs, functions)));
+                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(m_run, logger, dict, mainProgram, getFunction(fCall->getFunctionCalledTag()), stackTracePlusThisFunction,START_FROM_ZERO, mtRes, realArgs, functions)));
                     }
                     *result = DataStructure((int)threadInstanceID);
                 }
@@ -409,8 +425,8 @@ runType m_run(Logger *logger, const DictionaryLexer *dict,const Program* mainPro
             case subprogramType::conditionalBlock:
             {
                 const conditionalBlock* condBlock = dynamic_cast<const conditionalBlock*>(candidateNext);
-                if (opToDat(condBlock->getCondition()).getBoolData()) {
-                    m_run(logger, dict,mainProgram,condBlock,START_FROM_ZERO,result,variables,functions);
+                if (opToDat(condBlock->getCondition(),i).getBoolData()) {
+                    m_run(logger, dict,mainProgram,condBlock,p_stackTrace,START_FROM_ZERO,result,variables,functions);
                 }
             }
                 break;
@@ -448,5 +464,29 @@ void Engine::cleanUpThreads()
 
 runType Engine::run()
 {
-    return m_run(m_logger, m_dict,m_program, m_program);
+    return m_run(m_logger, m_dict, m_program, m_program, {"start"});
+}
+
+engineError::engineError(engineErrorType errorType, const programContent& errorOrigin, const std::string& message, const std::vector<std::string>& stackTrace):
+    m_errorType(errorType),
+    m_errorOrigin(errorOrigin),
+    m_message(message),
+    m_stackTrace(stackTrace)
+{
+
+    std::stringstream stackTraceMessage;
+
+    for (auto x : m_stackTrace)
+    {
+        stackTraceMessage << "->" << x;
+    }
+
+    std::stringstream ss;
+    ss << "ENGINE ERROR!: \n\t"<<"|error type: " << engineErrorTypeNames[m_errorType] << ", " << m_errorOrigin.getString() <<", stack trace: "<< stackTraceMessage.str() <<", message: (" << m_message << ")|";
+    m_errorMessage = ss.str();
+}
+
+const char* engineError::what() const
+{
+    return m_errorMessage.c_str();
 }
