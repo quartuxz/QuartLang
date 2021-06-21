@@ -3,6 +3,40 @@
 #include <stack>
 
 
+std::map<nonTerminal, std::string> nonTerminalToStrings = {
+
+    {nonTerminal::startNT, "start"},
+    {nonTerminal::blockNT, "block start"},
+    {nonTerminal::allNT, "code body"},
+    {nonTerminal::operandNT, "operand"},
+    {nonTerminal::numericalOperandNT, "numerical operand"},
+    {nonTerminal::tagResultOrItNT, "tag result or it"},
+    {nonTerminal::arithmeticOpNT, "arithmetic operation"},
+    {nonTerminal::evaluateOpNT, "evaluate operation"},
+    {nonTerminal::comparisonNT, "comparison"},
+    {nonTerminal::functionCallOpNT, "function call operation"},
+    {nonTerminal::argumentsNT, "argument"},
+    {nonTerminal::arguments2NT, "argument name" },
+    {nonTerminal::declareNT, "declare"},
+    {nonTerminal::finallyOpNT, "finally operation"},
+    {nonTerminal::ifNT, "if"},
+    {nonTerminal::numericalComparisonNT, "numerical comparison first part"},
+    {nonTerminal::numericalComparison2NT, "numerical comparison second part"},
+    {nonTerminal::numericalComparisonOptNT, "numerical comparison optional parameter"},
+    {nonTerminal::setOpNT , "set operation"},
+    {nonTerminal::tagOrStringLiteralNT, "tag or string literal"},
+    {nonTerminal::openOpNT, "open operation"},
+    {nonTerminal::referOpNT, "refer operation"},
+    {nonTerminal::tagNT, "tag"},
+    {nonTerminal::appendOpNT,"append operation"},
+    {nonTerminal::appendOpSecondOperandNT, "append operation second operand"},
+    {nonTerminal::bindOpNT, "bind operation"},
+    {nonTerminal::literalNT, "literal"},
+    {nonTerminal::skip, "skip this"}
+
+};
+
+
 bool blockStart(Token tok) {
     if (tok == Token::ifTok || tok == Token::functionTok) {
         return true;
@@ -178,6 +212,22 @@ SyntaxValidator::SyntaxValidator(Logger* logger, const std::vector<Token> &token
 }
 
 
+std::string makeValidatorMessage(const std::vector<nonTerminal> &nts) {
+    std::stringstream ss;
+    ss << "(expected: ";
+    for (size_t i = 0; i < nts.size(); i++)
+    {
+        ss << nonTerminalToStrings[nts[i]];
+        if (i != nts.size()-1) {
+            ss << "->";
+        }
+    }
+    ss << ")";
+
+    return ss.str();
+}
+
+
 //each rule is an OR operation. Its either this one OR the next one, so we evaluate each one until we find a match.
 validateResult SyntaxValidator::validate()
 {
@@ -188,13 +238,16 @@ validateResult SyntaxValidator::validate()
     std::stack<nonTerminal> nexts;
     nexts.push(nonTerminal::startNT);
 
+    std::vector<nonTerminal> allProccessedNTs;
+
+
     while(!nexts.empty()) {
 
         //NEXTS LOOP(THE REMAINING NON-TERMINALS TO PROCCESS)
-
+        allProccessedNTs.push_back(nexts.top());
 
         if (lastToken >= m_tokens.size()) {
-            return validateResult(false, "", lastToken-1, 0);
+            return validateResult(false, makeValidatorMessage(allProccessedNTs), lastToken-1, 0);
         }
 
 
@@ -298,7 +351,7 @@ validateResult SyntaxValidator::validate()
 
         if (!foundNonTerminalOrLambdaOnly && !foundRuleMatch) {
 
-            return validateResult(false, "",lastToken,0);
+            return validateResult(false, makeValidatorMessage(allProccessedNTs),lastToken,0);
         }
 
         for (int i = candidateStack.size()-1; i >= 0; i--) {
@@ -350,14 +403,14 @@ std::string validateResult::getString() const
 {
     std::stringstream ss;
 
-    ss << "was successful: " << (success?"true":"false") << ", line number: " << line << ", token position: " << tokenPos << ", message: " << message;
+    ss << "|validation was successful?: " << (success?"yes":"no") << ", line number: " << line << ", error token position: " << tokenPos << ", message: " << message << "|";
 
     return ss.str();
 }
 
 bool validateResult::operator==(const validateResult& rhs)
 {
-    return success == rhs.success && line == rhs.line && tokenPos == rhs.tokenPos && message == rhs.message;
+    return success == rhs.success && line == rhs.line && tokenPos == rhs.tokenPos;
 }
 
 validationError::validationError(const validateResult& res, const std::string& fileName):
@@ -366,7 +419,7 @@ validationError::validationError(const validateResult& res, const std::string& f
 {
     std::stringstream ss;
 
-    ss << m_valRes.getString() << ", filename: " << m_fileName;
+    ss << "VALIDATION ERROR!:\n\t" << m_valRes.getString() << "\nwith file/source: " << m_fileName;
 
     m_message = ss.str();
 }

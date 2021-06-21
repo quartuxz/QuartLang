@@ -212,6 +212,7 @@
     <Text Include="functions_in_variables.txt">
       <Filter>program-wide tests\source</Filter>
     </Text>
+    <Text Include="Source2.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="make_dictionary_cpp.py" />

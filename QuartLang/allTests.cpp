@@ -5,5 +5,5 @@
 
 bool doAllTests()
 {
-	return doWideTests() && doLexerTests() && doSyntaxValidatorTests();
+	return  doLexerTests() && doSyntaxValidatorTests() && doWideTests();
 }

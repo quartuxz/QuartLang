@@ -206,6 +206,7 @@
     <Text Include="README.txt" />
     <Text Include="result_test.txt" />
     <Text Include="Source.txt" />
+    <Text Include="Source2.txt" />
     <Text Include="special_func.txt" />
     <Text Include="TODO.txt" />
     <Text Include="variables_test.txt" />

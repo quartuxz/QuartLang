@@ -17,6 +17,7 @@ enum class nonTerminal {
 	skip
 };
 
+extern std::map<nonTerminal, std::string> nonTerminalToStrings;
 
 struct nonTerminalOrToken {
 

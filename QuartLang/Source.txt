@@ -1,11 +1,15 @@
 
+open "Source2.txt" as src2
 
-declare var1
+import src2
+
+
+declare variable var1
 
 declare function func1
 
-	call print-anything with "asd" as words?
-	
+	call print-anything with "asd" as words? 
+		
 finally end
 
 

@@ -11,9 +11,10 @@
 
 
 
-Lexer::Lexer(std::string filenameOrCode, const DictionaryLexer* dict, Logger* logger, bool isFileTrueIsCodeFalse):
+Lexer::Lexer(std::string filenameOrCode, const DictionaryLexer* dict, Logger* logger, bool isFileTrueIsCodeFalse, bool doLineAnalysis):
 	m_logger(logger),
-	m_dictionaryLexer(dict)
+	m_dictionaryLexer(dict),
+	m_doLineAnalysis(doLineAnalysis)
 {
 
 	m_bindFileOrCode(filenameOrCode, isFileTrueIsCodeFalse);
@@ -42,8 +43,11 @@ Lexer::Lexer(std::string filenameOrCode, const DictionaryLexer* dict, Logger* lo
 #endif
 }
 
+#include <iostream>
+
 void Lexer::m_bindFileOrCode(std::string fileName, bool isFileTrueIsCodeFalse)
 {
+	//the code
 	std::string str;
 	if (isFileTrueIsCodeFalse) {
 		std::ifstream t(fileName);
@@ -53,9 +57,67 @@ void Lexer::m_bindFileOrCode(std::string fileName, bool isFileTrueIsCodeFalse)
 		str = fileName;
 	}
 
+	//we do line analysis
+	if (m_doLineAnalysis) {
+		std::string line;
+		size_t currentLine = 1;
+		size_t lastTokenID = 0;
+
+		std::string lineAnalysed = str;
+		lineAnalysed.push_back('\n');
+
+		for (size_t i = 0; i < lineAnalysed.size(); i++) {
+
+			if (lineAnalysed[i] == '\n') {
+
+				if (!line.empty()) {
+					Lexer nestedLex(line, m_dictionaryLexer, m_logger, false, false);
+					size_t tokenSize = nestedLex.getTokens().size() - 1;
+					if (nestedLex.getTokens().at(0) != Token::lambdaTok) {
+						size_t o;
+						for (o = 0; o < tokenSize; o++) {
+							m_tokenPosToLine[o + lastTokenID] = currentLine;
+							m_logger->log("Lexer, line analysis", GetStringToken(nestedLex.getTokens().at(o)));
+						}
+
+						lastTokenID += o;
+					}
+
+				}
+
+
+
+
+
+				line = "";
+				currentLine++;
+				continue;
+			}
+			line.push_back(lineAnalysed[i]);
+		}
+		//we add the endTok
+		m_tokenPosToLine[lastTokenID] = currentLine;
+#ifdef MUST_LOG_ISHLENG
+		std::stringstream ss;
+		for (auto x : m_tokenPosToLine) {
+			ss << x.first << ", " << x.second << std::endl;
+		}
+
+
+		//std::cout << ss.str();
+
+		//m_logger->log("PAY ATTENTION HERE", ss.str());
+#endif
+	}
+
+
+
+	//we do string literal detection 
 	std::stringstream nextLiteral;
 	bool readingLiteral = false;
 	char delimiter;
+	
+
 
 	for (size_t i = 0; i < str.size(); i++) {
 		if (str[i] == '\"' || str[i] == '\"') {
@@ -194,6 +256,7 @@ void Lexer::m_tokenize()
 		m_tokens.push_back(Token::lambdaTok);
 	}
 	m_tokens.push_back(Token::endTok);
+
 }
 
 
@@ -251,6 +314,11 @@ std::string Lexer::getLiteralTokPosMinus() const
 std::string Lexer::getTagStringTokPosMinus() const
 {
 	return m_tags.at(m_currentToken-1);
+}
+
+const std::map<size_t, size_t>& Lexer::getTokenPosToLine() const noexcept
+{
+	return m_tokenPosToLine;
 }
 
 size_t Lexer::getCurrentTokenPosition() const noexcept

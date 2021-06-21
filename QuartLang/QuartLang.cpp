@@ -20,6 +20,7 @@ int main()
 	}
 	catch (const std::exception & expt) {
 		std::cout << std::endl << expt.what() << std::endl;
+		throw;
 	}
 
 

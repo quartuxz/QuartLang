@@ -37,7 +37,7 @@ bool SyntaxValidatorTest::m_doTest()
 		m_passTestType = passTestType::failure;
 	}
 
-	std::cout << res.getString();
+	//std::cout << res.getString();
 
 	return retVal;
 }

@@ -1,0 +1,6 @@
+
+declare variable var1
+
+
+
+if declare

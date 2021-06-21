@@ -1,5 +1,5 @@
 #include "Ishleng.h"
-
+#include <sstream>
 
 #define DELETE_IF_NOT_NULL(x) if(x != nullptr){ delete x; }
 
@@ -28,10 +28,35 @@ void Ishleng::validate()
 	m_syntaxValidator = new SyntaxValidator(m_logger,m_lexer->getTokens(),defaultProductions);
 
 
-	const validateResult& valRes = m_syntaxValidator->validate();
+	validateResult valRes = m_syntaxValidator->validate();
+
+#ifdef MUST_LOG_ISHLENG
+	m_logger->log("ishleng",std::to_string(m_lexer->getTokenPosToLine().size()));
+
+	m_logger->log("ishleng", std::to_string(valRes.tokenPos));
+
+
+	for (auto x : m_lexer->getTokenPosToLine()) {
+		m_logger->log("ishleng, first", std::to_string(x.first));
+		m_logger->log("ishleng, second", std::to_string(x.second));
+		m_logger->log("ishleng", "");
+	}
+#endif
+
+	valRes.line = m_lexer->getTokenPosToLine().at(valRes.tokenPos);
+
+	std::stringstream ss;
+
+	if (m_isFileTrueIsCodeFalse) {
+		ss << m_codeOrFile;
+	}
+	else {
+		ss << std::endl << "/\\/\\/\\" << std::endl << m_codeOrFile << std::endl << "/\\/\\/\\";
+	}
+
 
 	if (!valRes.success) {
-		throw validationError(valRes, m_codeOrFile);
+		throw validationError(valRes, ss.str());
 	}
 
 }

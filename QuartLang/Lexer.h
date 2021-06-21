@@ -22,6 +22,9 @@ class Lexer
 {
 private:
 
+
+	bool m_doLineAnalysis = true;
+
 	const DictionaryLexer *m_dictionaryLexer;
 
 	Logger* m_logger;
@@ -33,6 +36,8 @@ private:
 	std::vector<Token> m_tokens;
 	std::map<size_t, std::string> m_tags;
 	std::map<size_t, std::string> m_literals;
+
+	std::map<size_t, size_t> m_tokenPosToLine;
 
 	std::vector<std::string> m_preliterals;
 
@@ -53,7 +58,7 @@ private:
 
 public:
 
-	Lexer(std::string filenameOrCode, const DictionaryLexer *dict,Logger *logger,bool isFileTrueIsCodeFalse = true);
+	Lexer(std::string filenameOrCode, const DictionaryLexer *dict,Logger *logger,bool isFileTrueIsCodeFalse = true, bool doLineAnalysis = true);
 
 
 	std::vector<Token> getTokens()const noexcept;
@@ -61,6 +66,8 @@ public:
 	//returns the current token for reading sequentially
 	Token getNextToken()const noexcept;
 	size_t getCurrentTokenPosition()const noexcept;
+
+	const std::map<size_t, size_t> &getTokenPosToLine()const noexcept;
 
 
 	std::string getLiteral(size_t position)const;
