@@ -51,7 +51,7 @@ void print_anything_BIF::call(const std::map<std::string, DataStructure*>& args,
 
 void print_new_line_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
-    OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << "\n";
+    OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << std::endl;
 }
 
 void is_empty_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)

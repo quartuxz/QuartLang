@@ -13,7 +13,7 @@ enum class nonTerminal {
 	argumentsNT, arguments2NT, declareNT, finallyOpNT,  ifNT,
 	numericalComparisonNT, numericalComparison2NT, numericalComparisonOptNT,
 	setOpNT, tagOrStringLiteralNT, openOpNT, referOpNT, tagNT,
-	appendOpNT, appendOpSecondOperandNT, bindOpNT, literalNT,
+	appendOpNT, appendOpSecondOperandNT, bindOpNT, literalNT, tagOrItNT,
 	skip
 };
 

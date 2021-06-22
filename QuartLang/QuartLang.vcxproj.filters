@@ -216,6 +216,7 @@
       <Filter>program-wide tests\source</Filter>
     </Text>
     <Text Include="Source2.txt" />
+    <Text Include="repeat_function.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="make_dictionary_cpp.py" />

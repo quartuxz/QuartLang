@@ -165,8 +165,7 @@ std::map<nonTerminal, std::vector< std::vector< nonTerminalOrToken > > > default
         {Token::equalToTok},
     }},
     {nonTerminal::setOpNT, {
-        {Token::tagTok, nonTerminal::operandNT},
-        {Token::itTok, nonTerminal::operandNT}
+        {nonTerminal::tagOrItNT, nonTerminal::operandNT}
     }},
     {nonTerminal::tagOrStringLiteralNT, {
         {Token::tagTok},
@@ -178,11 +177,16 @@ std::map<nonTerminal, std::vector< std::vector< nonTerminalOrToken > > > default
     {nonTerminal::tagNT, {
         { Token::tagTok }
     } },
+    { nonTerminal::tagOrItNT, {
+        { Token::tagTok },
+        { Token::itTok }
+    } },
+
     { nonTerminal::referOpNT,{
-        {nonTerminal::operandNT, nonTerminal::tagNT, nonTerminal::tagNT }
+        {nonTerminal::operandNT, nonTerminal::tagOrItNT, nonTerminal::tagOrItNT }
     } },
     { nonTerminal::appendOpNT, {
-        { nonTerminal::operandNT, nonTerminal::appendOpSecondOperandNT, nonTerminal::tagNT }
+        { nonTerminal::operandNT, nonTerminal::appendOpSecondOperandNT, nonTerminal::tagOrItNT }
     } },
     { nonTerminal::appendOpSecondOperandNT, {
         {nonTerminal::operandNT},

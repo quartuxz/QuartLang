@@ -205,6 +205,7 @@
     <Text Include="multithreaded_proof.txt" />
     <Text Include="parser_bindings_test.txt" />
     <Text Include="README.txt" />
+    <Text Include="repeat_function.txt" />
     <Text Include="result_test.txt" />
     <Text Include="Source.txt" />
     <Text Include="Source2.txt" />
