@@ -2,52 +2,52 @@
 #include <map>
 #include <exception>
 
+#include "EngineError.h"
 #include "DataStructure.h"
-
-//observation: could make a type checker and make it so it throws this exception after parsing
-//and not during execution.
-class WrongArgsNumberException : public std::exception {
-private:
-	size_t m_expected;
-	size_t m_given;
-	std::string m_whatString;
-public:
-	WrongArgsNumberException(size_t expected, size_t given);
-	const char* what()const override;
-};
+#include "programs.h"
 
 
 class builtinFunction
 {
+protected:
+	//calls the given function, returns a pair of bool(success) and string(error message).
+	virtual std::pair<bool, std::string> call(const std::map<std::string, DataStructure*>& args, DataStructure* retval) = 0;
 public:
 
 
-	virtual void call(const std::map<std::string, DataStructure*>& args, DataStructure *retval) = 0;
+
+	//does the call with exception throwing
+	void doCall(const std::map<std::string, DataStructure*>&args, DataStructure *retval, const programContent& errorOrigin, const std::vector<std::string>& stackTrace);
 
 };
 
 
 class print_anything_BIF : public builtinFunction {
-public:
-	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+private:
+	std::pair<bool, std::string> call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };
 
 class print_new_line_BIF : public builtinFunction {
-public:
-	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+private:
+	std::pair<bool, std::string> call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };
 
 class is_empty_BIF : public builtinFunction {
-public:
-	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+private:
+	std::pair<bool, std::string> call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };
 
 class get_input_BIF : public builtinFunction {
-public:
-	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+private:
+	std::pair<bool, std::string> call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };
 
 class run_ishleng_BIF : public builtinFunction {
-public:
-	void call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+private:
+	std::pair<bool, std::string> call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
+};
+
+class unstring_BIF : public builtinFunction {
+private:
+	std::pair<bool, std::string> call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)override;
 };

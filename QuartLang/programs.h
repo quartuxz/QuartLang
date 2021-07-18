@@ -4,14 +4,6 @@
 #include "builtinFunctions.h"
 #include "Token.h"
 
-struct programContent {
-	statementType type;
-	bool isStatement;
-	size_t orderedID;
-
-
-	std::string getString()const;
-};
 
 //we define a structure for scoped blocks
 class Subprogram : public ProgramStructure<subprogramType> {

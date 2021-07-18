@@ -20,7 +20,10 @@ WideTest("functionTest","function_test.txt","0th step, 1th step, 2th step, 3th s
 WideTest("multiprocessingFibonacciTest","multiprocessing_fibonacci_test.txt","...1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657, 46368, 75025, 121393, 196418, 317811, 514229, 832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352, 24157817, 39088169, 63245986, 102334155, "),
 WideTest("includeAndBindingTest","include_and_bindings_test.txt","5xx2.5"),
 WideTest("importTest","import_test.txt","8"),
-WideTest("functionsInVariables","functions_in_variables.txt","-22")
+WideTest("functionsInVariables","functions_in_variables.txt","-22"),
+WideTest("moduloTest", "modulo_test.txt", "1"),
+WideTest("un-stringTest", "un-string_test.txt", "6.28")
+
 };
 
 bool doWideTests()

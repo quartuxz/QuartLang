@@ -176,6 +176,8 @@ void Lexer::m_bindFileOrCode(std::string fileName, bool isFileTrueIsCodeFalse)
 	m_text.push_back(' ');
 }
 
+#include "LexUtils.h"
+
 void Lexer::m_tokenize()
 {
 	//we reset the previous tokens.
@@ -214,23 +216,7 @@ void Lexer::m_tokenize()
 
 		}
 		//finding a integer or a floating point
-		else if (isdigit(currentTokenString[0]) || currentTokenString[0] == '-') {
-			bool isInteger = true;
-			for (auto x: currentTokenString) {
-				if (x == '.') {
-					isInteger = false;
-					m_addLiteral(currentTokenString, Token::floatLiteralTok);
-					break;
-				}
-			}
-			if (isInteger) {
-				m_addLiteral(currentTokenString, Token::intLiteralTok);
-			}
-		}
-		//we encounter a boolean
-		else if (currentTokenString == "true" || currentTokenString == "false") {
-			m_addLiteral(currentTokenString, Token::boolLiteralTok);
-		}
+		else LEX_NUMBER_OR_BOOL
 		else {
 			//we find the token in the list if there is one that matches
 			if (m_dictionaryLexer->checkIfStringHasToken(currentTokenString)) {
@@ -244,7 +230,7 @@ void Lexer::m_tokenize()
 				m_tags[m_tokens.size()] = currentTokenString;
 				m_tokens.push_back(Token::tagTok);
 			}
-		}
+		}     
 
 		m_logger->log("Lexer internals", currentTokenString);
 	}
@@ -298,7 +284,7 @@ Token Lexer::getNextToken() const noexcept
 void Lexer::m_addLiteral(const std::string &contents, Token type)
 {
 	m_literals[m_tokens.size()] = contents;
-	m_tokens.push_back(type);
+	m_tokens.push_back(type);  
 }
 
 std::string Lexer::getLiteral(size_t position) const

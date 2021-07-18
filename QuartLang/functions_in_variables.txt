@@ -22,10 +22,10 @@ finally give var1
 
 declare variable var1
 
-set var1 to func1
+set var1 to func2
 
 
 
-call func2 with func1 as arg1
+call var1 with func1 as arg1
 
 call print-anything with result as #1

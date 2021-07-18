@@ -45,8 +45,6 @@
       <Filter>core\lexer</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="builtinFunctions.cpp" />
-    <ClCompile Include="EnumToString.cpp" />
     <ClCompile Include="Parser.cpp">
       <Filter>core\syntax</Filter>
     </ClCompile>
@@ -87,14 +85,24 @@
     <ClCompile Include="ProgramStructure.cpp">
       <Filter>core\program structures</Filter>
     </ClCompile>
+    <ClCompile Include="EngineError.cpp">
+      <Filter>core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="EnumToString.cpp">
+      <Filter>core\lexer</Filter>
+    </ClCompile>
+    <ClCompile Include="builtinFunctions.cpp">
+      <Filter>core\program structures</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgramContent.cpp">
+      <Filter>core\program structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer.h">
       <Filter>core\lexer</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h" />
-    <ClInclude Include="builtinFunctions.h" />
-    <ClInclude Include="EnumToString.h" />
     <ClInclude Include="Parser.h">
       <Filter>core\syntax</Filter>
     </ClInclude>
@@ -138,6 +146,19 @@
     <ClInclude Include="SyntaxValidatorTest.h">
       <Filter>core\syntax</Filter>
     </ClInclude>
+    <ClInclude Include="EngineError.h">
+      <Filter>core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumToString.h">
+      <Filter>core\lexer</Filter>
+    </ClInclude>
+    <ClInclude Include="builtinFunctions.h">
+      <Filter>core\program structures</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramContent.h">
+      <Filter>core\program structures</Filter>
+    </ClInclude>
+    <ClInclude Include="LexUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Source.txt" />
@@ -217,6 +238,12 @@
     </Text>
     <Text Include="Source2.txt" />
     <Text Include="repeat_function.txt" />
+    <Text Include="modulo_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
+    <Text Include="un-string_test.txt">
+      <Filter>program-wide tests\source</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="make_dictionary_cpp.py" />

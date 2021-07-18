@@ -5,11 +5,6 @@
 
 
 
-std::map<engineErrorType, std::string> engineErrorTypeNames = {
-    {engineErrorType::tagNotFound, "tag not found"}
-
-};
-
 #define DO_OPERATION_ISHLENG(lhs, rhs, op)\
             if (lhs.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) { \
                     if (rhs.getTypeOrPrimitiveTag() == FLOAT_TYPE_STR) { \
@@ -105,12 +100,14 @@ runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainPr
         case operandType::literal:
             retval = op.literalData;
             break;
+        //we search for a given tag.
         case operandType::tag:
         {
             if (variables.find(op.tagStr) != variables.end()) {
                 retval = *variables[op.tagStr];
                 
             }
+            //the tag is not a declared variable, so it is a function.
             else if (functions.find(op.tagStr) != functions.end()) {
                 retval = DataStructure(functions[op.tagStr]);
             }
@@ -124,7 +121,7 @@ runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainPr
 
                     ss << "the given tag was not declared: " << op.tagStr;
 
-                    throw engineError(engineErrorType::tagNotFound, currentContents[currentContentID], ss.str(),p_stackTrace);
+                    throw EngineError(engineErrorType::tagNotFound, currentContents[currentContentID], ss.str(),p_stackTrace);
                 }
             }
 
@@ -139,12 +136,23 @@ runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainPr
         return retval;
     };
 
-    auto getFunction = [&](const std::string& functionName) {
+    //gets the function for the
+    auto getFunction = [&](const std::string& functionName, size_t currentContentsID) {
+        //we first try to find the function definition
         if (functions.find(functionName) != functions.end()) {
             return functions[functionName];
         }
-        else {
+        //we then try to match any variables that have the name to be called
+        else if(variables.find(functionName) != variables.end()){
             return variables[functionName]->getFunction();
+        }
+        //nothing was found, throw engine error
+        else {
+            std::stringstream ss;
+
+            ss << "the given function name was not found: " << functionName;
+
+            throw EngineError(engineErrorType::functionNotFound, currentContents[currentContentsID], ss.str(), p_stackTrace);
         }
 
     };
@@ -179,7 +187,7 @@ runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainPr
                 auto importOp = currentProgram->getImportOperation(currentContents[i].orderedID);
 
 
-                Ishleng nestedIshleng(logger,dict, opToDat(importOp->getCode(),i).getString(),false);
+                Ishleng nestedIshleng(logger, dict, opToDat(importOp->getCode(), i).getString(), {}, false);
 
                 nestedIshleng.lex();
                 nestedIshleng.validate();
@@ -344,6 +352,9 @@ runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainPr
                 case arithmeticOperationType::divide:
                     DO_OPERATION_ISHLENG(lhs, rhs, / );
                     break;
+                case arithmeticOperationType::modulo:
+                    *result = lhs.getIntData() % rhs.getIntData();
+                    break;
                 default:
                     break;
                 }
@@ -375,11 +386,11 @@ runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainPr
                 if(!fCall->getIsMultithreaded()){
                     if (builtin != nullptr) {
 
-                        builtin->call(realArgs, result);
+                        builtin->doCall(realArgs, result, currentContents[currentContentsOrderedId],stackTracePlusThisFunction);
                     }
                     //a builtin was not found
                     else {
-                        m_run(logger,dict,mainProgram,getFunction(fCall->getFunctionCalledTag()), stackTracePlusThisFunction,START_FROM_ZERO,result,realArgs,functions);
+                        m_run(logger,dict,mainProgram,getFunction(fCall->getFunctionCalledTag(),currentContentsOrderedId), stackTracePlusThisFunction,START_FROM_ZERO,result,realArgs,functions);
                     }
                 }
                 //multithreaded function call.
@@ -387,13 +398,13 @@ runType m_run(Logger* logger, const DictionaryLexer* dict, const Program* mainPr
                     auto threadInstanceID = getNewID();
                     if (builtin != nullptr) {
                         DataStructure* mtRes = new DataStructure();
-                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(&builtinFunction::call, builtin, realArgs, mtRes)));
+                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(&builtinFunction::doCall, builtin, realArgs, mtRes,currentContents[currentContentsOrderedId],stackTracePlusThisFunction)));
                         
                     }
                     //a builtin was not found
                     else {
                         DataStructure* mtRes = new DataStructure();
-                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(m_run, logger, dict, mainProgram, getFunction(fCall->getFunctionCalledTag()), stackTracePlusThisFunction,START_FROM_ZERO, mtRes, realArgs, functions)));
+                        addThread(threadInstanceID, std::pair<DataStructure*, std::thread*>(mtRes, new std::thread(m_run, logger, dict, mainProgram, getFunction(fCall->getFunctionCalledTag(),currentContentsOrderedId), stackTracePlusThisFunction,START_FROM_ZERO, mtRes, realArgs, functions)));
                     }
                     *result = DataStructure((int)threadInstanceID);
                 }
@@ -467,26 +478,3 @@ runType Engine::run()
     return m_run(m_logger, m_dict, m_program, m_program, {"start"});
 }
 
-engineError::engineError(engineErrorType errorType, const programContent& errorOrigin, const std::string& message, const std::vector<std::string>& stackTrace):
-    m_errorType(errorType),
-    m_errorOrigin(errorOrigin),
-    m_message(message),
-    m_stackTrace(stackTrace)
-{
-
-    std::stringstream stackTraceMessage;
-
-    for (auto x : m_stackTrace)
-    {
-        stackTraceMessage << "->" << x;
-    }
-
-    std::stringstream ss;
-    ss << "ENGINE ERROR!: \n\t"<<"|error type: " << engineErrorTypeNames[m_errorType] << ", " << m_errorOrigin.getString() <<", stack trace: "<< stackTraceMessage.str() <<", message: (" << m_message << ")|";
-    m_errorMessage = ss.str();
-}
-
-const char* engineError::what() const
-{
-    return m_errorMessage.c_str();
-}

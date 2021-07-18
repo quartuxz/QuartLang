@@ -3,6 +3,10 @@
 
 
 
+
+
+
+
 declare function f1
 
 	call print-anything with "asd" as /

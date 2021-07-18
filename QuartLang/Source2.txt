@@ -1,9 +1,21 @@
 
-(comment) file is "Source2.txt"
+
+modulo 5 by 3
+
+call print-anything with result as .
 
 
-declare variable var1
+call get-input
 
+call un-string with result as #1
 
+declare variable var1 then set it to result
 
-if declare
+if var1
+	call print-anything with "asd" as #1
+	
+finally end
+
+add var1 to var1
+
+call print-anything with result as #1

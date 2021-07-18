@@ -47,7 +47,7 @@ public:
 
 
 enum class arithmeticOperationType {
-	add, subtract, multiply, divide
+	add, subtract, multiply, divide, modulo
 };
 
 class arithmeticOperation : public ProgramStructure<statementType> {

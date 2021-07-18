@@ -1,0 +1,12 @@
+
+
+declare variable var1
+
+set var1 to "-3.14"
+
+call un-string with var1 as .
+
+multiply result by -2
+
+call print-anything with result as .
+

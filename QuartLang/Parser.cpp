@@ -205,7 +205,7 @@ void Parser::m_makeProgram(const Lexer* lexer)
 			currentToken = lexer->getNextToken();
 
 
-			Ishleng nestedIshleng(m_logger, lexer->getDictionaryLexer(), getBinding(currentToken, lexer).second,false);
+			Ishleng nestedIshleng(m_logger, lexer->getDictionaryLexer(), getBinding(currentToken, lexer).second, {}, false);
 
 			nestedIshleng.lex();
 			nestedIshleng.validate();
@@ -448,6 +448,7 @@ void Parser::m_makeProgram(const Lexer* lexer)
 		case Token::multiplyTok:
 		case Token::subtractTok:
 		case Token::addTok:
+		case Token::moduloTok:
 		{
 			addProgramContent(statementType::arithmeticOperationSttt);
 
@@ -476,6 +477,9 @@ void Parser::m_makeProgram(const Lexer* lexer)
 				break;
 			case Token::addTok:
 				arithmeticOpType = arithmeticOperationType::add;
+				break;
+			case Token::moduloTok:
+				arithmeticOpType = arithmeticOperationType::modulo;
 				break;
 			}
 			currentProgram->m_arithmeticOperations[currentStructure] = new arithmeticOperation(currentStructure, arithmeticOpType, operands[0], operands[1]);
@@ -562,18 +566,21 @@ void Parser::m_makeProgram()
 	m_makeProgram(m_lexer);
 }
 
-Parser::Parser(const Lexer* lexer, Logger *logger):
+Parser::Parser(const Lexer* lexer, Logger *logger, std::map<std::string, builtinFunction*> extraBuiltins):
 	m_lexer(lexer),
 	m_program(),
 	m_logger(logger)
 {
 	m_makeProgram();
+	//we include the extra builtins
+	m_program.m_includedBuiltins = extraBuiltins;
 	//we include all the basic BIFs
 	m_program.m_includedBuiltins["print-anything"] = new print_anything_BIF();
 	m_program.m_includedBuiltins["print-new-line"] = new print_new_line_BIF();
 	m_program.m_includedBuiltins["is-empty"] = new is_empty_BIF();
 	m_program.m_includedBuiltins["get-input"] = new get_input_BIF();
 	m_program.m_includedBuiltins["run-ishleng"] = new run_ishleng_BIF();
+	m_program.m_includedBuiltins["un-string"] = new unstring_BIF();
 }
 
 const Program* Parser::getProgram() const noexcept

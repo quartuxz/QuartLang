@@ -4,8 +4,11 @@
 #define DELETE_IF_NOT_NULL(x) if(x != nullptr){ delete x; }
 
 
+std::map<std::string, builtinFunction*> Ishleng::m_wideExtraBuiltins = {};
 
-Ishleng::Ishleng(Logger* logger, const DictionaryLexer* dict, const std::string& codeOrFile, bool isFileTrueIsCodeFalse):
+
+
+Ishleng::Ishleng(Logger * logger, const DictionaryLexer * dict, const std::string & codeOrFile, std::map<std::string, builtinFunction*> extraBuiltins, bool isFileTrueIsCodeFalse) :
 	m_logger(logger),
 	m_dictionaryLexer(dict),
 	m_lexer(nullptr),
@@ -13,7 +16,8 @@ Ishleng::Ishleng(Logger* logger, const DictionaryLexer* dict, const std::string&
 	m_parser(nullptr),
 	m_engine(nullptr),
 	m_codeOrFile(codeOrFile),
-	m_isFileTrueIsCodeFalse(isFileTrueIsCodeFalse)
+	m_isFileTrueIsCodeFalse(isFileTrueIsCodeFalse),
+	m_extraBuiltins(extraBuiltins)
 {
 }
 
@@ -65,7 +69,12 @@ void Ishleng::validate()
 void Ishleng::parse()
 {
 	DELETE_IF_NOT_NULL(m_parser);
-	m_parser = new Parser(m_lexer,m_logger);
+
+	auto allExtraBuiltins = m_extraBuiltins;
+
+	allExtraBuiltins.insert(m_wideExtraBuiltins.begin(), m_wideExtraBuiltins.end());
+
+	m_parser = new Parser(m_lexer,m_logger,allExtraBuiltins);
 }
 
 runType Ishleng::run()
@@ -73,6 +82,11 @@ runType Ishleng::run()
 	DELETE_IF_NOT_NULL(m_engine);
 	m_engine = new Engine(m_parser->getProgram(),m_dictionaryLexer, m_logger);
 	return m_engine->run();
+}
+
+void Ishleng::setWideExtraBuiltins(std::map<std::string, builtinFunction*> wideExtraBuiltins)noexcept
+{
+	m_wideExtraBuiltins = wideExtraBuiltins;
 }
 
 const Lexer* Ishleng::getLexer() const noexcept

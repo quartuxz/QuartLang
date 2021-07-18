@@ -4,20 +4,6 @@
 #include "tests.h"
 #include "Ishleng.h"
 
-WrongArgsNumberException::WrongArgsNumberException(size_t expected, size_t given) :
-    m_expected(expected),
-    m_given(given)
-{
-    std::stringstream ss;
-    ss << "the function expected " << m_expected << ", arguments but received " << m_given << ".";
-    m_whatString = ss.str();
-}
-
-const char* WrongArgsNumberException::what() const
-{
-
-    return m_whatString.c_str();
-}
 
 #ifdef MUST_TEST_ISHLENG
 #define OUTPUT_STREAM_TEST_OR_REAL_ISHLENG testOutput
@@ -25,12 +11,13 @@ const char* WrongArgsNumberException::what() const
 #define OUTPUT_STREAM_TEST_OR_REAL_ISHLENG std::cout
 #endif
 
+#define WRONG_ARGS "wrong argument size"
+#define WRONG_TYPE "wrong type"
 
-
-void print_anything_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+std::pair<bool, std::string> print_anything_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
-    if (args.size() > 1) {
-        throw WrongArgsNumberException(1, args.size());
+    if (args.size() != 1) {
+        return { false, WRONG_ARGS };
     }
     if (args.begin()->second->getTypeOrPrimitiveTag() == "string") {
         OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.begin()->second->getString();
@@ -47,26 +34,35 @@ void print_anything_BIF::call(const std::map<std::string, DataStructure*>& args,
     else if (args.begin()->second->getTypeOrPrimitiveTag() == "char") {
         OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << args.begin()->second->getCharData();
     }
+    else {
+        return { false, WRONG_TYPE };
+    }
+
+    return {true, ""};
+
 }
 
-void print_new_line_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+std::pair<bool, std::string> print_new_line_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
     OUTPUT_STREAM_TEST_OR_REAL_ISHLENG << std::endl;
+    return { true, "" };
 }
 
-void is_empty_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+std::pair<bool, std::string> is_empty_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
     *retval = DataStructure(args.begin()->second->isEmpty());
+    return {true, ""};
 }
 
-void get_input_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+std::pair<bool, std::string> get_input_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
     std::string inString;
     std::cin >> inString;
     *retval = DataStructure(inString);
+    return { true, "" };
 }
 
-void run_ishleng_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+std::pair<bool, std::string> run_ishleng_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
 {
 
     Logger logger;
@@ -79,5 +75,55 @@ void run_ishleng_BIF::call(const std::map<std::string, DataStructure*>& args, Da
     ishleng.lex();
     ishleng.parse();
     *retval = DataStructure((int)ishleng.run());
+    return { true, "" };
 
+}
+
+void builtinFunction::doCall(const std::map<std::string, DataStructure*>& args, DataStructure* retval, const programContent& errorOrigin, const std::vector<std::string>& stackTrace)
+{
+    
+    auto callRes = call(args,retval);
+    if (!callRes.first) {
+        throw EngineError(engineErrorType::builtinError, errorOrigin, callRes.second, stackTrace);
+    }
+
+}
+
+#include "LexUtils.h"
+
+std::pair<bool, std::string> unstring_BIF::call(const std::map<std::string, DataStructure*>& args, DataStructure* retval)
+{
+    if (args.size() != 1) {
+        return {false, WRONG_ARGS};
+    }
+
+    if (args.begin()->second->getTypeOrPrimitiveTag() != STRING_TYPE_STR) {
+        return { false, WRONG_TYPE };
+    }
+
+    auto m_addLiteral = [retval](const std::string & str, Token type) {
+        switch (type)
+        {
+        case Token::boolLiteralTok:
+            if (str == "true") {
+                *retval = DataStructure(true);
+            }else{
+                *retval = DataStructure(false);
+            }
+            break;
+        case Token::floatLiteralTok:
+            *retval = DataStructure((float)std::atof(str.c_str()));
+            break;
+        case Token::intLiteralTok:
+            *retval = DataStructure((int)std::atoi(str.c_str()));
+            break;
+        }
+        
+    };
+
+    auto currentTokenString = args.begin()->second->getString();
+
+    LEX_NUMBER_OR_BOOL;
+
+    return {true, ""};
 }

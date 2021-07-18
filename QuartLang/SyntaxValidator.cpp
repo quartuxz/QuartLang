@@ -68,6 +68,7 @@ std::map<nonTerminal, std::vector< std::vector< nonTerminalOrToken > > > default
         { Token::subtractTok, nonTerminal::arithmeticOpNT},
         { Token::multiplyTok, nonTerminal::arithmeticOpNT},
         { Token::divideTok , nonTerminal::arithmeticOpNT},
+        { Token::moduloTok , nonTerminal::arithmeticOpNT},
         { Token::evaluateTok, nonTerminal::evaluateOpNT},
         { Token::callFunctionTok, nonTerminal::functionCallOpNT},
         { Token::declareTok, nonTerminal::declareNT},

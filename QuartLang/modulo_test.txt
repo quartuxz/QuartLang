@@ -1,0 +1,5 @@
+
+
+modulo 5 by 2
+
+call print-anything on result as .

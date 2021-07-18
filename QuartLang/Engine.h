@@ -3,28 +3,12 @@
 #include "Logger.h"
 #include <exception>
 
+#include "EngineError.h"
+
  enum class runType {
 	success
 };
 
-
- enum class engineErrorType {
-	tagNotFound,
- };
-
- extern std::map<engineErrorType, std::string> engineErrorTypeNames;
-
- class engineError : public std::exception {
- private:
-	 engineErrorType m_errorType;
-	 programContent m_errorOrigin;
-	 std::string m_message;
-	 std::vector<std::string> m_stackTrace;
-	 std::string m_errorMessage;
- public:
-	 engineError(engineErrorType errorType, const programContent& errorOrigin, const std::string &message, const std::vector<std::string>& stackTrace );
-	 const char* what()const override;
- };
 
 
 class Engine

@@ -34,9 +34,11 @@ protected:
 	void m_makeProgram(const Lexer *lexer);
 	void m_makeProgram();
 public:
-	Parser(const Lexer* lexer, Logger *logger);
+	Parser(const Lexer* lexer, Logger* logger, std::map<std::string, builtinFunction*> extraBuiltins = {});
 	
 	static std::vector<functionBlock*> getFunctionsOnly(const Lexer *lexer, Logger *logger, const Subprogram *parentProgram = nullptr);
+
+
 
 
 	const Program *getProgram()const noexcept;
