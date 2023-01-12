@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Ishleng.h"
+#include <sstream>
 #include <mutex>
 #include <thread>
 
